@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import type { FastifyRequest } from "fastify";
 import { buildServer } from "../server";
+import { requireAuthenticatedUserId } from "../utils/auth";
 
 const predictionBody = {
      age: 28,
@@ -45,23 +47,12 @@ test("public prediction route validates Celsius inputs before persistence", asyn
      assert.equal(response.json().code, "VALIDATION_ERROR");
 });
 
-test("patient assessment route requires authentication", async (context) => {
-     const server = buildServer({ logger: false });
-     context.after(() => server.close());
+test("protected operations use the temporary demo actor without a session", () => {
+     const request = {
+          user: null
+     } as unknown as FastifyRequest;
 
-     const response = await server.inject({
-          method: "POST",
-          url: "/api/patients/pat-example/assessments",
-          payload: {
-               ...predictionBody,
-               gestationalAge: 24,
-               firstPregnancy: true,
-               previousComplications: null
-          }
-     });
-
-     assert.equal(response.statusCode, 401);
-     assert.equal(response.json().code, "AUTHENTICATION_REQUIRED");
+     assert.equal(requireAuthenticatedUserId(request), "demo-user");
 });
 
 test("production login sets a cross-site session cookie for valid demo credentials", async (context) => {
@@ -108,46 +99,6 @@ test("login rejects invalid demo credentials without setting a cookie", async (c
      assert.equal(response.statusCode, 401);
      assert.equal(response.json().code, "INVALID_CREDENTIALS");
      assert.equal(response.headers["set-cookie"], undefined);
-});
-
-test("new patient assessment route requires authentication", async (context) => {
-     const server = buildServer({ logger: false });
-     context.after(() => server.close());
-
-     const response = await server.inject({
-          method: "POST",
-          url: "/api/patients/assessments",
-          payload: {
-               ...predictionBody,
-               firstname: "Amina",
-               middlename: null,
-               lastname: "Bello",
-               dob: "2000-01-01",
-               email: "amina@example.com",
-               phone: null,
-               gestationalAge: 24,
-               firstPregnancy: true,
-               previousComplications: null
-          }
-     });
-
-     assert.equal(response.statusCode, 401);
-     assert.equal(response.json().code, "AUTHENTICATION_REQUIRED");
-});
-
-test("patient and dashboard reads require authentication", async (context) => {
-     const server = buildServer({ logger: false });
-     context.after(() => server.close());
-
-     const [patientsResponse, dashboardResponse] = await Promise.all([
-          server.inject({ method: "GET", url: "/api/patients" }),
-          server.inject({ method: "GET", url: "/api/dashboard" })
-     ]);
-
-     assert.equal(patientsResponse.statusCode, 401);
-     assert.equal(patientsResponse.json().code, "AUTHENTICATION_REQUIRED");
-     assert.equal(dashboardResponse.statusCode, 401);
-     assert.equal(dashboardResponse.json().code, "AUTHENTICATION_REQUIRED");
 });
 
 test("patient registration rejects whitespace-only names before persistence", async (context) => {

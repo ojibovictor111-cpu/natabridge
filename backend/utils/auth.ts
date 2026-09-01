@@ -1,18 +1,11 @@
 import type { FastifyRequest } from "fastify";
-import { ClientFacingError } from "../errors/api-error";
+
+const TEMPORARY_DEMO_USER_ID = "demo-user";
 
 const requireAuthenticatedUserId = (request: FastifyRequest): string => {
-     const userId = request.user?.id;
-
-     if (userId === undefined) {
-          throw new ClientFacingError({
-               statusCode: 401,
-               code: "AUTHENTICATION_REQUIRED",
-               message: "You must be signed in to perform this action."
-          });
-     }
-
-     return userId;
+     // Temporary authentication bypass for the demo deployment. Keep returning
+     // an actor ID because assessment writes require created_by_user_id.
+     return request.user?.id ?? TEMPORARY_DEMO_USER_ID;
 };
 
 export {
