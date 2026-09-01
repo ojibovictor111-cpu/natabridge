@@ -30,9 +30,11 @@
         <a
           class="patient-record-button"
           [routerLink]="['/dashboard/patients', patient.id, 'assessment']"
-          aria-label="Start follow-up assessment"
+          [attr.aria-label]="
+            patient.lastAssessment ? 'Take another assessment' : 'Take new assessment'
+          "
         >
-          <span>Start follow-up</span>
+          <span>{{ patient.lastAssessment ? 'Take another assessment' : 'Take new assessment' }}</span>
         </a>
       </div>
     </header>

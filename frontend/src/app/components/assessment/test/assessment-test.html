@@ -8,11 +8,22 @@
     <div class="assessment-heading-row">
       <div>
         <h1 id="assessment-page-title">
-          {{ userAuthenticated() ? 'New maternal assessment' : 'Maternal health risk assessment' }}
+          {{
+            userAuthenticated()
+              ? hasPreviousAssessment()
+                ? 'Another maternal assessment'
+                : 'New maternal assessment'
+              : 'Maternal health risk assessment'
+          }}
         </h1>
         <p>
           @if (userAuthenticated()) {
-            Capture the patient’s details and current measurements for a structured risk review.
+            @if (patientId()) {
+              Capture current measurements for a structured risk review. The patient’s saved record
+              will be used automatically.
+            } @else {
+              Capture the patient’s details and current measurements for a structured risk review.
+            }
           } @else {
             Enter your current measurements to receive an instant maternal-health risk estimate.
           }
@@ -223,19 +234,26 @@
       }
 
       <mat-step [stepControl]="pregnancyInformationFormGroup">
-        <ng-template matStepLabel>Pregnancy</ng-template>
+        <ng-template matStepLabel>Additional information</ng-template>
 
         <form class="assessment-step-form" [formGroup]="pregnancyInformationFormGroup">
           <section class="assessment-card">
             <header class="form-section-heading">
-              <span class="section-number">02</span>
+              <span class="section-number">{{ patientId() ? '01' : '02' }}</span>
               <div>
-                <h2>Pregnancy information</h2>
-                <p>Context that helps the model interpret the patient’s current readings.</p>
+                <h2>Additional information</h2>
+                <p>
+                  {{
+                    hasPreviousAssessment()
+                      ? 'Add any pregnancy complications that are relevant to this assessment.'
+                      : 'Context that helps the model interpret the patient’s current readings.'
+                  }}
+                </p>
               </div>
             </header>
 
             <div class="form-grid form-grid--two">
+              @if (!hasPreviousAssessment()) {
               <div class="form-field">
                 <label for="gestationalAge">
                   Gestational age <span class="field-unit">Weeks</span>
@@ -277,6 +295,7 @@
                   <option [ngValue]="false">No</option>
                 </select>
               </div>
+              }
 
               <div class="form-field form-field--full">
                 <label for="previousComplications">
@@ -293,7 +312,7 @@
           </section>
 
           <footer class="assessment-form-actions">
-            <span>Step 2 of 3</span>
+            <span>{{ patientId() ? 'Step 1 of 2' : 'Step 2 of 3' }}</span>
             <div class="assessment-action-group">
               <button
                 class="assessment-button assessment-button--secondary"
@@ -326,7 +345,7 @@
         >
           <section class="assessment-card">
             <header class="form-section-heading">
-              <span class="section-number">03</span>
+              <span class="section-number">{{ patientId() ? '02' : '03' }}</span>
               <div>
                 <h2>Health measurements</h2>
                 <p>Use the patient’s most recent clinically measured vital signs.</p>
@@ -337,7 +356,7 @@
           </section>
 
           <footer class="assessment-form-actions">
-            <span>Step 3 of 3</span>
+            <span>{{ patientId() ? 'Step 2 of 2' : 'Step 3 of 3' }}</span>
             <div class="assessment-action-group">
               <button
                 class="assessment-button assessment-button--secondary"

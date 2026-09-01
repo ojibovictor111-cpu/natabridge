@@ -21,8 +21,7 @@ CREATE TABLE patients (
         CHECK (email IS NOT NULL OR phone IS NOT NULL)
 );
 
--- One row is created for every prediction attempt, including standalone runs.
--- Model inputs live here because a prediction run does not require a patient.
+-- One row is created for every prediction attempt, including standalone runs. Model inputs live here because a prediction run does not require a patient.
 CREATE TABLE prediction_runs (
     id VARCHAR(50) PRIMARY KEY,
 
@@ -91,8 +90,7 @@ CREATE TABLE prediction_runs (
         )
 );
 
--- A patient assessment is clinical context attached to one completed prediction
--- run. It can never exist without both a real patient and a prediction run.
+-- A patient assessment is clinical context attached to one completed prediction run. It can never exist without both a real patient and a prediction run.
 CREATE TABLE assessments (
     id VARCHAR(50) PRIMARY KEY,
     patient_id VARCHAR(50) NOT NULL,
@@ -117,8 +115,7 @@ CREATE TABLE assessments (
         ON DELETE RESTRICT
 );
 
--- A completed prediction run has one structured result. response_payload keeps
--- the complete AI response, including recommendations and any future fields.
+-- A completed prediction run has one structured result. response_payload keeps the complete AI response, including recommendations and any future fields.
 CREATE TABLE prediction_results (
     id VARCHAR(50) PRIMARY KEY,
     prediction_run_id VARCHAR(50) NOT NULL UNIQUE,

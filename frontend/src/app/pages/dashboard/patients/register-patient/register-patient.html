@@ -1,0 +1,99 @@
+<section class="register-patient-page">
+  <a class="patient-detail-back" routerLink="/dashboard/patients">
+    <ng-icon name="lucideArrowLeft" aria-hidden="true" />
+    Back to patients
+  </a>
+
+  <section class="assessment-form-shell" aria-labelledby="register-patient-title">
+    <header class="assessment-page-heading">
+      <span class="assessment-kicker">Patient management</span>
+      <div class="assessment-heading-row">
+        <div>
+          <h1 id="register-patient-title">Register new patient</h1>
+          <p>Create a patient record now. An assessment can be taken separately when required.</p>
+        </div>
+        <span class="assessment-duration">2 sections · About 3 minutes</span>
+      </div>
+    </header>
+
+    @if (errorMessage(); as error) {
+      <div class="assessment-error-banner" role="alert"><span aria-hidden="true">!</span><p>{{ error }}</p></div>
+    }
+
+    <form class="registration-form" [formGroup]="registrationForm" (ngSubmit)="submit()">
+      <section class="assessment-card">
+        <header class="form-section-heading">
+          <span class="section-number">01</span>
+          <div><h2>Personal information</h2><p>Basic identifying and contact information for the patient record.</p></div>
+        </header>
+
+        <div class="form-grid form-grid--three">
+          <div class="form-field">
+            <label for="firstName">First name <span class="required-marker">*</span></label>
+            <input id="firstName" type="text" formControlName="firstName" autocomplete="given-name" placeholder="e.g. Amina" />
+            @if (registrationForm.controls.firstName.invalid && registrationForm.controls.firstName.touched) { <p class="field-error">Enter the patient’s first name.</p> }
+          </div>
+          <div class="form-field">
+            <label for="lastName">Last name <span class="required-marker">*</span></label>
+            <input id="lastName" type="text" formControlName="lastName" autocomplete="family-name" placeholder="e.g. Bello" />
+            @if (registrationForm.controls.lastName.invalid && registrationForm.controls.lastName.touched) { <p class="field-error">Enter the patient’s last name.</p> }
+          </div>
+          <div class="form-field">
+            <label for="middleName">Middle name <span class="optional-label">Optional</span></label>
+            <input id="middleName" type="text" formControlName="middleName" autocomplete="additional-name" placeholder="e.g. Zainab" />
+          </div>
+          <div class="form-field">
+            <label for="dob">Date of birth <span class="required-marker">*</span></label>
+            <input id="dob" type="date" formControlName="dob" autocomplete="bday" [max]="maximumDateOfBirth" />
+            @if (registrationForm.controls.dob.invalid && registrationForm.controls.dob.touched) { <p class="field-error">Select the patient’s date of birth.</p> }
+          </div>
+          <div class="form-field">
+            <label for="email">Email address <span class="optional-label">Optional</span></label>
+            <input id="email" type="email" formControlName="email" autocomplete="email" placeholder="amina@example.com" />
+            @if (registrationForm.controls.email.invalid && registrationForm.controls.email.touched) { <p class="field-error">Enter a valid email address.</p> }
+          </div>
+          <div class="form-field">
+            <label for="phone">Phone number <span class="optional-label">Optional</span></label>
+            <input id="phone" type="tel" formControlName="phone" autocomplete="tel" placeholder="e.g. +234 800 000 0000" />
+          </div>
+        </div>
+
+        @if (registrationForm.hasError('contactRequired') && registrationForm.touched) {
+          <p class="contact-error">Provide at least one contact method: email or phone.</p>
+        }
+      </section>
+
+      <section class="assessment-card">
+        <header class="form-section-heading">
+          <span class="section-number">02</span>
+          <div><h2>Additional information</h2><p>Optional pregnancy context to complete the patient’s record.</p></div>
+        </header>
+
+        <div class="form-grid form-grid--two">
+          <div class="form-field">
+            <label for="gestationalAge">Gestational age <span class="field-unit">Weeks</span> <span class="optional-label">Optional</span></label>
+            <input id="gestationalAge" type="number" min="1" max="45" formControlName="gestationalAge" placeholder="e.g. 24" />
+            @if (registrationForm.controls.gestationalAge.invalid && registrationForm.controls.gestationalAge.touched) { <p class="field-error">Enter a value between 1 and 45 weeks.</p> }
+          </div>
+          <div class="form-field">
+            <label for="firstPregnancy">Is this the first pregnancy? <span class="optional-label">Optional</span></label>
+            <select id="firstPregnancy" formControlName="firstPregnancy"><option [ngValue]="null">Select an answer</option><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option></select>
+          </div>
+          <div class="form-field form-field--full">
+            <label for="previousComplications">Previous pregnancy complications <span class="optional-label">Optional</span></label>
+            <textarea id="previousComplications" formControlName="previousComplications" rows="4" placeholder="Describe any previous complications that may be clinically relevant"></textarea>
+            <p class="field-hint">Maximum 2,000 characters.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="registration-actions">
+        <a class="assessment-button assessment-button--secondary" routerLink="/dashboard/patients">Cancel</a>
+        <button class="assessment-button assessment-button--primary" type="submit" [disabled]="submitting()">
+          <ng-icon name="lucideUserPlus" aria-hidden="true" />
+          {{ submitting() ? 'Registering patient…' : 'Register patient' }}
+        </button>
+      </footer>
+    </form>
+  </section>
+</section>

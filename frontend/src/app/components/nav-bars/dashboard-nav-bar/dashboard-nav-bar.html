@@ -12,7 +12,13 @@
     </span>
   </a>
 
-  <p class="nav-label">Clinical workspace</p>
+  <label class="sidebar-search">
+    <span aria-hidden="true">⌕</span>
+    <input type="search" placeholder="Search" aria-label="Search dashboard" />
+    <kbd>⌘ K</kbd>
+  </label>
+
+  <p class="nav-label">Main menu</p>
   <div class="nav-group">
     <a
       class="nav-item"
@@ -44,7 +50,7 @@
     </button>
   </div>
 
-  <p class="nav-label system-label">System</p>
+  <p class="nav-label system-label">Other</p>
   <div class="nav-group">
     <button class="nav-item" type="button" disabled title="Analytics are coming soon">
       <ng-icon name="lucideChartNoAxesCombined" aria-hidden="true" />
@@ -55,6 +61,15 @@
       <span>Settings</span>
     </a>
   </div>
+
+  <aside class="upgrade-card">
+    <p>Get more insights from every patient assessment.</p>
+    <a routerLink="profile">✦ Explore features</a>
+  </aside>
+
+  <a class="sidebar-profile" routerLink="profile" (click)="toggleSidebar()">
+    <span>JS</span><div><strong>Jane Smith</strong><small>Health coordinator</small></div><b>⌄</b>
+  </a>
 
   <button class="nav-item mobile-logout" type="button" (click)="logout()">
     <ng-icon name="hugeLogout01" aria-hidden="true" />

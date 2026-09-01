@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -68,6 +68,8 @@ export class AssessmentTest {
 
   readonly userAuthenticated = input(false);
   readonly patientId = input<string | null>(null);
+  readonly patientAge = input<number | null>(null);
+  readonly hasPreviousAssessment = input(false);
   readonly maximumDateOfBirth = this.formatDateForInput(new Date());
   readonly submissionError = this.assessmentService.errorMessage.asReadonly();
 
@@ -130,6 +132,36 @@ export class AssessmentTest {
     dobControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((dateOfBirth) => this.updateAgeFromDateOfBirth(dateOfBirth));
+
+    effect(() => {
+      const patientAge = this.patientAge();
+
+      if (this.patientId() && patientAge !== null) {
+        this.healthMeasurementsFormGroup.controls.age.setValue(patientAge, {
+          emitEvent: false,
+        });
+      }
+    });
+
+    effect(() => {
+      const gestationalAgeControl = this.pregnancyInformationFormGroup.controls.gestationalAge;
+
+      if (this.hasPreviousAssessment()) {
+        gestationalAgeControl.clearValidators();
+        gestationalAgeControl.setValue(null, { emitEvent: false });
+        this.pregnancyInformationFormGroup.controls.firstPregnancy.setValue(null, {
+          emitEvent: false,
+        });
+      } else {
+        gestationalAgeControl.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(45),
+        ]);
+      }
+
+      gestationalAgeControl.updateValueAndValidity({ emitEvent: false });
+    });
   }
 
   prepareDataForSubmission(): AssessmentFormData {

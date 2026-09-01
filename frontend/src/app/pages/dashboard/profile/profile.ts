@@ -1,46 +1,126 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideEdit3 } from '@ng-icons/lucide';
-import { PatientService } from '../../../services/patient/patient-service';
-import { Router } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideBell,
+  lucideCheck,
+  lucideEdit3,
+  lucideLogOut,
+  lucideMail,
+  lucidePhone,
+  lucideShieldCheck,
+  lucideUserRound,
+  lucideX,
+} from '@ng-icons/lucide';
+import { AuthService } from '../../../services/auth/auth-service';
+
+interface ProfileData {
+  fullName: string;
+  email: string;
+  phone: string;
+  role: string;
+}
+
+const defaultProfile: ProfileData = {
+  fullName: 'Jane Smith',
+  email: 'jane.smith@natabridge.health',
+  phone: '+234 800 000 0000',
+  role: 'Health coordinator',
+};
 
 @Component({
   selector: 'nata-profile',
-  imports: [NgIcon],
+  imports: [NgIcon, ReactiveFormsModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
   viewProviders: [
     provideIcons({
-      lucideEdit3
-    })
-  ]
+      lucideBell,
+      lucideCheck,
+      lucideEdit3,
+      lucideLogOut,
+      lucideMail,
+      lucidePhone,
+      lucideShieldCheck,
+      lucideUserRound,
+      lucideX,
+    }),
+  ],
 })
-export class Profile implements OnInit {
-  id = input<string | null>();
-  profileType = input<'user' | 'patient'>();
-  router = inject(Router);
-  patientService = inject(PatientService);
+export class Profile {
+  private readonly authService = inject(AuthService);
 
-  isPatient() {
-    return this.profileType() === 'patient'
+  readonly profile = signal<ProfileData>(this.readStoredProfile());
+  readonly isEditing = signal(false);
+  readonly saved = signal(false);
+  readonly emailNotifications = signal(true);
+  readonly criticalAlerts = signal(true);
+  readonly initials = computed(() =>
+    this.profile()
+      .fullName.trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join(''),
+  );
+
+  readonly profileForm = new FormGroup({
+    fullName: new FormControl(defaultProfile.fullName, {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    email: new FormControl(defaultProfile.email, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    phone: new FormControl(defaultProfile.phone, { nonNullable: true }),
+  });
+
+  constructor() {
+    this.profileForm.reset(this.profile());
   }
 
-  async ngOnInit() {
-    if(this.isPatient() && this.id() === null){
-      this.router.navigateByUrl('dashboard')
-      return
+  startEditing() {
+    this.saved.set(false);
+    this.profileForm.reset(this.profile());
+    this.isEditing.set(true);
+  }
+
+  cancelEditing() {
+    this.profileForm.reset(this.profile());
+    this.isEditing.set(false);
+  }
+
+  saveProfile() {
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
     }
 
-    const patientId = this.id()! 
-    if(patientId)
-      this.patientService.getPatient(patientId);
+    const updatedProfile: ProfileData = {
+      ...this.profile(),
+      ...this.profileForm.getRawValue(),
+    };
+
+    this.profile.set(updatedProfile);
+    sessionStorage.setItem('dashboard_profile', JSON.stringify(updatedProfile));
+    this.isEditing.set(false);
+    this.saved.set(true);
   }
 
-  user = signal<{
-    age: number;
-    name: string
-  }>({
-    age: 25,
-    name: "james samuel"
-  });
+  logout() {
+    void this.authService.logout();
+  }
+
+  private readStoredProfile(): ProfileData {
+    const storedProfile = sessionStorage.getItem('dashboard_profile');
+
+    if (!storedProfile) return defaultProfile;
+
+    try {
+      return { ...defaultProfile, ...(JSON.parse(storedProfile) as Partial<ProfileData>) };
+    } catch {
+      return defaultProfile;
+    }
+  }
 }

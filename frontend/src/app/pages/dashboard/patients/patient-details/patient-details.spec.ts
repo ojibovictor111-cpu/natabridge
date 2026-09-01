@@ -126,15 +126,28 @@ describe('PatientDetails', () => {
     expect(normalizedPageText()).toContain('We could not find a patient record for this link.');
   });
 
-  it('keeps the unavailable follow-up action visible and disabled', () => {
+  it('offers another assessment when the patient has an assessment history', () => {
     selectedPatient.set(patient());
     createDetails();
 
-    const followUp = findButton('Start follow-up');
+    const assessmentLink = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>(
+      '[aria-label="Take another assessment"]',
+    );
 
-    expect(followUp).toBeDefined();
-    expect(followUp?.disabled).toBe(true);
-    expect(followUp?.textContent).toContain('Coming soon');
+    expect(assessmentLink?.textContent).toContain('Take another assessment');
+    expect(assessmentLink?.getAttribute('href')).toBe('/dashboard/patients/PAT-001/assessment');
+  });
+
+  it('offers a new assessment when the patient has no assessment history', () => {
+    selectedPatient.set(patient({ lastAssessment: null, currentRiskLevel: null }));
+    createDetails();
+
+    const assessmentLink = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>(
+      '[aria-label="Take new assessment"]',
+    );
+
+    expect(assessmentLink?.textContent).toContain('Take new assessment');
+    expect(assessmentLink?.getAttribute('href')).toBe('/dashboard/patients/PAT-001/assessment');
   });
 
   it('prints the patient summary from the enabled print action', () => {

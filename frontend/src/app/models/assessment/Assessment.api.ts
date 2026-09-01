@@ -22,18 +22,8 @@ interface AssessmentFormData extends PatientAssessmentInput {
   phone: string | null;
 }
 
-interface CreatePatientInput {
-  firstName: string;
-  middleName?: string | null;
-  lastName: string;
-  dob: string;
-  email?: string | null;
-  phone?: string | null;
-}
-
 export type {
   AssessmentFormData,
-  CreatePatientInput,
   PatientAssessmentInput,
   PredictionInput,
 };

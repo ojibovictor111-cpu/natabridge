@@ -34,6 +34,13 @@ export const routes: Routes = [
         path: 'patients',
         children: [
           {
+            path: 'register',
+            loadComponent: () =>
+              import('./pages/dashboard/patients/register-patient/register-patient').then(
+                (page) => page.RegisterPatient,
+              ),
+          },
+          {
             path: ':patientId/assessment',
             loadComponent: () =>
               import('./pages/dashboard/assessment/test/user-assessment').then(

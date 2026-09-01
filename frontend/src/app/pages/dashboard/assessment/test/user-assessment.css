@@ -8,6 +8,10 @@
   padding: 28px 32px 44px;
 }
 
+.patient-detail-back {
+  margin-bottom: 14px;
+}
+
 @media (max-width: 760px) {
   .dashboard-assessment-page {
     padding: 24px 20px 36px;

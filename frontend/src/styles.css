@@ -291,3 +291,45 @@ h1[nata-h1] {
   padding-left: 5px;
   padding-top: 2.5px;
 }
+
+/* Dashboard overview responsive composition lives globally to stay within Angular's
+   strict per-component style budget. */
+nata-home .assistant-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgb(15 118 110 / 14%) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+  opacity: .28;
+}
+
+@media (max-width: 1100px) {
+  nata-home .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  nata-home :is(.feature-grid, .bottom-grid) { grid-template-columns: 1fr; }
+  nata-home .overview-card { min-height: 300px; }
+  nata-home .bar-chart { height: 155px; }
+}
+
+@media (max-width: 767px) {
+  nata-home .dashboard-overview { padding: 20px; }
+  nata-home .page-heading { align-items: flex-start; }
+  nata-home :is(.outline-action, .alert-action) { display: none; }
+  nata-home .dashboard-tabs { overflow-x: auto; }
+  nata-home .dashboard-tabs a { white-space: nowrap; }
+  nata-home :is(.feature-grid, .bottom-grid) { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 520px) {
+  nata-home .dashboard-overview { padding: 16px; }
+  nata-home .page-heading { flex-direction: column; }
+  nata-home .primary-action { height: 36px !important; }
+  nata-home .metrics-grid { grid-template-columns: 1fr; gap: 10px; }
+  nata-home .metric-card { min-height: 96px; }
+  nata-home :is(.feature-grid, .bottom-grid) { gap: 12px; margin-top: 12px; }
+  nata-home .assistant-card { min-height: 300px; }
+  nata-home .assistant-prompts { display: grid; justify-items: start; }
+  nata-home .overview-card { padding-inline: 10px; }
+  nata-home .bar-chart { gap: 4px; padding-inline: 3px; }
+}

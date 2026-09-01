@@ -1,7 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { PatientApi } from '../../models/patient/Patient.api';
+import {
+  CreatePatientInput,
+  CreatedPatientApi,
+  PatientApi,
+} from '../../models/patient/Patient.api';
 import { ApiResponse } from '../../models/api/ApiResponse';
 import { Environment as environment } from '../../environment/environment';
 import { finalize } from 'rxjs';
@@ -17,6 +21,12 @@ export class PatientService {
 
   getPatients() {
     this.loadPatients();
+  }
+
+  registerPatient(patient: CreatePatientInput) {
+    return this.http.post<ApiResponse<CreatedPatientApi>>(`${environment.api}/patients`, patient, {
+      withCredentials: true,
+    });
   }
 
   getPatient(patientId: string) {

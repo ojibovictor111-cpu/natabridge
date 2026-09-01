@@ -135,6 +135,51 @@ describe('AssessmentTest', () => {
     expect(payload.previousComplications).toBe('Previous pre-eclampsia');
   });
 
+  it('skips saved patient fields for a repeat assessment', () => {
+    setAuthenticated(true);
+    fixture.componentRef.setInput('patientId', 'PAT-001');
+    fixture.componentRef.setInput('patientAge', 29);
+    fixture.componentRef.setInput('hasPreviousAssessment', true);
+    fixture.detectChanges();
+
+    const page = fixture.nativeElement as HTMLElement;
+
+    expect(page.querySelector('#firstname')).toBeNull();
+    expect(page.querySelector('#gestationalAge')).toBeNull();
+    expect(page.querySelector('#firstPregnancy')).toBeNull();
+    expect(component.pregnancyInformationFormGroup.controls.gestationalAge.value).toBeNull();
+    expect(component.healthMeasurementsFormGroup.controls.age.value).toBe(29);
+  });
+
+  it('pre-populates age from the selected patient record', () => {
+    setAuthenticated(true);
+    fixture.componentRef.setInput('patientId', 'PAT-001');
+    fixture.componentRef.setInput('patientAge', 34);
+    fixture.detectChanges();
+
+    const ageInput = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('#age');
+
+    expect(component.healthMeasurementsFormGroup.controls.age.value).toBe(34);
+    expect(ageInput?.value).toBe('34');
+  });
+
+  it('submits a repeat assessment against the selected patient record', () => {
+    setAuthenticated(true);
+    fixture.componentRef.setInput('patientId', 'PAT-001');
+    fixture.componentRef.setInput('hasPreviousAssessment', true);
+    setValidHealthMeasurements();
+    dialog.open.mockReturnValue({ afterClosed: () => of(true) });
+    fixture.detectChanges();
+
+    component.openDialog();
+
+    expect(assessmentService.submitPatientAssessment).toHaveBeenCalledWith(
+      'PAT-001',
+      component.prepareDataForSubmission(),
+    );
+    expect(assessmentService.createPatientAndSubmitAssessment).not.toHaveBeenCalled();
+  });
+
   it('submits the assessment after consent is accepted', () => {
     setValidHealthMeasurements();
     dialog.open.mockReturnValue({ afterClosed: () => of(true) });

@@ -1,1 +1,4 @@
-export { processPatientAssessment } from "../prediction/prediction.service";
+export {
+    createPatientAndProcessAssessment,
+    processPatientAssessment
+} from "../prediction/prediction.service";

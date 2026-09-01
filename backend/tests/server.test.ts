@@ -64,6 +64,31 @@ test("patient assessment route requires authentication", async (context) => {
      assert.equal(response.json().code, "AUTHENTICATION_REQUIRED");
 });
 
+test("new patient assessment route requires authentication", async (context) => {
+     const server = buildServer({ logger: false });
+     context.after(() => server.close());
+
+     const response = await server.inject({
+          method: "POST",
+          url: "/api/patients/assessments",
+          payload: {
+               ...predictionBody,
+               firstname: "Amina",
+               middlename: null,
+               lastname: "Bello",
+               dob: "2000-01-01",
+               email: "amina@example.com",
+               phone: null,
+               gestationalAge: 24,
+               firstPregnancy: true,
+               previousComplications: null
+          }
+     });
+
+     assert.equal(response.statusCode, 401);
+     assert.equal(response.json().code, "AUTHENTICATION_REQUIRED");
+});
+
 test("patient and dashboard reads require authentication", async (context) => {
      const server = buildServer({ logger: false });
      context.after(() => server.close());

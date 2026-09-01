@@ -6,6 +6,7 @@ import {
      getPatientsWithLatestAssessment
 } from "../../repositories/patient/patient.repo";
 import type { PatientSummaryRow } from "../../repositories/patient/patient.repo";
+import type { PatientRepoInput } from "../../models/patient/repo/patients.repo";
 import { uuidv7 } from "uuidv7";
 import { withTransaction } from "../../db/transaction";
 import { ClientFacingError } from "../../errors/api-error";
@@ -26,10 +27,9 @@ const toPatientSummary = (patient: PatientSummaryRow) => ({
           : Number(patient.gestationalAge)
 });
 
-const registerPatient = async (
-     server: FastifyInstance,
+const preparePatientForCreation = (
      patient: CreatePatientRequest
-) => {
+): PatientRepoInput => {
      const email = normalizeOptionalString(patient.email)?.toLowerCase() ?? null;
      const phone = normalizeOptionalString(patient.phone);
 
@@ -41,7 +41,7 @@ const registerPatient = async (
           });
      }
 
-     const createdPatient = await withTransaction(server, (client) => createPatient(client, {
+     return {
           id: `pat-${uuidv7()}`,
           firstName: patient.firstName.trim(),
           middleName: normalizeOptionalString(patient.middleName),
@@ -49,7 +49,18 @@ const registerPatient = async (
           dob: patient.dob,
           email,
           phone
-     }));
+     };
+};
+
+const registerPatient = async (
+     server: FastifyInstance,
+     patient: CreatePatientRequest
+) => {
+     const patientToCreate = preparePatientForCreation(patient);
+     const createdPatient = await withTransaction(
+          server,
+          (client) => createPatient(client, patientToCreate)
+     );
 
      return {
           id: createdPatient.id,
@@ -102,6 +113,7 @@ const fetchPatientById = async (
 
 export {
      fetchPatientById,
+     preparePatientForCreation,
      registerPatient,
      fetchPatientsWithLatestAssessment
 };

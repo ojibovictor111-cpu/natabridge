@@ -3,11 +3,17 @@ import { uuidv7 } from "uuidv7";
 import { withTransaction } from "../../db/transaction";
 import { ClientFacingError } from "../../errors/api-error";
 import type { AiApiResponse } from "../../models/ai/aiApiResponse.model";
-import type { PatientAssessmentRequest } from "../../models/assessment/dto/assessment.dto";
+import type {
+     CreatePatientAssessmentRequest,
+     PatientAssessmentRequest
+} from "../../models/assessment/dto/assessment.dto";
 import type { PredictionRequest } from "../../models/prediction/dto/prediction.dto";
 import type { PredictionRunSource } from "../../models/prediction/repo/prediction.repo";
 import { createAssessment } from "../../repositories/assessment/assessment.repo";
-import { patientExists } from "../../repositories/patient/patient.repo";
+import {
+     createPatient,
+     patientExists
+} from "../../repositories/patient/patient.repo";
 import {
      completePredictionRun,
      createPredictionFactors,
@@ -15,6 +21,7 @@ import {
      createPredictionRun,
      failPredictionRun
 } from "../../repositories/prediction.repo";
+import { preparePatientForCreation } from "../patient/patient.service";
 
 type PatientAssessmentContext = {
      patientId: string;
@@ -338,7 +345,83 @@ const processPatientAssessment = async (
      };
 };
 
+const createPatientAndProcessAssessment = async (
+     server: FastifyInstance,
+     request: CreatePatientAssessmentRequest,
+     createdByUserId: string,
+     requestId?: string
+) => {
+     const {
+          firstname,
+          middlename,
+          lastname,
+          dob,
+          email,
+          phone,
+          gestationalAge,
+          firstPregnancy,
+          previousComplications,
+          ...features
+     } = request;
+     const patient = preparePatientForCreation({
+          firstName: firstname,
+          middleName: middlename,
+          lastName: lastname,
+          dob,
+          email,
+          phone
+     });
+     const prediction = await getAiPrediction(features);
+     const predictionRunId = `pred-run-${uuidv7()}`;
+     const predictionResultId = `pred-res-${uuidv7()}`;
+     const assessmentId = `ass-${uuidv7()}`;
+
+     await withTransaction(server, async (client) => {
+          await createPatient(client, patient);
+          await createPredictionRun(client, {
+               id: predictionRunId,
+               source: "patient_assessment",
+               createdByUserId,
+               requestId: requestId ?? predictionRunId,
+               ...features
+          });
+          await createPredictionResult(client, {
+               id: predictionResultId,
+               predictionRunId,
+               prediction
+          });
+          await createPredictionFactors(
+               client,
+               predictionResultId,
+               prediction.topFactors.map((factor) => ({
+                    id: `pred-fac-${uuidv7()}`,
+                    feature: factor.feature,
+                    impact: factor.impact
+               }))
+          );
+          await createAssessment(client, {
+               id: assessmentId,
+               patientId: patient.id,
+               predictionRunId,
+               createdByUserId,
+               gestationalAge,
+               firstPregnancy,
+               previousComplications
+          });
+          await completePredictionRun(client, predictionRunId);
+     });
+
+     return {
+          patientId: patient.id,
+          assessmentId,
+          predictionRunId,
+          predictionResultId,
+          prediction
+     };
+};
+
 export {
+     createPatientAndProcessAssessment,
      processPatientAssessment,
      processPrediction
 };

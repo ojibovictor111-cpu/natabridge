@@ -1,3 +1,15 @@
 <section class="dashboard-assessment-page">
-  <nata-assessment-test [userAuthenticated]="userAuthenticated()" />
+  @if (patientId(); as selectedPatientId) {
+    <a class="patient-detail-back" [routerLink]="['/dashboard/patients', selectedPatientId]">
+      <ng-icon name="lucideArrowLeft" aria-hidden="true" />
+      Back to patient record
+    </a>
+  }
+
+  <nata-assessment-test
+    [userAuthenticated]="userAuthenticated()"
+    [patientId]="patientId()"
+    [patientAge]="patient()?.age ?? null"
+    [hasPreviousAssessment]="hasPreviousAssessment()"
+  />
 </section>

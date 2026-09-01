@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { Environment as environment } from '../../environment/environment';
-import { PatientApi } from '../../models/patient/Patient.api';
+import { CreatePatientInput, PatientApi } from '../../models/patient/Patient.api';
 import { PatientService } from './patient-service';
 
 describe('PatientService', () => {
@@ -61,6 +61,40 @@ describe('PatientService', () => {
     expect(service.patients()).toEqual(patients);
     expect(service.loading()).toBe(false);
     expect(service.errorMessage()).toBeNull();
+  });
+
+  it('registers a patient with the complete registration payload', () => {
+    const payload: CreatePatientInput = {
+      firstName: 'Amina',
+      middleName: null,
+      lastName: 'Bello',
+      dob: '1997-04-12',
+      email: 'amina@example.com',
+      phone: null,
+      gestationalAge: 24,
+      firstPregnancy: false,
+      previousComplications: 'Previous pre-eclampsia',
+    };
+
+    service.registerPatient(payload).subscribe();
+
+    const request = httpTesting.expectOne(`${environment.api}/patients`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.body).toEqual(payload);
+
+    request.flush({
+      data: {
+        id: 'patient-3',
+        firstName: 'Amina',
+        middleName: null,
+        lastName: 'Bello',
+        dob: '1997-04-12',
+        email: 'amina@example.com',
+        phone: null,
+        createdAt: '2026-09-01T12:00:00.000Z',
+      },
+    });
   });
 
   it('selects a cached patient without making another request', () => {

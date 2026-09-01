@@ -23,9 +23,7 @@ const getDashboard = async (
      const client = await server.pg.connect();
 
      try {
-          const rows = await client.query<DashboardRow>(
-               "SELECT * FROM get_dashboard_details"
-          );
+          const rows = await client.query<DashboardRow>("SELECT * FROM get_dashboard_details");
 
           const assessments = rows.rows.map((row) => ({
                id: row.assessment_id,

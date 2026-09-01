@@ -1,28 +1,109 @@
-<header class="flex-center capitalize">
-     <span>patients</span>
-     <ng-icon name="" />
-     <span>{{ user().name }}</span>
-</header>
+<section class="profile-page">
+  <header class="profile-page-heading">
+    <div>
+      <p>Account settings</p>
+      <h1>My profile</h1>
+      <span>Manage your personal information and dashboard preferences.</span>
+    </div>
 
-<section class="flex-center">
-     <section>
-          <ng-icon name="" />
+    @if (!isEditing()) {
+      <button class="profile-button profile-button--primary" type="button" (click)="startEditing()">
+        <ng-icon name="lucideEdit3" aria-hidden="true" />
+        Edit profile
+      </button>
+    }
+  </header>
 
-          <article class="flex-center gap-x-2.5">
-               <img src="user-profile.webp" alt="profile picture" class="max-h-10 aspect-square rounded-full object-cover">
+  <section class="profile-hero" aria-labelledby="profile-name">
+    <span class="profile-avatar">{{ initials() || 'JS' }}</span>
+    <div class="profile-identity">
+      <div class="profile-name-row">
+        <h2 id="profile-name">{{ profile().fullName }}</h2>
+        <span class="active-badge"><i></i> Active</span>
+      </div>
+      <p>{{ profile().role }}</p>
+      <span>NataBridge maternal health workspace</span>
+    </div>
+  </section>
 
-               <div>
-                    <p nata-lead class="capitalize">john doe</p>
-                    <p>
-                         {{ user().age }} years
-                    </p>
-               </div>
-          </article>
-     </section>
-     <div class="flex-center">
-          <button type="button" class="capitalize">
-               <ng-icon name="lucideEdit3" />
-               <span>edit profile</span>
-          </button>
-     </div>
+  <div class="profile-layout">
+    <section class="profile-card account-card" aria-labelledby="account-information-title">
+      <header class="card-heading">
+        <span><ng-icon name="lucideUserRound" aria-hidden="true" /></span>
+        <div>
+          <h2 id="account-information-title">Account information</h2>
+          <p>Your contact details and workspace role.</p>
+        </div>
+      </header>
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="profile-field profile-field--wide">
+          <label for="profile-full-name">Full name</label>
+          <div class="profile-input-wrap">
+            <ng-icon name="lucideUserRound" aria-hidden="true" />
+            <input id="profile-full-name" type="text" formControlName="fullName" [readOnly]="!isEditing()" autocomplete="name" />
+          </div>
+          @if (profileForm.controls.fullName.invalid && profileForm.controls.fullName.touched) {
+            <small class="field-error">Enter your full name.</small>
+          }
+        </div>
+
+        <div class="profile-field">
+          <label for="profile-email">Email address</label>
+          <div class="profile-input-wrap">
+            <ng-icon name="lucideMail" aria-hidden="true" />
+            <input id="profile-email" type="email" formControlName="email" [readOnly]="!isEditing()" autocomplete="email" />
+          </div>
+          @if (profileForm.controls.email.invalid && profileForm.controls.email.touched) {
+            <small class="field-error">Enter a valid email address.</small>
+          }
+        </div>
+
+        <div class="profile-field">
+          <label for="profile-phone">Phone number</label>
+          <div class="profile-input-wrap">
+            <ng-icon name="lucidePhone" aria-hidden="true" />
+            <input id="profile-phone" type="tel" formControlName="phone" [readOnly]="!isEditing()" autocomplete="tel" />
+          </div>
+        </div>
+
+        <div class="profile-field profile-field--wide">
+          <label>Workspace role</label>
+          <div class="profile-role"><ng-icon name="lucideShieldCheck" aria-hidden="true" /><span>{{ profile().role }}</span><small>Managed by your organisation</small></div>
+        </div>
+
+        @if (isEditing()) {
+          <footer class="form-actions">
+            <button class="profile-button profile-button--secondary" type="button" (click)="cancelEditing()"><ng-icon name="lucideX" /> Cancel</button>
+            <button class="profile-button profile-button--primary" type="submit"><ng-icon name="lucideCheck" /> Save changes</button>
+          </footer>
+        } @else if (saved()) {
+          <p class="save-confirmation" role="status"><ng-icon name="lucideCheck" /> Profile updated for this session.</p>
+        }
+      </form>
+    </section>
+
+    <aside class="profile-side-column">
+      <section class="profile-card preferences-card" aria-labelledby="preferences-title">
+        <header class="card-heading">
+          <span><ng-icon name="lucideBell" aria-hidden="true" /></span>
+          <div><h2 id="preferences-title">Notifications</h2><p>Choose what reaches you.</p></div>
+        </header>
+
+        <label class="preference-row">
+          <span><strong>Email updates</strong><small>Assessment and programme summaries</small></span>
+          <input type="checkbox" [checked]="emailNotifications()" (change)="emailNotifications.set(!emailNotifications())" />
+        </label>
+        <label class="preference-row">
+          <span><strong>Critical alerts</strong><small>High-risk patient notifications</small></span>
+          <input type="checkbox" [checked]="criticalAlerts()" (change)="criticalAlerts.set(!criticalAlerts())" />
+        </label>
+      </section>
+
+      <section class="profile-card session-card" aria-labelledby="session-title">
+        <div><h2 id="session-title">Account session</h2><p>You are signed in to the NataBridge dashboard.</p></div>
+        <button type="button" (click)="logout()"><ng-icon name="lucideLogOut" aria-hidden="true" /> Sign out</button>
+      </section>
+    </aside>
+  </div>
 </section>

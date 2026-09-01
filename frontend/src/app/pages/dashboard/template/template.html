@@ -22,7 +22,7 @@
   }
 
   <div class="dashboard-workspace">
-    <header class="dashboard-topbar">
+    <header class="dashboard-topbar" aria-label="Mobile dashboard header">
       <div class="topbar-context">
         <button
           class="menu-button"
@@ -36,11 +36,6 @@
         </button>
         <p>{{ pageTitle() }}</p>
       </div>
-
-      <label class="patient-search">
-        <span class="sr-only">Search patients and alerts</span>
-        <input type="search" placeholder="Search patients, alerts…" />
-      </label>
 
       <a class="topbar-avatar" routerLink="profile" aria-label="Open profile settings">JS</a>
     </header>

@@ -2,12 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service, signal } from '@angular/core';
 import {
   AssessmentFormData,
-  CreatePatientInput,
   PatientAssessmentInput,
   PredictionInput,
 } from '../../models/assessment/Assessment.api';
 import { Environment as environment } from '../../environment/environment';
-import { finalize, Observable, switchMap } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { ApiResponse } from '../../models/api/ApiResponse';
 import { AssessmentResultApi } from '../../models/assessment/Assessment-result.api';
 import { UtilService } from '../util/util-service';
@@ -55,29 +54,14 @@ export class AssessmentService {
   }
 
   createPatientAndSubmitAssessment(formData: AssessmentFormData) {
-    const patientInput: CreatePatientInput = {
-      firstName: formData.firstname!.trim(),
-      middleName: formData.middlename?.trim() || null,
-      lastName: formData.lastname!.trim(),
-      dob: formData.dob!,
-      email: formData.email?.trim() || null,
-      phone: formData.phone?.trim() || null,
-    };
-
     this.submit(
-      this.http
-        .post<ApiResponse<{ id: string }>>(`${environment.api}/patients`, patientInput, {
+      this.http.post<ApiResponse<AssessmentResultApi>>(
+        `${environment.api}/patients/assessments`,
+        formData,
+        {
           withCredentials: true,
-        })
-        .pipe(
-          switchMap(({ data: patient }) =>
-            this.http.post<ApiResponse<AssessmentResultApi>>(
-              `${environment.api}/patients/${encodeURIComponent(patient.id)}/assessments`,
-              this.toPatientAssessmentInput(formData),
-              { withCredentials: true },
-            ),
-          ),
-        ),
+        },
+      ),
       formData,
     );
   }
