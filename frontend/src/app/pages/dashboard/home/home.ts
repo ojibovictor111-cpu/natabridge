@@ -18,29 +18,6 @@ interface RecentAssessmentView {
   assessed: string;
 }
 
-const fallbackAlerts: CriticalAlertView[] = [
-  { name: 'Amina Bello', detail: 'BP 158/106 mmHg' },
-  { name: 'Chioma Okafor', detail: 'Temperature 38.4 °C' },
-  { name: 'Fatima Musa', detail: 'Blood sugar 9.1 mmol/L' },
-];
-
-const fallbackRecentAssessments: RecentAssessmentView[] = [
-  {
-    name: 'Amina Bello',
-    vitals: '158/106 · 108 bpm',
-    risk: 'High risk',
-    riskTone: 'high',
-    assessed: 'Today, 1:24 PM',
-  },
-  {
-    name: 'Blessing Eze',
-    vitals: '134/86 · 91 bpm',
-    risk: 'Mid risk',
-    riskTone: 'mid',
-    assessed: 'Today, 12:48 PM',
-  },
-];
-
 @Component({
   selector: 'nata-home',
   imports: [RouterModule],
@@ -50,38 +27,18 @@ const fallbackRecentAssessments: RecentAssessmentView[] = [
 export class Home implements OnInit {
   private readonly dashboardService = inject(DashboardService);
 
-  readonly name = 'Jane';
-  readonly patientsMonitored = 248;
-  readonly communitiesMonitored = 6;
-
-  readonly assessmentDetails = computed(
-    () =>
-      this.dashboardService.assessmentDetails() ?? {
-        high: 18,
-        mid: 10,
-        low: 8,
-      },
-  );
+  readonly assessmentDetails = this.dashboardService.assessmentDetails;
+  readonly dashboardDetails = this.dashboardService.dashboardDetails;
 
   readonly totalAssessments = computed(() => {
     const details = this.assessmentDetails();
+    if (!details) return null;
+
     return details.high + details.mid + details.low;
   });
 
-  readonly pendingReferrals = computed(() => {
-    const dashboard = this.dashboardService.dashboardDetails();
-
-    if (!dashboard) return 7;
-
-    return dashboard.priorityAssessments.filter(
-      (assessment) => this.riskTone(assessment.currentRiskLevel) === 'high',
-    ).length;
-  });
-
   readonly criticalAlerts = computed<CriticalAlertView[]>(() => {
-    const assessments = this.dashboardService.dashboardDetails()?.priorityAssessments ?? [];
-
-    if (!assessments.length) return fallbackAlerts;
+    const assessments = this.dashboardDetails()?.priorityAssessments ?? [];
 
     return assessments.slice(0, 3).map((assessment) => ({
       name: assessment.name,
@@ -90,9 +47,7 @@ export class Home implements OnInit {
   });
 
   readonly recentAssessments = computed<RecentAssessmentView[]>(() => {
-    const assessments = this.dashboardService.dashboardDetails()?.recentAssessments ?? [];
-
-    if (!assessments.length) return fallbackRecentAssessments;
+    const assessments = this.dashboardDetails()?.recentAssessments ?? [];
 
     return assessments.slice(0, 4).map((assessment) => {
       const riskTone = this.riskTone(assessment.currentRiskLevel);

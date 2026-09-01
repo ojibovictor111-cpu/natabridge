@@ -64,6 +64,52 @@ test("patient assessment route requires authentication", async (context) => {
      assert.equal(response.json().code, "AUTHENTICATION_REQUIRED");
 });
 
+test("production login sets a cross-site session cookie for valid demo credentials", async (context) => {
+     const originalFrontendOrigin = process.env.frontend_origin;
+     process.env.frontend_origin = "https://natabridge-om17.onrender.com";
+     context.after(() => {
+          if (originalFrontendOrigin === undefined) {
+               delete process.env.frontend_origin;
+          } else {
+               process.env.frontend_origin = originalFrontendOrigin;
+          }
+     });
+
+     const server = buildServer({ logger: false });
+     context.after(() => server.close());
+     const response = await server.inject({
+          method: "POST",
+          url: "/api/users/login",
+          payload: {
+               id: "jane@natabridge.com",
+               password: "12345"
+          }
+     });
+
+     assert.equal(response.statusCode, 200);
+     assert.equal(response.json().data.email, "jane@natabridge.com");
+     assert.match(String(response.headers["set-cookie"]), /HttpOnly/i);
+     assert.match(String(response.headers["set-cookie"]), /SameSite=None/i);
+     assert.match(String(response.headers["set-cookie"]), /Secure/i);
+});
+
+test("login rejects invalid demo credentials without setting a cookie", async (context) => {
+     const server = buildServer({ logger: false });
+     context.after(() => server.close());
+     const response = await server.inject({
+          method: "POST",
+          url: "/api/users/login",
+          payload: {
+               id: "jane@natabridge.com",
+               password: "wrong-password"
+          }
+     });
+
+     assert.equal(response.statusCode, 401);
+     assert.equal(response.json().code, "INVALID_CREDENTIALS");
+     assert.equal(response.headers["set-cookie"], undefined);
+});
+
 test("new patient assessment route requires authentication", async (context) => {
      const server = buildServer({ logger: false });
      context.after(() => server.close());

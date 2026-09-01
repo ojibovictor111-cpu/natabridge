@@ -4,7 +4,7 @@
     <div class="page-actions">
       <button class="outline-action" type="button"><span aria-hidden="true">⇩</span> Export report</button>
       <a class="primary-action" routerLink="assessment"><span aria-hidden="true">+</span> New assessment</a>
-      <a class="alert-action" routerLink="patients" aria-label="View critical alerts"><span aria-hidden="true">♢</span><i>{{ criticalAlerts().length }}</i></a>
+      <a class="alert-action" routerLink="patients" aria-label="View critical alerts"><span aria-hidden="true">♢</span><i>{{ dashboardDetails() ? criticalAlerts().length : '--' }}</i></a>
     </div>
   </header>
 
@@ -16,30 +16,26 @@
   </nav>
 
   <section class="metrics-grid" aria-label="Programme metrics">
-    <article class="metric-card"><div class="metric-title"><p>Assessments today</p><span>⋮</span></div><strong>{{ totalAssessments() }}</strong><small class="positive">12% ↑ <em>since yesterday</em></small></article>
-    <article class="metric-card"><div class="metric-title"><p>Patients monitored</p><span>⋮</span></div><strong>{{ patientsMonitored }}</strong><small class="positive">6.8% ↑ <em>across {{ communitiesMonitored }} communities</em></small></article>
-    <article class="metric-card"><div class="metric-title"><p>High-risk patients</p><span>⋮</span></div><strong>{{ assessmentDetails().high }}</strong><small class="urgent">4 new <em>since yesterday</em></small></article>
-    <article class="metric-card"><div class="metric-title"><p>Pending referrals</p><span>⋮</span></div><strong>{{ pendingReferrals() }}</strong><small class="positive">3 resolved <em>this week</em></small></article>
+    <article class="metric-card"><div class="metric-title"><p>Assessments today</p><span>⋮</span></div><strong>{{ totalAssessments() ?? '--' }}</strong><small class="metric-unavailable">-- <em>Trend unavailable</em></small></article>
+    <article class="metric-card"><div class="metric-title"><p>Patients monitored</p><span>⋮</span></div><strong>--</strong><small class="metric-unavailable">-- <em>Data unavailable</em></small></article>
+    <article class="metric-card"><div class="metric-title"><p>High-risk patients</p><span>⋮</span></div><strong>{{ assessmentDetails()?.high ?? '--' }}</strong><small class="metric-unavailable">-- <em>Trend unavailable</em></small></article>
+    <article class="metric-card"><div class="metric-title"><p>Pending referrals</p><span>⋮</span></div><strong>--</strong><small class="metric-unavailable">-- <em>Resolution data unavailable</em></small></article>
   </section>
 
   <section class="feature-grid">
-    <article class="assistant-card" aria-labelledby="assistant-title">
+    <article class="assistant-card" aria-labelledby="assistant-title" aria-disabled="true">
+      <span class="coming-soon-badge">Coming soon</span>
       <div class="assistant-orb" aria-hidden="true">✦</div>
       <div class="assistant-copy"><h2 id="assistant-title">Hi, I’m Nata.</h2><p>Your maternal health assistant — here to help you monitor patients and act on risks efficiently.</p></div>
       <div class="assistant-prompts" aria-label="Suggested tasks">
-        <a routerLink="patients">Review high-risk cases</a><a routerLink="patients">Check pending referrals</a><a routerLink="assessment">Start an assessment</a>
+        <button type="button" disabled>Review high-risk cases</button><button type="button" disabled>Check pending referrals</button><button type="button" disabled>Start an assessment</button>
       </div>
-      <label class="assistant-input"><span aria-hidden="true">＋</span><input type="text" placeholder="Ask me anything…" /><span class="voice" aria-hidden="true">◖</span></label>
+      <label class="assistant-input"><span aria-hidden="true">＋</span><input type="text" placeholder="Nata assistant is coming soon" disabled /><span class="voice" aria-hidden="true">◖</span></label>
     </article>
 
     <article class="overview-card" aria-labelledby="patient-overview-title">
-      <header class="panel-heading"><div><h2 id="patient-overview-title">Patients overview</h2><p>Average per month</p><strong>342 <span>3.2% ↑</span></strong></div><button type="button">▣ Month⌄</button></header>
-      <div class="bar-chart" role="img" aria-label="Monthly patient totals by risk category">
-        @for (month of ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; track month; let index = $index) {
-          <div class="bar-column"><div class="bar" [style.--bar-height.%]="[68, 82, 51, 55, 50, 77, 35, 51, 59, 65, 50, 59][index]"><i class="bar-low"></i><i class="bar-mid"></i><i class="bar-high"></i></div><span>{{ month }}</span></div>
-        }
-      </div>
-      <div class="chart-legend"><span class="low">Low risk</span><span class="mid">Mid risk</span><span class="high">High risk</span></div>
+      <header class="panel-heading"><div><h2 id="patient-overview-title">Patients overview</h2><p>Average per month</p><strong>--</strong></div><button type="button" disabled>▣ Month⌄</button></header>
+      <div class="bar-chart chart-empty" role="img" aria-label="Monthly patient data unavailable"><strong>--</strong><span>Monthly overview data unavailable</span></div>
     </article>
   </section>
 
@@ -48,7 +44,9 @@
       <header class="section-title"><h2 id="critical-alerts-title">Critical alerts</h2><a routerLink="patients">See all</a></header>
       <div class="alert-list">
         @for (alert of criticalAlerts(); track $index; let index = $index) {
-          <a class="alert-row" routerLink="patients"><span class="alert-line" [class.secondary]="index === 1" aria-hidden="true"></span><div><strong>{{ alert.name }}</strong><small>{{ alert.detail }}</small></div><time>{{ index === 0 ? 'Now' : index === 1 ? '18 min' : '32 min' }}</time></a>
+          <a class="alert-row" routerLink="patients"><span class="alert-line" [class.secondary]="index === 1" aria-hidden="true"></span><div><strong>{{ alert.name }}</strong><small>{{ alert.detail }}</small></div><time>--</time></a>
+        } @empty {
+          <div class="panel-empty"><strong>--</strong><span>No critical-alert data available</span></div>
         }
       </div>
     </article>
@@ -57,7 +55,7 @@
       <header class="section-title"><h2 id="recent-assessments-title">Recent assessments</h2><div class="table-actions"><button type="button">▣ Month⌄</button><button type="button">⇅ Sort</button></div></header>
       <div class="table-scroll"><table>
         <thead><tr><th>Patient</th><th>Latest vitals</th><th>Risk</th><th>Assessed</th><th></th></tr></thead>
-        <tbody>@for (assessment of recentAssessments(); track $index) {<tr><td><span class="patient-avatar">{{ assessment.name.charAt(0) }}</span>{{ assessment.name }}</td><td>{{ assessment.vitals }}</td><td><span class="risk-pill" [class.high-risk]="assessment.riskTone === 'high'" [class.mid-risk]="assessment.riskTone === 'mid'">{{ assessment.risk }}</span></td><td>{{ assessment.assessed }}</td><td>⋮</td></tr>}</tbody>
+        <tbody>@for (assessment of recentAssessments(); track $index) {<tr><td><span class="patient-avatar">{{ assessment.name.charAt(0) }}</span>{{ assessment.name }}</td><td>{{ assessment.vitals }}</td><td><span class="risk-pill" [class.high-risk]="assessment.riskTone === 'high'" [class.mid-risk]="assessment.riskTone === 'mid'">{{ assessment.risk }}</span></td><td>{{ assessment.assessed }}</td><td>⋮</td></tr>} @empty { <tr class="empty-table-row"><td colspan="5">-- &nbsp; No recent assessment data available</td></tr> }</tbody>
       </table></div>
     </article>
   </section>
