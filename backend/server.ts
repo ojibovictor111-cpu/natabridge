@@ -7,6 +7,7 @@ import { dbConfig } from "./configs/db.config";
 import { apiErrorHandler } from "./errors/api-error";
 import { assessmentRoutes } from "./routes/assessment/assessment.route";
 import { dashboardRoutes } from "./routes/dashboard/dashboard.route";
+import { clinicianRoutes } from "./routes/clinician/clinician.route";
 import { patientRoutes } from "./routes/patient/patient.route";
 import { predictionRoutes } from "./routes/prediction/prediction.route";
 import { userRoutes } from "./routes/user/user.route";
@@ -56,6 +57,7 @@ const buildServer = (options: BuildServerOptions = {}) => {
      server.register(assessmentRoutes, { prefix: "/api/patients" });
      server.register(predictionRoutes, { prefix: "/api/predictions" });
      server.register(dashboardRoutes, { prefix: "/api/dashboard" });
+     server.register(clinicianRoutes, { prefix: "/api/clinicians" });
 
      return server;
 };

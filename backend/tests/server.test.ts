@@ -138,3 +138,15 @@ test("the ambiguous legacy assessment route has been removed", async (context) =
      assert.equal(response.statusCode, 404);
      assert.equal(response.json().code, "ROUTE_NOT_FOUND");
 });
+
+test("clinician assessment route validates clinician IDs", async (context) => {
+     const server = buildServer({ logger: false });
+     context.after(() => server.close());
+     const response = await server.inject({
+          method: "GET",
+          url: `/api/clinicians/${"x".repeat(51)}/assessments`
+     });
+
+     assert.equal(response.statusCode, 400);
+     assert.equal(response.json().code, "VALIDATION_ERROR");
+});
