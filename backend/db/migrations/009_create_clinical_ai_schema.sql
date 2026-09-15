@@ -29,9 +29,9 @@ CREATE TABLE prediction_runs (
     heart_rate NUMERIC(6, 2) NOT NULL,
 
     failure_code VARCHAR(100),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    completed_at TIMESTAMP,
-    failed_at TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMPTZ,
+    failed_at TIMESTAMPTZ,
 
     CONSTRAINT prediction_runs_request_id_unique
         UNIQUE (request_id),
@@ -76,11 +76,22 @@ CREATE TABLE prediction_runs (
                 AND failure_code IS NOT NULL
             )
         ),
+    CONSTRAINT prediction_runs_completion_chronology_valid
+        CHECK (completed_at IS NULL OR completed_at >= created_at),
+    CONSTRAINT prediction_runs_failure_chronology_valid
+        CHECK (failed_at IS NULL OR failed_at >= created_at),
     CONSTRAINT prediction_runs_creator_fk
         FOREIGN KEY (created_by_user_id)
         REFERENCES users(id)
         ON DELETE RESTRICT
 );
+
+CREATE INDEX prediction_runs_creator_created_at_idx
+    ON prediction_runs (created_by_user_id, created_at DESC)
+    WHERE created_by_user_id IS NOT NULL;
+
+CREATE INDEX prediction_runs_source_status_created_at_idx
+    ON prediction_runs (source, status, created_at DESC);
 
 -- Stores the clinical context for a beneficiary assessment. The model inputs and execution lifecycle remain on the associated prediction run.
 CREATE TABLE assessments (
@@ -94,7 +105,7 @@ CREATE TABLE assessments (
     gestational_age NUMERIC(5, 2),
     first_pregnancy BOOLEAN,
     previous_complications TEXT,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT assessments_gestational_age_valid
         CHECK (gestational_age IS NULL OR gestational_age BETWEEN 1 AND 45),
@@ -120,6 +131,20 @@ CREATE TABLE assessments (
         ON DELETE RESTRICT
 );
 
+CREATE INDEX assessments_beneficiary_created_at_idx
+    ON assessments (beneficiary_id, created_at DESC);
+
+CREATE INDEX assessments_pregnancy_idx
+    ON assessments (pregnancy_id)
+    WHERE pregnancy_id IS NOT NULL;
+
+CREATE INDEX assessments_clinical_visit_idx
+    ON assessments (clinical_visit_id)
+    WHERE clinical_visit_id IS NOT NULL;
+
+CREATE INDEX assessments_creator_created_at_idx
+    ON assessments (created_by_user_id, created_at DESC);
+
 -- Stores the single structured model output produced by a successful run.
 CREATE TABLE prediction_results (
     id UUID PRIMARY KEY,
@@ -131,7 +156,7 @@ CREATE TABLE prediction_results (
     high_risk_probability NUMERIC(6, 5) NOT NULL,
     model_version VARCHAR(100) NOT NULL,
     response_payload JSONB NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT prediction_results_risk_valid
         CHECK (prediction IN ('Low Risk', 'Mid Risk', 'High Risk')),
@@ -176,3 +201,6 @@ CREATE TABLE prediction_factors (
         REFERENCES prediction_results(id)
         ON DELETE CASCADE
 );
+
+CREATE INDEX prediction_factors_result_idx
+    ON prediction_factors (prediction_result_id);

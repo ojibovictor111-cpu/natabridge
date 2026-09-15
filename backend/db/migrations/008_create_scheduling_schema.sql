@@ -2,6 +2,14 @@
 -- Created: 2026-09-01
 -- Description: Introduces appointment types and scheduled beneficiary care for NataBridge.
 
+CREATE TYPE appointment_status AS ENUM (
+    'SCHEDULED',
+    'CONFIRMED',
+    'COMPLETED',
+    'CANCELLED',
+    'MISSED'
+);
+
 CREATE TABLE appointment_types (
     id UUID PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
@@ -14,12 +22,12 @@ CREATE TABLE appointments (
     practitioner_id UUID,
     pregnancy_id UUID,
     appointment_type_id UUID NOT NULL,
-    scheduled_at TIMESTAMP NOT NULL,
-    status VARCHAR(30) NOT NULL DEFAULT 'SCHEDULED',
+    scheduled_at TIMESTAMPTZ NOT NULL,
+    status appointment_status NOT NULL DEFAULT 'SCHEDULED',
     notes TEXT,
     created_by UUID NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT appointments_beneficiary_fk
         FOREIGN KEY (beneficiary_id)
@@ -46,3 +54,28 @@ CREATE TABLE appointments (
         REFERENCES users(id)
         ON DELETE RESTRICT
 );
+
+CREATE INDEX appointments_beneficiary_scheduled_at_idx
+    ON appointments (beneficiary_id, scheduled_at DESC);
+
+CREATE INDEX appointments_institution_status_scheduled_at_idx
+    ON appointments (institution_id, status, scheduled_at);
+
+CREATE INDEX appointments_practitioner_scheduled_at_idx
+    ON appointments (practitioner_id, scheduled_at)
+    WHERE practitioner_id IS NOT NULL;
+
+CREATE INDEX appointments_pregnancy_idx
+    ON appointments (pregnancy_id)
+    WHERE pregnancy_id IS NOT NULL;
+
+CREATE INDEX appointments_type_idx
+    ON appointments (appointment_type_id);
+
+CREATE INDEX appointments_creator_idx
+    ON appointments (created_by);
+
+CREATE TRIGGER appointments_set_updated_at
+    BEFORE UPDATE ON appointments
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();

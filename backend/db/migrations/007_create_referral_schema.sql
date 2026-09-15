@@ -22,9 +22,9 @@ CREATE TABLE referrals (
     reason TEXT NOT NULL,
     priority VARCHAR(30) NOT NULL,
     status referral_status NOT NULL DEFAULT 'PENDING',
-    referred_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    accepted_at TIMESTAMP,
-    completed_at TIMESTAMP,
+    referred_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    accepted_at TIMESTAMPTZ,
+    completed_at TIMESTAMPTZ,
     notes TEXT,
 
     CONSTRAINT referrals_beneficiary_fk
@@ -46,5 +46,33 @@ CREATE TABLE referrals (
     CONSTRAINT referrals_referrer_fk
         FOREIGN KEY (referred_by)
         REFERENCES practitioners(id)
-        ON DELETE RESTRICT
+        ON DELETE RESTRICT,
+    CONSTRAINT referrals_acceptance_chronology_valid
+        CHECK (accepted_at IS NULL OR accepted_at >= referred_at),
+    CONSTRAINT referrals_completion_chronology_valid
+        CHECK (
+            completed_at IS NULL
+            OR (
+                completed_at >= referred_at
+                AND (accepted_at IS NULL OR completed_at >= accepted_at)
+            )
+        ),
+    CONSTRAINT referrals_distinct_institutions
+        CHECK (from_institution_id <> to_institution_id)
 );
+
+CREATE INDEX referrals_beneficiary_referred_at_idx
+    ON referrals (beneficiary_id, referred_at DESC);
+
+CREATE INDEX referrals_pregnancy_idx
+    ON referrals (pregnancy_id)
+    WHERE pregnancy_id IS NOT NULL;
+
+CREATE INDEX referrals_from_institution_status_idx
+    ON referrals (from_institution_id, status);
+
+CREATE INDEX referrals_to_institution_status_idx
+    ON referrals (to_institution_id, status);
+
+CREATE INDEX referrals_referrer_idx
+    ON referrals (referred_by);
