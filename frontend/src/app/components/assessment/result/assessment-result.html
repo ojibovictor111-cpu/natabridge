@@ -1,87 +1,137 @@
 <main
-  class="result-shell"
+  class="result-shell min-h-full w-full p-8 text-(--dashboard-text) max-md:p-5 max-sm:p-4"
   [class.result-shell--high]="riskTone() === 'high'"
   [class.result-shell--mid]="riskTone() === 'mid'"
   [class.result-shell--low]="riskTone() === 'low'"
   data-node-id="9:121"
 >
-  <button class="back-button" type="button" (click)="goBack()">
-    <svg aria-hidden="true" viewBox="0 0 16 16">
+  <button
+    class="back-button inline-flex h-9 min-w-24 cursor-pointer items-center justify-center gap-2 rounded-lg border border-(--dashboard-border) bg-white px-4 text-xs text-(--dashboard-muted) hover:text-(--dashboard-text) focus-visible:outline-2 focus-visible:outline-(--dashboard-green) focus-visible:outline-offset-2"
+    type="button"
+    (click)="goBack()"
+  >
+    <svg
+      class="w-4 fill-none stroke-current"
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+    >
       <path d="M13 8H3m4-4L3 8l4 4" />
     </svg>
+
     {{ isAuthenticated() ? 'Back to patient' : 'Back' }}
   </button>
 
   @if (result(); as assessmentResult) {
-    <header class="result-heading">
-      <h1>Assessment result</h1>
-      <p>{{ patientMeta() }}</p>
+    <header class="mt-6">
+      <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight">
+        Assessment result
+      </h1>
+
+      <p class="mt-1 mb-0 text-sm text-(--dashboard-muted)">
+        {{ patientMeta() }}
+      </p>
     </header>
 
-    <section class="risk-hero" data-node-id="9:126">
-      <div class="risk-copy">
-        <span class="classification-label">AI risk classification</span>
-        <h2>{{ riskLabel() }}</h2>
+    <section
+      class="risk-hero relative mt-6 min-h-60 overflow-hidden rounded-2xl border p-6 shadow-sm max-sm:flex max-sm:min-h-0 max-sm:flex-col max-sm:p-5"
+      data-node-id="9:126"
+    >
+      <div class="pr-48 max-sm:pr-0">
+        <span
+          class="classification-label inline-flex h-7 items-center rounded-full border bg-white/70 px-3 text-xs font-semibold uppercase"
+        >
+          AI risk classification
+        </span>
 
-        <span class="risk-badge">
-          <span aria-hidden="true"></span>
+        <h2 class="risk-title mt-5 mb-2 text-3xl leading-none font-semibold tracking-tight">
+          {{ riskLabel() }}
+        </h2>
+
+        <span
+          class="risk-badge inline-flex h-7 items-center gap-2 rounded-full border px-3 text-xs font-semibold"
+        >
+          <span class="risk-badge-dot size-1.5 rounded-full" aria-hidden="true"></span>
+
           {{ riskLabel() }}
         </span>
 
-        <p>{{ riskGuidance() }}</p>
+        <p class="risk-guidance mt-4 mb-0 text-sm">
+          {{ riskGuidance() }}
+        </p>
       </div>
 
       <div
-        class="confidence-ring"
+        class="confidence-ring absolute top-10 right-14 size-32 max-md:right-6 max-sm:relative max-sm:top-auto max-sm:right-auto max-sm:mx-auto max-sm:mt-6 max-sm:mb-12"
         [attr.aria-label]="(confidencePercent() ?? 'Unknown') + '% AI confidence'"
         role="img"
       >
         <img
-          class="confidence-ring__base"
+          class="absolute inset-0 block size-32"
           src="/assessment-result/confidence-ring-base.svg"
           width="126"
           height="126"
           alt=""
         />
+
         <img
-          class="confidence-ring__progress"
+          class="confidence-ring__progress absolute inset-0 block size-32"
           src="/assessment-result/confidence-ring.png"
           width="126"
           height="126"
           alt=""
           [style.--confidence]="(confidencePercent() ?? 0) + '%'"
         />
-        <span class="confidence-ring__value">
-          <strong>
+
+        <span class="absolute inset-0 flex flex-col items-center justify-center">
+          <strong class="text-xl leading-none font-semibold">
             {{ confidencePercent() ?? '—' }}
+
             @if (confidencePercent() !== null) {
               %
             }
           </strong>
-          <small>Confidence</small>
+
+          <small class="mt-1 text-xs font-semibold text-(--dashboard-muted) uppercase">
+            Confidence
+          </small>
         </span>
       </div>
 
       @if (escalationMessage(); as escalation) {
-        <div class="escalation-message" role="note">
-          <svg aria-hidden="true" viewBox="0 0 16 16">
+        <div
+          class="escalation-message absolute right-6 bottom-4 left-6 flex min-h-7 items-center gap-2 rounded-lg px-4 py-2 text-xs leading-snug text-white max-sm:right-5 max-sm:left-5"
+          role="note"
+        >
+          <svg
+            class="w-3 shrink-0 fill-white"
+            aria-hidden="true"
+            viewBox="0 0 16 16"
+          >
             <path d="M8 2 14 13H2L8 2Z" />
             <path d="M8 6v3.5M8 11.7v.1" />
           </svg>
+
           <span>{{ escalation }}</span>
         </div>
       }
     </section>
 
-    <div class="result-grid result-grid--primary">
-      <section class="result-card factor-card">
-        <header class="card-heading">
-          <h2>Key contributing factors</h2>
-          <p>Positive measurements with the strongest model influence.</p>
+    <div class="mt-6 grid gap-6 lg:grid-cols-3">
+      <section
+        class="result-card min-h-64 min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 shadow-sm max-sm:p-4 lg:col-span-2"
+      >
+        <header>
+          <h2 class="m-0 text-base leading-snug font-semibold">
+            Key contributing factors
+          </h2>
+
+          <p class="mt-2 mb-0 text-sm text-(--dashboard-muted)">
+            Positive measurements with the strongest model influence.
+          </p>
         </header>
 
         @if (factorRows().length) {
-          <div class="factor-table-wrap">
+          <div class="mt-4 overflow-x-auto">
             <table class="factor-table">
               <thead>
                 <tr>
@@ -91,22 +141,31 @@
                   <th scope="col">Impact</th>
                 </tr>
               </thead>
+
               <tbody>
                 @for (factor of factorRows(); track factor.vital) {
                   <tr>
                     <td>{{ factor.vital }}</td>
                     <td>{{ factor.currentValue }}</td>
+
                     <td>
                       <span
-                        class="factor-influence"
+                        class="font-medium text-(--dashboard-green)"
                         [class.factor-influence--positive]="factor.positive"
                       >
                         {{ factor.influence }}
                       </span>
                     </td>
+
                     <td>
-                      <div class="impact-track" aria-hidden="true">
-                        <span [style.width.%]="factor.progress"></span>
+                      <div
+                        class="h-1.5 w-full overflow-hidden rounded-full bg-(--dashboard-canvas)"
+                        aria-hidden="true"
+                      >
+                        <span
+                          class="impact-progress block h-full rounded-full"
+                          [style.width.%]="factor.progress"
+                        ></span>
                       </div>
                     </td>
                   </tr>
@@ -115,52 +174,93 @@
             </table>
           </div>
         } @else {
-          <p class="empty-copy">No contributing factors were returned for this assessment.</p>
+          <p class="mt-6 text-xs text-(--dashboard-muted)">
+            No contributing factors were returned for this assessment.
+          </p>
         }
       </section>
 
-      <section class="result-card recommendation-card">
-        <header class="card-heading">
-          <h2>Recommended actions</h2>
-          <p>Based on this patient’s current readings.</p>
+      <section
+        class="result-card min-h-64 min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 shadow-sm max-sm:p-4"
+      >
+        <header>
+          <h2 class="m-0 text-base leading-snug font-semibold">
+            Recommended actions
+          </h2>
+
+          <p class="mt-2 mb-0 text-sm text-(--dashboard-muted)">
+            Based on this patient’s current readings.
+          </p>
         </header>
 
         @if (recommendations().length) {
-          <ol class="recommendation-list">
+          <ol class="mt-6 grid list-none gap-4 p-0">
             @for (recommendation of recommendations(); track recommendation) {
-              <li>
-                <span class="recommendation-number">{{ $index + 1 }}</span>
-                <p>{{ recommendation }}</p>
+              <li class="flex items-center gap-3">
+                <span
+                  class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-(--dashboard-green-soft) text-xs font-semibold text-(--dashboard-green)"
+                >
+                  {{ $index + 1 }}
+                </span>
+
+                <p class="m-0 text-sm leading-snug text-(--dashboard-muted)">
+                  {{ recommendation }}
+                </p>
               </li>
             }
           </ol>
         } @else {
-          <p class="empty-copy">No recommended actions were returned for this assessment.</p>
+          <p class="mt-6 text-xs text-(--dashboard-muted)">
+            No recommended actions were returned for this assessment.
+          </p>
         }
       </section>
     </div>
 
-    <div class="result-grid result-grid--secondary">
-      <section class="result-card interpretation-card">
-        <h2>Clinical interpretation</h2>
-        <ul class="interpretation-list">
+    <div class="mt-6 grid gap-6 md:grid-cols-2">
+      <section
+        class="result-card min-h-48 min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 shadow-sm max-sm:p-4"
+      >
+        <h2 class="m-0 text-base leading-snug font-semibold">
+          Clinical interpretation
+        </h2>
+
+        <ul
+          class="interpretation-list mt-4 mb-0 max-w-md pl-5 text-sm leading-relaxed text-(--dashboard-muted)"
+        >
           @for (interpretation of clinicalInterpretations(); track interpretation) {
             <li>{{ interpretation }}</li>
           }
         </ul>
-        <span class="ai-summary-label">
-          <span aria-hidden="true">◆</span>
+
+        <span
+          class="mt-5 inline-flex h-7 items-center gap-2 rounded-full bg-(--dashboard-green-soft) px-3 text-xs text-(--dashboard-green)"
+        >
+          <span class="text-xs" aria-hidden="true">◆</span>
           AI clinical summary
         </span>
       </section>
 
-      <section class="result-card vitals-card">
-        <h2>Patient vitals</h2>
-        <div class="vital-grid">
+      <section
+        class="result-card min-h-48 min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 shadow-sm max-sm:p-4"
+      >
+        <h2 class="m-0 text-base leading-snug font-semibold">
+          Patient vitals
+        </h2>
+
+        <div class="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
           @for (vital of patientVitals(); track vital.label) {
-            <article [class.vital-reading--alert]="vital.alert" class="vital-reading">
-              <strong>{{ vital.value }}</strong>
-              <span>{{ vital.label }}</span>
+            <article
+              class="vital-reading flex min-h-24 min-w-0 flex-col justify-center rounded-xl border border-(--dashboard-border) bg-(--dashboard-canvas) p-4"
+              [class.vital-reading--alert]="vital.alert"
+            >
+              <strong class="text-xl font-semibold">
+                {{ vital.value }}
+              </strong>
+
+              <span class="mt-2 text-xs text-(--dashboard-muted)">
+                {{ vital.label }}
+              </span>
             </article>
           }
         </div>
@@ -168,50 +268,86 @@
     </div>
 
     <section
-      class="result-actions"
-      [class.result-actions--guest]="!isAuthenticated()"
+      class="result-actions mt-6 grid grid-cols-1 gap-4 rounded-2xl border border-(--dashboard-border) bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3"
       aria-label="Assessment actions"
     >
       <button
-        class="action-button action-button--unavailable"
+        class="action-button action-button--unavailable inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-dashed border-(--dashboard-border) px-4 text-sm opacity-100 focus-visible:outline-2 focus-visible:outline-(--dashboard-green) focus-visible:outline-offset-2"
         type="button"
         disabled
         aria-label="Generate referral letter, coming soon"
       >
         <span>Generate referral letter</span>
-        <small>Coming soon</small>
+
+        <small
+          class="rounded-full bg-(--dashboard-border) px-2 py-1 text-xs font-semibold text-(--dashboard-muted) uppercase"
+        >
+          Coming soon
+        </small>
       </button>
 
       @if (isAuthenticated()) {
         <button
-          class="action-button action-button--unavailable"
+          class="action-button action-button--unavailable inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-dashed border-(--dashboard-border) px-4 text-sm opacity-100 focus-visible:outline-2 focus-visible:outline-(--dashboard-green) focus-visible:outline-offset-2"
           type="button"
           disabled
           aria-label="Save to patient record, coming soon"
         >
           <span>Save to patient record</span>
-          <small>Coming soon</small>
+
+          <small
+            class="rounded-full bg-(--dashboard-border) px-2 py-1 text-xs font-semibold text-(--dashboard-muted) uppercase"
+          >
+            Coming soon
+          </small>
         </button>
       }
 
-      <button class="action-button" type="button" (click)="printReport()">
+      <button
+        class="action-button inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-(--dashboard-border) bg-white px-4 text-sm text-(--dashboard-text) enabled:hover:bg-(--dashboard-canvas) focus-visible:outline-2 focus-visible:outline-(--dashboard-green) focus-visible:outline-offset-2"
+        type="button"
+        (click)="printReport()"
+      >
         Print clinical report
       </button>
     </section>
 
-    <aside class="result-disclaimer">
-      <span aria-hidden="true">◆</span>
-      <p>
+    <aside
+      class="mt-6 flex min-h-12 items-center gap-3 rounded-xl border border-(--dashboard-border) bg-(--dashboard-canvas) p-4 text-(--dashboard-muted) max-sm:items-start"
+    >
+      <span class="text-xs text-(--dashboard-green)" aria-hidden="true">◆</span>
+
+      <p class="m-0 text-xs">
         NataBridge supports clinical decisions and does not replace professional examination or
         judgment.
       </p>
     </aside>
   } @else {
-    <section class="empty-state">
-      <span aria-hidden="true">!</span>
-      <h1>No assessment result available</h1>
-      <p>Complete an assessment first, then return here to review its clinical report.</p>
-      <button type="button" (click)="goBack()">Return to assessment</button>
+    <section
+      class="empty-state mx-auto my-16 flex min-h-80 max-w-xl flex-col items-center justify-center rounded-2xl border border-(--dashboard-border) bg-white p-10 text-center max-sm:p-6"
+    >
+      <span
+        class="grid size-11 place-items-center rounded-full bg-(--dashboard-danger-soft) font-bold text-(--dashboard-danger)"
+        aria-hidden="true"
+      >
+        !
+      </span>
+
+      <h1 class="mt-5 mb-0 text-xl font-semibold">
+        No assessment result available
+      </h1>
+
+      <p class="mt-2 mb-6 text-sm text-(--dashboard-muted)">
+        Complete an assessment first, then return here to review its clinical report.
+      </p>
+
+      <button
+        class="h-10 cursor-pointer rounded-lg border-0 bg-(--dashboard-navy) px-5 text-sm text-white focus-visible:outline-2 focus-visible:outline-(--dashboard-green) focus-visible:outline-offset-2"
+        type="button"
+        (click)="goBack()"
+      >
+        Return to assessment
+      </button>
     </section>
   }
 </main>
