@@ -69,6 +69,8 @@ test("clinician assessments are filtered and normalized", async () => {
 
     assert.deepEqual(client.queryValues, ["clinician-1"]);
     assert.match(client.querySql, /assessment\.created_by_user_id = \$1/);
+    assert.match(client.querySql, /mother\.id = assessment\.beneficiary_id/);
+    assert.match(client.querySql, /mother\.date_of_birth::TEXT AS patient_dob/);
     assert.match(client.querySql, /ORDER BY assessment\.created_at DESC/);
     assert.equal(assessments[0]?.patient.firstName, "Amina");
     assert.equal(assessments[0]?.measurements.bloodSugar, 6.2);

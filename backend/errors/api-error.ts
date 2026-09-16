@@ -31,12 +31,12 @@ type ApiErrorResponse = {
 };
 
 const uniqueConstraintResponses = new Map<string, UniqueConstraintResponse>([
-     ["unique_patient_email", {
+     ["mothers_email_case_insensitive_unique", {
           code: "PATIENT_EMAIL_ALREADY_EXISTS",
           field: "email",
           message: "A patient with this email address already exists."
      }],
-     ["unique_patient_phone", {
+     ["mothers_phone_unique", {
           code: "PATIENT_PHONE_ALREADY_EXISTS",
           field: "phone",
           message: "A patient with this phone number already exists."

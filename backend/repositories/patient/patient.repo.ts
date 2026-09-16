@@ -1,5 +1,5 @@
-import { PoolClient } from "pg";
-import { PatientRepoInput } from "../../models/patient/repo/patients.repo";
+import type { PoolClient } from "pg";
+import type { PatientRepoInput } from "../../models/patient/repo/patients.repo";
 
 type PatientSummaryRow = {
     id: string;
@@ -10,23 +10,56 @@ type PatientSummaryRow = {
     currentRiskLevel: string | null;
 };
 
+const patientSummaryQuery = `
+    SELECT
+        mother.id,
+        CONCAT_WS(' ', mother.firstname, mother.middlename, mother.lastname) AS name,
+        latest.age,
+        latest.gestational_age AS "gestationalAge",
+        latest.created_at AS "lastAssessment",
+        latest.prediction AS "currentRiskLevel"
+    FROM mothers mother
+    LEFT JOIN LATERAL (
+        SELECT
+            prediction_run.age,
+            assessment.gestational_age,
+            assessment.created_at,
+            prediction_result.prediction
+        FROM assessments assessment
+        INNER JOIN prediction_runs prediction_run
+            ON prediction_run.id = assessment.prediction_run_id
+            AND prediction_run.source = 'patient_assessment'
+            AND prediction_run.status = 'completed'
+        INNER JOIN prediction_results prediction_result
+            ON prediction_result.prediction_run_id = prediction_run.id
+        WHERE assessment.beneficiary_id = mother.id
+        ORDER BY assessment.created_at DESC, assessment.id DESC
+        LIMIT 1
+    ) latest ON TRUE
+`;
+
 const createPatient = async (
-    pool: PoolClient,
+    client: PoolClient,
     patient: PatientRepoInput
 ) => {
-    const result = await pool.query(
+    await client.query(
+        "INSERT INTO beneficiaries (id, type) VALUES ($1, 'MOTHER')",
+        [patient.id]
+    );
+
+    const result = await client.query(
         `
-        INSERT INTO patients (
+        INSERT INTO mothers (
             id,
             firstname,
             middlename,
             lastname,
-            dob,
+            date_of_birth,
             email,
             phone
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING *
+        RETURNING id, firstname, middlename, lastname, email, phone, created_at
         `,
         [
             patient.id,
@@ -43,25 +76,21 @@ const createPatient = async (
 };
 
 const getPatientsWithLatestAssessment = async(
-    pool: PoolClient,
+    client: PoolClient,
 ) => {
-    const result = await pool.query<PatientSummaryRow>(
-        'SELECT * FROM get_patients_latest_assessment;'
+    const result = await client.query<PatientSummaryRow>(
+        `${patientSummaryQuery} ORDER BY mother.created_at DESC, mother.id DESC`
     );
 
     return result.rows;
 }
 
 const getPatientById = async (
-    pool: PoolClient,
+    client: PoolClient,
     patientId: string
 ) => {
-    const result = await pool.query<PatientSummaryRow>(
-        `
-        SELECT *
-        FROM get_patients_latest_assessment
-        WHERE id = $1
-        `,
+    const result = await client.query<PatientSummaryRow>(
+        `${patientSummaryQuery} WHERE mother.id = $1`,
         [patientId]
     );
 
@@ -69,11 +98,11 @@ const getPatientById = async (
 };
 
 const patientExists = async (
-    pool: PoolClient,
+    client: PoolClient,
     patientId: string
 ) => {
-    const result = await pool.query(
-        "SELECT EXISTS (SELECT 1 FROM patients WHERE id = $1) AS exists",
+    const result = await client.query(
+        "SELECT EXISTS (SELECT 1 FROM mothers WHERE id = $1) AS exists",
         [patientId]
     );
 

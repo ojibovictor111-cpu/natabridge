@@ -141,7 +141,8 @@ test("standalone predictions persist without creating patients or assessments", 
      assert.equal(runInsert?.values[2], null);
      assert.equal(runInsert?.values[3], "req-public");
      assert.deepEqual(JSON.parse(String(resultInsert?.values[8])), aiResponse);
-     assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO patients")), false);
+     assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO beneficiaries")), false);
+     assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO mothers")), false);
      assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO assessments")), false);
 });
 
@@ -179,7 +180,7 @@ test("one patient can receive repeated assessments without reinserting the patie
           client.calls.filter((call) => call.sql.includes("INSERT INTO assessments")).length,
           2
      );
-     assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO patients")), false);
+     assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO mothers")), false);
 });
 
 test("new patient and assessment persistence uses one transaction", async (context) => {
@@ -211,13 +212,18 @@ test("new patient and assessment persistence uses one transaction", async (conte
      assert.equal(client.calls.filter((call) => call.sql === "COMMIT").length, 1);
      assert.equal(client.calls.some((call) => call.sql === "ROLLBACK"), false);
 
+     const beneficiaryInsert = client.calls.find((call) =>
+          call.sql.includes("INSERT INTO beneficiaries")
+     );
      const patientInsert = client.calls.find((call) =>
-          call.sql.includes("INSERT INTO patients")
+          call.sql.includes("INSERT INTO mothers")
      );
      const runInsert = client.calls.find((call) =>
           call.sql.includes("INSERT INTO prediction_runs")
      );
 
+     assert.equal(beneficiaryInsert?.values[0], result.patientId);
+     assert.equal(patientInsert?.values[0], result.patientId);
      assert.equal(patientInsert?.values[1], "Amina");
      assert.equal(patientInsert?.values[5], "amina@example.com");
      assert.equal(runInsert?.values[3], "req-new-patient");
@@ -251,7 +257,7 @@ test("new patient creation rolls back when assessment persistence fails", async 
      );
 
      assert.equal(
-          client.calls.some((call) => call.sql.includes("INSERT INTO patients")),
+          client.calls.some((call) => call.sql.includes("INSERT INTO mothers")),
           true
      );
      assert.equal(client.calls.some((call) => call.sql === "ROLLBACK"), true);
@@ -290,7 +296,7 @@ test("new patient is not persisted when AI assessment fails", async (context) =>
      );
 
      assert.equal(
-          client.calls.some((call) => call.sql.includes("INSERT INTO patients")),
+          client.calls.some((call) => call.sql.includes("INSERT INTO mothers")),
           false
      );
      assert.equal(client.calls.some((call) => call.sql === "BEGIN"), false);

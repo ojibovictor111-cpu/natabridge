@@ -8,9 +8,12 @@ import {
 
 class FakePatientClient {
      releaseCount = 0;
+     readonly queries: string[] = [];
 
      async query(sql: string) {
-          if (sql.includes("INSERT INTO patients")) {
+          this.queries.push(sql);
+
+          if (sql.includes("INSERT INTO mothers")) {
                return {
                     rows: [{
                          id: "pat-created",
@@ -27,7 +30,7 @@ class FakePatientClient {
                };
           }
 
-          if (sql.includes("get_patients_latest_assessment")) {
+          if (sql.includes("FROM mothers mother")) {
                return {
                     rows: [{
                          id: "pat-created",
@@ -68,6 +71,8 @@ test("patient registration preserves the submitted calendar date", async () => {
 
      assert.equal(patient.dob, "2000-01-01");
      assert.equal(patient.email, "amina@example.com");
+     assert.equal(client.queries.some((sql) => sql.includes("INSERT INTO beneficiaries")), true);
+     assert.equal(client.queries.some((sql) => sql.includes("INSERT INTO mothers")), true);
      assert.equal(client.releaseCount, 1);
 });
 
@@ -77,5 +82,6 @@ test("patient summaries expose PostgreSQL numeric values as JSON numbers", async
 
      assert.equal(patients[0]?.age, 26);
      assert.equal(patients[0]?.gestationalAge, 24);
+     assert.match(client.queries[0] ?? "", /assessment\.beneficiary_id = mother\.id/);
      assert.equal(client.releaseCount, 1);
 });

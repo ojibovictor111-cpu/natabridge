@@ -12,7 +12,7 @@ const createAssessment = async (
         `
         INSERT INTO assessments (
             id,
-            patient_id,
+            beneficiary_id,
             prediction_run_id,
             created_by_user_id,
             gestational_age,
@@ -50,13 +50,13 @@ const getAssessmentsByClinician = async (
             assessment.previous_complications,
             assessment.created_at AS assessed_at,
 
-            patient.id AS patient_id,
-            patient.firstname AS patient_firstname,
-            patient.middlename AS patient_middlename,
-            patient.lastname AS patient_lastname,
-            patient.dob AS patient_dob,
-            patient.email AS patient_email,
-            patient.phone AS patient_phone,
+            mother.id AS patient_id,
+            mother.firstname AS patient_firstname,
+            mother.middlename AS patient_middlename,
+            mother.lastname AS patient_lastname,
+            mother.date_of_birth::TEXT AS patient_dob,
+            mother.email AS patient_email,
+            mother.phone AS patient_phone,
 
             prediction_run.id AS prediction_run_id,
             prediction_run.status AS prediction_status,
@@ -90,8 +90,8 @@ const getAssessmentsByClinician = async (
                 '[]'::JSON
             ) AS factors
         FROM assessments assessment
-        INNER JOIN patients patient
-            ON patient.id = assessment.patient_id
+        INNER JOIN mothers mother
+            ON mother.id = assessment.beneficiary_id
         INNER JOIN prediction_runs prediction_run
             ON prediction_run.id = assessment.prediction_run_id
         LEFT JOIN prediction_results prediction_result

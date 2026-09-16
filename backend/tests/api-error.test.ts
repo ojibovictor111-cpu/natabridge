@@ -10,7 +10,7 @@ import {
 test("maps duplicate patient emails to a descriptive 409 response", () => {
      const databaseError = Object.assign(new Error("duplicate key"), {
           code: "23505",
-          constraint: "unique_patient_email",
+          constraint: "mothers_email_case_insensitive_unique",
           detail: "Key (email)=(private@example.com) already exists."
      });
 
@@ -23,13 +23,13 @@ test("maps duplicate patient emails to a descriptive 409 response", () => {
           field: "email",
           requestId: "req-9"
      });
-     assert.doesNotMatch(JSON.stringify(response), /private@example\.com|unique_patient_email|duplicate key/);
+     assert.doesNotMatch(JSON.stringify(response), /private@example\.com|mothers_email_case_insensitive_unique|duplicate key/);
 });
 
 test("maps duplicate patient phone numbers to a descriptive 409 response", () => {
      const databaseError = Object.assign(new Error("duplicate key"), {
           code: "23505",
-          constraint: "unique_patient_phone"
+          constraint: "mothers_phone_unique"
      });
 
      assert.deepEqual(createApiErrorResponse(databaseError), {
@@ -114,7 +114,7 @@ test("Fastify sends the mapped duplicate response through the global handler", a
      server.get("/duplicate", async () => {
           throw Object.assign(new Error("duplicate key"), {
                code: "23505",
-               constraint: "unique_patient_email",
+               constraint: "mothers_email_case_insensitive_unique",
                detail: "Key (email)=(private@example.com) already exists."
           });
      });
@@ -133,7 +133,7 @@ test("Fastify sends the mapped duplicate response through the global handler", a
           requestId: response.json().requestId
      });
      assert.equal(typeof response.json().requestId, "string");
-     assert.doesNotMatch(response.body, /private@example\.com|unique_patient_email|duplicate key/);
+     assert.doesNotMatch(response.body, /private@example\.com|mothers_email_case_insensitive_unique|duplicate key/);
 
      await server.close();
 });
