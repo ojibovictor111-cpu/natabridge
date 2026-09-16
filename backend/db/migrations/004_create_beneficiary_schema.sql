@@ -13,7 +13,7 @@ CREATE TYPE birth_status AS ENUM (
 );
 
 CREATE TABLE beneficiaries (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     type beneficiary_type NOT NULL,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -32,7 +32,7 @@ CREATE INDEX beneficiaries_type_idx
     ON beneficiaries (type);
 
 CREATE TABLE mothers (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     type beneficiary_type NOT NULL DEFAULT 'MOTHER',
     firstname VARCHAR(100) NOT NULL,
     middlename VARCHAR(100),
@@ -72,9 +72,9 @@ CREATE TRIGGER mothers_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE babies (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     type beneficiary_type NOT NULL DEFAULT 'BABY',
-    pregnancy_id UUID NOT NULL,
+    pregnancy_id VARCHAR(100) NOT NULL,
     birth_date DATE NOT NULL,
     birth_time TIME,
     birth_weight NUMERIC(6, 3),

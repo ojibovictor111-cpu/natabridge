@@ -4,6 +4,7 @@ import { fastifyPostgres } from "@fastify/postgres";
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { fastify } from "fastify";
 import { dbConfig } from "./configs/db.config";
+import { DEMO_USER_ID } from "./configs/demo-user";
 import { apiErrorHandler } from "./errors/api-error";
 import { assessmentRoutes } from "./routes/assessment/assessment.route";
 import { dashboardRoutes } from "./routes/dashboard/dashboard.route";
@@ -47,9 +48,9 @@ const buildServer = (options: BuildServerOptions = {}) => {
      server.addHook("preHandler", async (request) => {
           const sessionId = request.cookies.session_id;
 
-          request.user = sessionId === undefined
-               ? null
-               : { id: sessionId };
+          request.user = sessionId === DEMO_USER_ID
+               ? { id: DEMO_USER_ID }
+               : null;
      });
 
      server.register(userRoutes, { prefix: "/api/users" });

@@ -1,7 +1,6 @@
 import type { AiApiResponse } from "../../ai/aiApiResponse.model";
 import type { PredictionRequest } from "../dto/prediction.dto";
-
-type PredictionRunSource = "standalone" | "patient_assessment";
+import type { PredictionRunSource } from "../prediction.model";
 
 type CreatePredictionRunInput = PredictionRequest & {
      id: string;
@@ -18,6 +17,5 @@ type CreatePredictionResultInput = {
 
 export type {
      CreatePredictionResultInput,
-     CreatePredictionRunInput,
-     PredictionRunSource
+     CreatePredictionRunInput
 };

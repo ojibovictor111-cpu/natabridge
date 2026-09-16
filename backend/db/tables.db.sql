@@ -1,5 +1,5 @@
 -- NataBridge consolidated database schema reference
--- Last synchronized: 2026-09-15
+-- Last synchronized: 2026-09-16
 -- This file is a view model for documentation and review only.
 -- Do not execute this file or treat it as migration history.
 -- The ordered files in db/migrations are the authoritative schema source.
@@ -11,6 +11,7 @@
 -- Migration: Create identity and RBAC schema
 -- Created: 2026-09-01
 -- Description: Introduces roles, permissions, and their assignments for NataBridge access control.
+-- Application entity IDs use a descriptive prefix plus a UUID string, so keys and references are VARCHAR(100).
 
 CREATE TYPE role_scope AS ENUM (
     'PLATFORM',
@@ -33,7 +34,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TABLE users (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     firebase_uid VARCHAR(128) NOT NULL UNIQUE,
     firstname VARCHAR(100) NOT NULL,
     lastname VARCHAR(100) NOT NULL,
@@ -54,7 +55,7 @@ CREATE TRIGGER users_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE roles (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     scope role_scope NOT NULL,
     description TEXT,
@@ -66,7 +67,7 @@ CREATE TABLE roles (
 );
 
 CREATE TABLE permissions (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     scope role_scope NOT NULL,
     description TEXT,
@@ -78,8 +79,8 @@ CREATE TABLE permissions (
 );
 
 CREATE TABLE role_permissions (
-    role_id UUID NOT NULL,
-    permission_id UUID NOT NULL,
+    role_id VARCHAR(100) NOT NULL,
+    permission_id VARCHAR(100) NOT NULL,
     scope role_scope NOT NULL,
 
     PRIMARY KEY (role_id, permission_id),
@@ -98,10 +99,10 @@ CREATE INDEX role_permissions_permission_idx
     ON role_permissions (permission_id);
 
 CREATE TABLE user_roles (
-    user_id UUID NOT NULL,
-    role_id UUID NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    role_id VARCHAR(100) NOT NULL,
     scope role_scope NOT NULL,
-    institution_id UUID,
+    institution_id VARCHAR(100),
     assigned_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT user_roles_role_scope_fk
@@ -161,7 +162,7 @@ CREATE TYPE onboarding_status AS ENUM (
 );
 
 CREATE TABLE institutions (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(50) NOT NULL,
     registration_number VARCHAR(100) UNIQUE,
@@ -181,10 +182,10 @@ CREATE TRIGGER institutions_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE institution_onboarding (
-    id UUID PRIMARY KEY,
-    institution_id UUID NOT NULL,
-    submitted_by UUID NOT NULL,
-    reviewed_by UUID,
+    id VARCHAR(100) PRIMARY KEY,
+    institution_id VARCHAR(100) NOT NULL,
+    submitted_by VARCHAR(100) NOT NULL,
+    reviewed_by VARCHAR(100),
     status onboarding_status NOT NULL DEFAULT 'PENDING',
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     reviewed_at TIMESTAMPTZ,
@@ -238,7 +239,7 @@ CREATE TYPE membership_status AS ENUM (
 );
 
 CREATE TABLE practitioner_designations (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
 
@@ -252,9 +253,9 @@ CREATE TRIGGER practitioner_designations_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE practitioners (
-    id UUID PRIMARY KEY,
-    user_id UUID NOT NULL UNIQUE,
-    designation_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(100) NOT NULL UNIQUE,
+    designation_id VARCHAR(100) NOT NULL,
     license_number VARCHAR(100) NOT NULL UNIQUE,
     professional_registration_number VARCHAR(100) NOT NULL UNIQUE,
 
@@ -280,10 +281,10 @@ CREATE TRIGGER practitioners_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE practitioner_onboarding (
-    id UUID PRIMARY KEY,
-    practitioner_id UUID NOT NULL,
-    submitted_by UUID NOT NULL,
-    reviewed_by UUID,
+    id VARCHAR(100) PRIMARY KEY,
+    practitioner_id VARCHAR(100) NOT NULL,
+    submitted_by VARCHAR(100) NOT NULL,
+    reviewed_by VARCHAR(100),
     status onboarding_status NOT NULL DEFAULT 'PENDING',
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     reviewed_at TIMESTAMPTZ,
@@ -317,9 +318,9 @@ CREATE INDEX practitioner_onboarding_reviewer_idx
     WHERE reviewed_by IS NOT NULL;
 
 CREATE TABLE institution_memberships (
-    id UUID PRIMARY KEY,
-    user_id UUID NOT NULL,
-    institution_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(100) NOT NULL,
+    institution_id VARCHAR(100) NOT NULL,
     status membership_status NOT NULL DEFAULT 'ACTIVE',
     started_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMPTZ,
@@ -372,7 +373,7 @@ CREATE TYPE birth_status AS ENUM (
 );
 
 CREATE TABLE beneficiaries (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     type beneficiary_type NOT NULL,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -391,7 +392,7 @@ CREATE INDEX beneficiaries_type_idx
     ON beneficiaries (type);
 
 CREATE TABLE mothers (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     type beneficiary_type NOT NULL DEFAULT 'MOTHER',
     firstname VARCHAR(100) NOT NULL,
     middlename VARCHAR(100),
@@ -431,9 +432,9 @@ CREATE TRIGGER mothers_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE babies (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     type beneficiary_type NOT NULL DEFAULT 'BABY',
-    pregnancy_id UUID NOT NULL,
+    pregnancy_id VARCHAR(100) NOT NULL,
     birth_date DATE NOT NULL,
     birth_time TIME,
     birth_weight NUMERIC(6, 3),
@@ -535,8 +536,8 @@ CREATE TYPE pregnancy_status AS ENUM (
 );
 
 CREATE TABLE pregnancies (
-    id UUID PRIMARY KEY,
-    mother_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    mother_id VARCHAR(100) NOT NULL,
     notice_date DATE NOT NULL,
     estimated_delivery_date DATE,
     actual_delivery_date DATE,
@@ -568,21 +569,21 @@ CREATE TRIGGER pregnancies_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE complications (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     code VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(150) NOT NULL,
     description TEXT
 );
 
 CREATE TABLE pregnancy_complications (
-    id UUID PRIMARY KEY,
-    pregnancy_id UUID NOT NULL,
-    complication_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    pregnancy_id VARCHAR(100) NOT NULL,
+    complication_id VARCHAR(100) NOT NULL,
     diagnosed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     severity VARCHAR(30),
     notes TEXT,
     resolved_at TIMESTAMPTZ,
-    recorded_by UUID NOT NULL,
+    recorded_by VARCHAR(100) NOT NULL,
 
     CONSTRAINT pregnancy_complications_pregnancy_fk
         FOREIGN KEY (pregnancy_id)
@@ -634,14 +635,14 @@ CREATE TYPE institutional_care_status AS ENUM (
 );
 
 CREATE TABLE institutional_care (
-    id UUID PRIMARY KEY,
-    institution_id UUID NOT NULL,
-    beneficiary_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    institution_id VARCHAR(100) NOT NULL,
+    beneficiary_id VARCHAR(100) NOT NULL,
     started_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMPTZ,
     status institutional_care_status NOT NULL DEFAULT 'ACTIVE',
     reason TEXT,
-    created_by UUID NOT NULL,
+    created_by VARCHAR(100) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT institutional_care_institution_fk
@@ -680,11 +681,11 @@ CREATE INDEX institutional_care_creator_idx
     ON institutional_care (created_by);
 
 CREATE TABLE clinical_visits (
-    id UUID PRIMARY KEY,
-    beneficiary_id UUID NOT NULL,
-    pregnancy_id UUID,
-    institution_id UUID NOT NULL,
-    practitioner_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    beneficiary_id VARCHAR(100) NOT NULL,
+    pregnancy_id VARCHAR(100),
+    institution_id VARCHAR(100) NOT NULL,
+    practitioner_id VARCHAR(100) NOT NULL,
     visit_type VARCHAR(50) NOT NULL,
     occurred_at TIMESTAMPTZ NOT NULL,
     notes TEXT,
@@ -722,8 +723,8 @@ CREATE INDEX clinical_visits_practitioner_occurred_at_idx
     ON clinical_visits (practitioner_id, occurred_at DESC);
 
 CREATE TABLE antenatal_assessments (
-    id UUID PRIMARY KEY,
-    visit_id UUID NOT NULL UNIQUE,
+    id VARCHAR(100) PRIMARY KEY,
+    visit_id VARCHAR(100) NOT NULL UNIQUE,
     gestational_age_weeks NUMERIC(5, 2),
     systolic_bp NUMERIC(6, 2),
     diastolic_bp NUMERIC(6, 2),
@@ -739,8 +740,8 @@ CREATE TABLE antenatal_assessments (
 );
 
 CREATE TABLE postnatal_assessments (
-    id UUID PRIMARY KEY,
-    visit_id UUID NOT NULL UNIQUE,
+    id VARCHAR(100) PRIMARY KEY,
+    visit_id VARCHAR(100) NOT NULL UNIQUE,
     systolic_bp NUMERIC(6, 2),
     diastolic_bp NUMERIC(6, 2),
     body_temperature_celsius NUMERIC(5, 2),
@@ -755,8 +756,8 @@ CREATE TABLE postnatal_assessments (
 );
 
 CREATE TABLE neonatal_assessments (
-    id UUID PRIMARY KEY,
-    visit_id UUID NOT NULL UNIQUE,
+    id VARCHAR(100) PRIMARY KEY,
+    visit_id VARCHAR(100) NOT NULL UNIQUE,
     weight NUMERIC(6, 3),
     body_temperature_celsius NUMERIC(5, 2),
     heart_rate NUMERIC(6, 2),
@@ -789,12 +790,12 @@ CREATE TYPE referral_status AS ENUM (
 );
 
 CREATE TABLE referrals (
-    id UUID PRIMARY KEY,
-    beneficiary_id UUID NOT NULL,
-    pregnancy_id UUID,
-    from_institution_id UUID NOT NULL,
-    to_institution_id UUID NOT NULL,
-    referred_by UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    beneficiary_id VARCHAR(100) NOT NULL,
+    pregnancy_id VARCHAR(100),
+    from_institution_id VARCHAR(100) NOT NULL,
+    to_institution_id VARCHAR(100) NOT NULL,
+    referred_by VARCHAR(100) NOT NULL,
     reason TEXT NOT NULL,
     priority VARCHAR(30) NOT NULL,
     status referral_status NOT NULL DEFAULT 'PENDING',
@@ -870,21 +871,21 @@ CREATE TYPE appointment_status AS ENUM (
 );
 
 CREATE TABLE appointment_types (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE appointments (
-    id UUID PRIMARY KEY,
-    beneficiary_id UUID NOT NULL,
-    institution_id UUID NOT NULL,
-    practitioner_id UUID,
-    pregnancy_id UUID,
-    appointment_type_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    beneficiary_id VARCHAR(100) NOT NULL,
+    institution_id VARCHAR(100) NOT NULL,
+    practitioner_id VARCHAR(100),
+    pregnancy_id VARCHAR(100),
+    appointment_type_id VARCHAR(100) NOT NULL,
     scheduled_at TIMESTAMPTZ NOT NULL,
     status appointment_status NOT NULL DEFAULT 'SCHEDULED',
     notes TEXT,
-    created_by UUID NOT NULL,
+    created_by VARCHAR(100) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -960,10 +961,10 @@ CREATE TYPE prediction_run_status AS ENUM (
 
 -- Tracks every request sent to the prediction service, including failed and standalone attempts that are not associated with a beneficiary assessment.
 CREATE TABLE prediction_runs (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     source prediction_run_source NOT NULL,
     status prediction_run_status NOT NULL DEFAULT 'pending',
-    created_by_user_id UUID,
+    created_by_user_id VARCHAR(100),
     request_id VARCHAR(100) NOT NULL,
 
     age NUMERIC(5, 2) NOT NULL,
@@ -1040,12 +1041,12 @@ CREATE INDEX prediction_runs_source_status_created_at_idx
 
 -- Stores the clinical context for a beneficiary assessment. The model inputs and execution lifecycle remain on the associated prediction run.
 CREATE TABLE assessments (
-    id UUID PRIMARY KEY,
-    beneficiary_id UUID NOT NULL,
-    pregnancy_id UUID,
-    clinical_visit_id UUID,
-    prediction_run_id UUID NOT NULL UNIQUE,
-    created_by_user_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    beneficiary_id VARCHAR(100) NOT NULL,
+    pregnancy_id VARCHAR(100),
+    clinical_visit_id VARCHAR(100),
+    prediction_run_id VARCHAR(100) NOT NULL UNIQUE,
+    created_by_user_id VARCHAR(100) NOT NULL,
 
     gestational_age NUMERIC(5, 2),
     first_pregnancy BOOLEAN,
@@ -1092,8 +1093,8 @@ CREATE INDEX assessments_creator_created_at_idx
 
 -- Stores the single structured model output produced by a successful run.
 CREATE TABLE prediction_results (
-    id UUID PRIMARY KEY,
-    prediction_run_id UUID NOT NULL UNIQUE,
+    id VARCHAR(100) PRIMARY KEY,
+    prediction_run_id VARCHAR(100) NOT NULL UNIQUE,
     prediction VARCHAR(30) NOT NULL,
     confidence NUMERIC(6, 5) NOT NULL,
     low_risk_probability NUMERIC(6, 5) NOT NULL,
@@ -1132,8 +1133,8 @@ CREATE TABLE prediction_results (
 
 -- Stores queryable explainability factors separately from the complete JSONB response retained on prediction_results.
 CREATE TABLE prediction_factors (
-    id UUID PRIMARY KEY,
-    prediction_result_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    prediction_result_id VARCHAR(100) NOT NULL,
     feature VARCHAR(100) NOT NULL,
     impact NUMERIC(10, 5) NOT NULL,
 
@@ -1159,12 +1160,12 @@ CREATE INDEX prediction_factors_result_idx
 -- Description: Introduces immutable audit records for changes made across NataBridge.
 
 CREATE TABLE audit_logs (
-    id UUID PRIMARY KEY,
-    actor_user_id UUID,
-    institution_id UUID,
+    id VARCHAR(100) PRIMARY KEY,
+    actor_user_id VARCHAR(100),
+    institution_id VARCHAR(100),
     action VARCHAR(100) NOT NULL,
     entity_type VARCHAR(100) NOT NULL,
-    entity_id UUID NOT NULL,
+    entity_id VARCHAR(100) NOT NULL,
     old_values JSONB,
     new_values JSONB,
     ip_address INET,
@@ -1207,4 +1208,3 @@ CREATE TRIGGER audit_logs_immutable
     BEFORE UPDATE OR DELETE OR TRUNCATE ON audit_logs
     FOR EACH STATEMENT
     EXECUTE FUNCTION prevent_audit_log_mutation();
-

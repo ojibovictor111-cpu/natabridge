@@ -15,10 +15,10 @@ CREATE TYPE prediction_run_status AS ENUM (
 
 -- Tracks every request sent to the prediction service, including failed and standalone attempts that are not associated with a beneficiary assessment.
 CREATE TABLE prediction_runs (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     source prediction_run_source NOT NULL,
     status prediction_run_status NOT NULL DEFAULT 'pending',
-    created_by_user_id UUID,
+    created_by_user_id VARCHAR(100),
     request_id VARCHAR(100) NOT NULL,
 
     age NUMERIC(5, 2) NOT NULL,
@@ -95,12 +95,12 @@ CREATE INDEX prediction_runs_source_status_created_at_idx
 
 -- Stores the clinical context for a beneficiary assessment. The model inputs and execution lifecycle remain on the associated prediction run.
 CREATE TABLE assessments (
-    id UUID PRIMARY KEY,
-    beneficiary_id UUID NOT NULL,
-    pregnancy_id UUID,
-    clinical_visit_id UUID,
-    prediction_run_id UUID NOT NULL UNIQUE,
-    created_by_user_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    beneficiary_id VARCHAR(100) NOT NULL,
+    pregnancy_id VARCHAR(100),
+    clinical_visit_id VARCHAR(100),
+    prediction_run_id VARCHAR(100) NOT NULL UNIQUE,
+    created_by_user_id VARCHAR(100) NOT NULL,
 
     gestational_age NUMERIC(5, 2),
     first_pregnancy BOOLEAN,
@@ -147,8 +147,8 @@ CREATE INDEX assessments_creator_created_at_idx
 
 -- Stores the single structured model output produced by a successful run.
 CREATE TABLE prediction_results (
-    id UUID PRIMARY KEY,
-    prediction_run_id UUID NOT NULL UNIQUE,
+    id VARCHAR(100) PRIMARY KEY,
+    prediction_run_id VARCHAR(100) NOT NULL UNIQUE,
     prediction VARCHAR(30) NOT NULL,
     confidence NUMERIC(6, 5) NOT NULL,
     low_risk_probability NUMERIC(6, 5) NOT NULL,
@@ -187,8 +187,8 @@ CREATE TABLE prediction_results (
 
 -- Stores queryable explainability factors separately from the complete JSONB response retained on prediction_results.
 CREATE TABLE prediction_factors (
-    id UUID PRIMARY KEY,
-    prediction_result_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    prediction_result_id VARCHAR(100) NOT NULL,
     feature VARCHAR(100) NOT NULL,
     impact NUMERIC(10, 5) NOT NULL,
 

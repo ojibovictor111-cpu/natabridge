@@ -11,21 +11,21 @@ CREATE TYPE appointment_status AS ENUM (
 );
 
 CREATE TABLE appointment_types (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE appointments (
-    id UUID PRIMARY KEY,
-    beneficiary_id UUID NOT NULL,
-    institution_id UUID NOT NULL,
-    practitioner_id UUID,
-    pregnancy_id UUID,
-    appointment_type_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    beneficiary_id VARCHAR(100) NOT NULL,
+    institution_id VARCHAR(100) NOT NULL,
+    practitioner_id VARCHAR(100),
+    pregnancy_id VARCHAR(100),
+    appointment_type_id VARCHAR(100) NOT NULL,
     scheduled_at TIMESTAMPTZ NOT NULL,
     status appointment_status NOT NULL DEFAULT 'SCHEDULED',
     notes TEXT,
-    created_by UUID NOT NULL,
+    created_by VARCHAR(100) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

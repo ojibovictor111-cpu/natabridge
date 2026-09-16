@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { FastifyInstance } from "fastify";
 import { ClientFacingError } from "../errors/api-error";
+import { DEMO_USER_ID } from "../configs/demo-user";
 import {
      createPatientAndProcessAssessment,
      processPatientAssessment,
@@ -16,6 +17,9 @@ const predictionBody = {
      bodyTemp: 37,
      heartRate: 78
 };
+
+const idPattern = (prefix: string) => new RegExp(`^${prefix}-[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$`, "i");
+const existingPatientId = "pat-00000000-0000-4000-8000-000000000002";
 
 const aiResponse = {
      risk: "Low Risk",
@@ -125,8 +129,8 @@ test("standalone predictions persist without creating patients or assessments", 
 
      const result = await processPrediction(server, predictionBody, "req-public");
 
-     assert.match(result.predictionRunId, /^pred-run-/);
-     assert.match(result.predictionResultId, /^pred-res-/);
+     assert.match(result.predictionRunId, idPattern("pred-run"));
+     assert.match(result.predictionResultId, idPattern("pred-res"));
      assert.equal("assessmentId" in result, false);
      assert.equal(result.prediction.risk, "Low Risk");
 
@@ -141,6 +145,11 @@ test("standalone predictions persist without creating patients or assessments", 
      assert.equal(runInsert?.values[2], null);
      assert.equal(runInsert?.values[3], "req-public");
      assert.deepEqual(JSON.parse(String(resultInsert?.values[8])), aiResponse);
+     const factorInsert = client.calls.find((call) =>
+          call.sql.includes("INSERT INTO prediction_factors")
+     );
+     assert.match(factorInsert?.sql ?? "", /\$2::varchar\[\]/);
+     assert.match(String((factorInsert?.values[1] as string[])[0]), idPattern("pred-fac"));
      assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO beneficiaries")), false);
      assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO mothers")), false);
      assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO assessments")), false);
@@ -159,21 +168,24 @@ test("one patient can receive repeated assessments without reinserting the patie
 
      const first = await processPatientAssessment(
           server,
-          "pat-existing",
+          existingPatientId,
           assessmentBody,
-          "user-1",
+          DEMO_USER_ID,
           "req-clinical-1"
      );
      const second = await processPatientAssessment(
           server,
-          "pat-existing",
+          existingPatientId,
           assessmentBody,
-          "user-1",
+          DEMO_USER_ID,
           "req-clinical-2"
      );
 
-     assert.equal(first.patientId, "pat-existing");
-     assert.equal(second.patientId, "pat-existing");
+     assert.equal(first.patientId, existingPatientId);
+     assert.equal(second.patientId, existingPatientId);
+     assert.match(String(first.assessmentId), idPattern("ass"));
+     assert.match(first.predictionRunId, idPattern("pred-run"));
+     assert.match(first.predictionResultId, idPattern("pred-res"));
      assert.notEqual(first.assessmentId, second.assessmentId);
      assert.equal(getAiCallCount(), 2);
      assert.equal(
@@ -202,12 +214,14 @@ test("new patient and assessment persistence uses one transaction", async (conte
                firstPregnancy: true,
                previousComplications: null
           },
-          "user-1",
+          DEMO_USER_ID,
           "req-new-patient"
      );
 
-     assert.match(result.patientId, /^pat-/);
-     assert.match(result.assessmentId, /^ass-/);
+     assert.match(result.patientId, idPattern("pat"));
+     assert.match(result.assessmentId, idPattern("ass"));
+     assert.match(result.predictionRunId, idPattern("pred-run"));
+     assert.match(result.predictionResultId, idPattern("pred-res"));
      assert.equal(client.calls.filter((call) => call.sql === "BEGIN").length, 1);
      assert.equal(client.calls.filter((call) => call.sql === "COMMIT").length, 1);
      assert.equal(client.calls.some((call) => call.sql === "ROLLBACK"), false);
@@ -251,7 +265,7 @@ test("new patient creation rolls back when assessment persistence fails", async 
                     firstPregnancy: true,
                     previousComplications: null
                },
-               "user-1"
+               DEMO_USER_ID
           ),
           /assessment storage failed/
      );
@@ -289,7 +303,7 @@ test("new patient is not persisted when AI assessment fails", async (context) =>
                     firstPregnancy: true,
                     previousComplications: null
                },
-               "user-1"
+               DEMO_USER_ID
           ),
           (error: unknown) => error instanceof ClientFacingError
                && error.code === "PREDICTION_SERVICE_ERROR"
@@ -310,14 +324,14 @@ test("missing patients are rejected before a prediction run is created", async (
      await assert.rejects(
           processPatientAssessment(
                server,
-               "pat-missing",
+               existingPatientId,
                {
                     ...predictionBody,
                     gestationalAge: null,
                     firstPregnancy: null,
                     previousComplications: null
                },
-               "user-1"
+               DEMO_USER_ID
           ),
           (error: unknown) => error instanceof ClientFacingError
                && error.statusCode === 404

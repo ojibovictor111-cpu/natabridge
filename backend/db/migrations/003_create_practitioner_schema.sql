@@ -9,7 +9,7 @@ CREATE TYPE membership_status AS ENUM (
 );
 
 CREATE TABLE practitioner_designations (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
 
@@ -23,9 +23,9 @@ CREATE TRIGGER practitioner_designations_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE practitioners (
-    id UUID PRIMARY KEY,
-    user_id UUID NOT NULL UNIQUE,
-    designation_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(100) NOT NULL UNIQUE,
+    designation_id VARCHAR(100) NOT NULL,
     license_number VARCHAR(100) NOT NULL UNIQUE,
     professional_registration_number VARCHAR(100) NOT NULL UNIQUE,
 
@@ -51,10 +51,10 @@ CREATE TRIGGER practitioners_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE practitioner_onboarding (
-    id UUID PRIMARY KEY,
-    practitioner_id UUID NOT NULL,
-    submitted_by UUID NOT NULL,
-    reviewed_by UUID,
+    id VARCHAR(100) PRIMARY KEY,
+    practitioner_id VARCHAR(100) NOT NULL,
+    submitted_by VARCHAR(100) NOT NULL,
+    reviewed_by VARCHAR(100),
     status onboarding_status NOT NULL DEFAULT 'PENDING',
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     reviewed_at TIMESTAMPTZ,
@@ -88,9 +88,9 @@ CREATE INDEX practitioner_onboarding_reviewer_idx
     WHERE reviewed_by IS NOT NULL;
 
 CREATE TABLE institution_memberships (
-    id UUID PRIMARY KEY,
-    user_id UUID NOT NULL,
-    institution_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(100) NOT NULL,
+    institution_id VARCHAR(100) NOT NULL,
     status membership_status NOT NULL DEFAULT 'ACTIVE',
     started_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMPTZ,

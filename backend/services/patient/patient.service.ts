@@ -1,12 +1,11 @@
 import type { FastifyInstance } from "fastify";
-import { CreatePatientRequest } from "../../models/patient/dto/patient.dto";
+import type { CreatePatientRequest } from "../../models/patient/dto/patient.dto";
 import {
      createPatient,
      getPatientById,
      getPatientsWithLatestAssessment
 } from "../../repositories/patient/patient.repo";
-import type { PatientSummaryRow } from "../../repositories/patient/patient.repo";
-import type { PatientRepoInput } from "../../models/patient/repo/patients.repo";
+import type { PatientRepoInput, PatientSummaryRow } from "../../models/patient/repo/patients.repo";
 import { uuidv7 } from "uuidv7";
 import { withTransaction } from "../../db/transaction";
 import { ClientFacingError } from "../../errors/api-error";

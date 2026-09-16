@@ -1,20 +1,10 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyRequest } from "fastify";
 import { getAllUsers, getUserById } from "../../controllers/user/user.controller";
 import { Static, Type } from "@fastify/type-provider-typebox";
 import { ClientFacingError } from "../../errors/api-error";
+import { DEMO_USER_EMAIL, DEMO_USER_ID } from "../../configs/demo-user";
 
-const DEMO_USER_EMAIL = "jane@natabridge.com";
 const DEMO_USER_PASSWORD = "12345";
-
-function generateShortHexId(byteLength: number = 4): string {
-    const buffer = new Uint8Array(byteLength);
-    crypto.getRandomValues(buffer);
-
-    // converts each byte to a 2-character hex string and join them
-    return Array.from(buffer)
-        .map(byte => byte.toString(16).padStart(2, '0'))
-        .join('');
-}
 
 export async function userRoutes(fastify: FastifyInstance) {
     fastify.get('', getAllUsers);
@@ -40,13 +30,12 @@ export async function userRoutes(fastify: FastifyInstance) {
             });
         }
 
-        const uniqueId = generateShortHexId(4);
         const productionFrontendUsesHttps = process.env.frontend_origin
             ?.trim()
             .toLowerCase()
             .startsWith("https://") === true;
 
-        reply.setCookie('session_id', uniqueId, {
+        reply.setCookie('session_id', DEMO_USER_ID, {
             httpOnly: true,
             sameSite: productionFrontendUsesHttps ? 'none' : 'lax',
             secure: productionFrontendUsesHttps,
@@ -55,7 +44,7 @@ export async function userRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({
             data: {
-                id: uniqueId,
+                id: DEMO_USER_ID,
                 email: DEMO_USER_EMAIL
             },
             message: 'User logged in'

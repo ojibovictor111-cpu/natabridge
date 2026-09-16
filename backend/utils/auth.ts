@@ -1,13 +1,9 @@
 import type { FastifyRequest } from "fastify";
-
-const TEMPORARY_DEMO_USER_ID = "demo-user";
+import { DEMO_USER_ID } from "../configs/demo-user";
 
 const requireAuthenticatedUserId = (request: FastifyRequest): string => {
-     // Temporary authentication bypass for the demo deployment. Keep returning
-     // an actor ID because assessment writes require created_by_user_id.
-     return request.user?.id ?? TEMPORARY_DEMO_USER_ID;
+	// temporary authentication bypass for the demo deployment. Keep returning an actor ID that exists in users because clinical writes have a foreign key.
+	return request.user?.id === DEMO_USER_ID ? request.user.id : DEMO_USER_ID;
 };
 
-export {
-     requireAuthenticatedUserId
-};
+export { requireAuthenticatedUserId };

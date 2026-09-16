@@ -43,7 +43,9 @@ const createPatientRequestSchema = Type.Object(
 
 const patientParamsSchema = Type.Object(
 	{
-		patientId: Type.String({ minLength: 1, maxLength: 50 }),
+		patientId: Type.String({
+			maxLength: 100,
+		}),
 	},
 	{ additionalProperties: false },
 );
@@ -51,6 +53,5 @@ const patientParamsSchema = Type.Object(
 type CreatePatientRequest = Static<typeof createPatientRequestSchema>;
 type PatientParams = Static<typeof patientParamsSchema>;
 
-export { createPatientRequestSchema, patientParamsSchema };
-
 export type { CreatePatientRequest, PatientParams };
+export { createPatientRequestSchema, patientParamsSchema };

@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { FastifyRequest } from "fastify";
+import { TypeBoxValidatorCompiler } from "@fastify/type-provider-typebox";
+import { DEMO_USER_ID } from "../configs/demo-user";
+import {
+     clinicianAssessmentParamsSchema,
+     patientAssessmentParamsSchema
+} from "../models/assessment/dto/assessment.dto";
+import { patientParamsSchema } from "../models/patient/dto/patient.dto";
 import { buildServer } from "../server";
 import { requireAuthenticatedUserId } from "../utils/auth";
 
@@ -52,7 +59,9 @@ test("protected operations use the temporary demo actor without a session", () =
           user: null
      } as unknown as FastifyRequest;
 
-     assert.equal(requireAuthenticatedUserId(request), "demo-user");
+     assert.equal(requireAuthenticatedUserId(request), DEMO_USER_ID);
+     request.user = { id: "not-a-uuid" };
+     assert.equal(requireAuthenticatedUserId(request), DEMO_USER_ID);
 });
 
 test("production login sets a cross-site session cookie for valid demo credentials", async (context) => {
@@ -79,6 +88,8 @@ test("production login sets a cross-site session cookie for valid demo credentia
 
      assert.equal(response.statusCode, 200);
      assert.equal(response.json().data.email, "jane@natabridge.com");
+     assert.equal(response.json().data.id, DEMO_USER_ID);
+     assert.match(String(response.headers["set-cookie"]), new RegExp(`session_id=${DEMO_USER_ID}`));
      assert.match(String(response.headers["set-cookie"]), /HttpOnly/i);
      assert.match(String(response.headers["set-cookie"]), /SameSite=None/i);
      assert.match(String(response.headers["set-cookie"]), /Secure/i);
@@ -109,7 +120,7 @@ test("patient registration rejects whitespace-only names before persistence", as
           method: "POST",
           url: "/api/patients",
           headers: {
-               cookie: "session_id=user-1"
+               cookie: `session_id=${DEMO_USER_ID}`
           },
           payload: {
                firstName: "   ",
@@ -139,14 +150,26 @@ test("the ambiguous legacy assessment route has been removed", async (context) =
      assert.equal(response.json().code, "ROUTE_NOT_FOUND");
 });
 
-test("clinician assessment route validates clinician IDs", async (context) => {
-     const server = buildServer({ logger: false });
-     context.after(() => server.close());
-     const response = await server.inject({
-          method: "GET",
-          url: `/api/clinicians/${"x".repeat(51)}/assessments`
-     });
+test("patient and clinician ID DTOs accept opaque IDs within the length limit", () => {
+     const hasError = (result: unknown) =>
+          typeof result === "object" && result !== null
+          && "error" in result && result.error !== undefined;
+     const cases = [
+          { schema: patientParamsSchema, field: "patientId" },
+          { schema: patientAssessmentParamsSchema, field: "patientId" },
+          { schema: clinicianAssessmentParamsSchema, field: "clinicianId" }
+     ];
 
-     assert.equal(response.statusCode, 400);
-     assert.equal(response.json().code, "VALIDATION_ERROR");
+     for (const { schema, field } of cases) {
+          const validate = TypeBoxValidatorCompiler({
+               schema,
+               method: "GET",
+               url: "/",
+               httpPart: "params"
+          });
+
+          assert.equal(hasError(validate({ [field]: "opaque-id" })), false);
+          assert.equal(hasError(validate({ [field]: "x".repeat(100) })), false);
+          assert.equal(hasError(validate({ [field]: "x".repeat(101) })), true);
+     }
 });

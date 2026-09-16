@@ -9,8 +9,8 @@ CREATE TYPE pregnancy_status AS ENUM (
 );
 
 CREATE TABLE pregnancies (
-    id UUID PRIMARY KEY,
-    mother_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    mother_id VARCHAR(100) NOT NULL,
     notice_date DATE NOT NULL,
     estimated_delivery_date DATE,
     actual_delivery_date DATE,
@@ -42,21 +42,21 @@ CREATE TRIGGER pregnancies_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE complications (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     code VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(150) NOT NULL,
     description TEXT
 );
 
 CREATE TABLE pregnancy_complications (
-    id UUID PRIMARY KEY,
-    pregnancy_id UUID NOT NULL,
-    complication_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    pregnancy_id VARCHAR(100) NOT NULL,
+    complication_id VARCHAR(100) NOT NULL,
     diagnosed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     severity VARCHAR(30),
     notes TEXT,
     resolved_at TIMESTAMPTZ,
-    recorded_by UUID NOT NULL,
+    recorded_by VARCHAR(100) NOT NULL,
 
     CONSTRAINT pregnancy_complications_pregnancy_fk
         FOREIGN KEY (pregnancy_id)

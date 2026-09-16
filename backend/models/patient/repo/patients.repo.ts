@@ -8,4 +8,13 @@ interface PatientRepoInput {
      phone: string | null;
 }
 
-export type { PatientRepoInput };
+interface PatientSummaryRow {
+     id: string;
+     name: string;
+     age: string | number | null;
+     gestationalAge: string | number | null;
+     lastAssessment: string | Date | null;
+     currentRiskLevel: string | null;
+}
+
+export type { PatientRepoInput, PatientSummaryRow };

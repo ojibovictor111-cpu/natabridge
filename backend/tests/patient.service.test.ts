@@ -9,14 +9,16 @@ import {
 class FakePatientClient {
      releaseCount = 0;
      readonly queries: string[] = [];
+     readonly values: unknown[][] = [];
 
-     async query(sql: string) {
+     async query(sql: string, values: unknown[] = []) {
           this.queries.push(sql);
+          this.values.push(values);
 
           if (sql.includes("INSERT INTO mothers")) {
                return {
                     rows: [{
-                         id: "pat-created",
+                         id: values[0],
                          firstname: "Amina",
                          middlename: null,
                          lastname: "Bello",
@@ -33,7 +35,7 @@ class FakePatientClient {
           if (sql.includes("FROM mothers mother")) {
                return {
                     rows: [{
-                         id: "pat-created",
+                         id: "pat-00000000-0000-4000-8000-000000000002",
                          name: "Amina Bello",
                          age: "26.00",
                          gestationalAge: "24.00",
@@ -71,6 +73,9 @@ test("patient registration preserves the submitted calendar date", async () => {
 
      assert.equal(patient.dob, "2000-01-01");
      assert.equal(patient.email, "amina@example.com");
+     assert.match(patient.id, /^pat-[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i);
+     const beneficiaryInsertIndex = client.queries.findIndex((sql) => sql.includes("INSERT INTO beneficiaries"));
+     assert.equal(client.values[beneficiaryInsertIndex]?.[0], patient.id);
      assert.equal(client.queries.some((sql) => sql.includes("INSERT INTO beneficiaries")), true);
      assert.equal(client.queries.some((sql) => sql.includes("INSERT INTO mothers")), true);
      assert.equal(client.releaseCount, 1);

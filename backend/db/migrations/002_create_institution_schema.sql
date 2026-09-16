@@ -17,7 +17,7 @@ CREATE TYPE onboarding_status AS ENUM (
 );
 
 CREATE TABLE institutions (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(50) NOT NULL,
     registration_number VARCHAR(100) UNIQUE,
@@ -37,10 +37,10 @@ CREATE TRIGGER institutions_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE institution_onboarding (
-    id UUID PRIMARY KEY,
-    institution_id UUID NOT NULL,
-    submitted_by UUID NOT NULL,
-    reviewed_by UUID,
+    id VARCHAR(100) PRIMARY KEY,
+    institution_id VARCHAR(100) NOT NULL,
+    submitted_by VARCHAR(100) NOT NULL,
+    reviewed_by VARCHAR(100),
     status onboarding_status NOT NULL DEFAULT 'PENDING',
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     reviewed_at TIMESTAMPTZ,

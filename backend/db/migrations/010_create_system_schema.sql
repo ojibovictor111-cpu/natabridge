@@ -3,12 +3,12 @@
 -- Description: Introduces immutable audit records for changes made across NataBridge.
 
 CREATE TABLE audit_logs (
-    id UUID PRIMARY KEY,
-    actor_user_id UUID,
-    institution_id UUID,
+    id VARCHAR(100) PRIMARY KEY,
+    actor_user_id VARCHAR(100),
+    institution_id VARCHAR(100),
     action VARCHAR(100) NOT NULL,
     entity_type VARCHAR(100) NOT NULL,
-    entity_id UUID NOT NULL,
+    entity_id VARCHAR(100) NOT NULL,
     old_values JSONB,
     new_values JSONB,
     ip_address INET,

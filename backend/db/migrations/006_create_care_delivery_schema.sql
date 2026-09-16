@@ -10,14 +10,14 @@ CREATE TYPE institutional_care_status AS ENUM (
 );
 
 CREATE TABLE institutional_care (
-    id UUID PRIMARY KEY,
-    institution_id UUID NOT NULL,
-    beneficiary_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    institution_id VARCHAR(100) NOT NULL,
+    beneficiary_id VARCHAR(100) NOT NULL,
     started_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMPTZ,
     status institutional_care_status NOT NULL DEFAULT 'ACTIVE',
     reason TEXT,
-    created_by UUID NOT NULL,
+    created_by VARCHAR(100) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT institutional_care_institution_fk
@@ -56,11 +56,11 @@ CREATE INDEX institutional_care_creator_idx
     ON institutional_care (created_by);
 
 CREATE TABLE clinical_visits (
-    id UUID PRIMARY KEY,
-    beneficiary_id UUID NOT NULL,
-    pregnancy_id UUID,
-    institution_id UUID NOT NULL,
-    practitioner_id UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    beneficiary_id VARCHAR(100) NOT NULL,
+    pregnancy_id VARCHAR(100),
+    institution_id VARCHAR(100) NOT NULL,
+    practitioner_id VARCHAR(100) NOT NULL,
     visit_type VARCHAR(50) NOT NULL,
     occurred_at TIMESTAMPTZ NOT NULL,
     notes TEXT,
@@ -98,8 +98,8 @@ CREATE INDEX clinical_visits_practitioner_occurred_at_idx
     ON clinical_visits (practitioner_id, occurred_at DESC);
 
 CREATE TABLE antenatal_assessments (
-    id UUID PRIMARY KEY,
-    visit_id UUID NOT NULL UNIQUE,
+    id VARCHAR(100) PRIMARY KEY,
+    visit_id VARCHAR(100) NOT NULL UNIQUE,
     gestational_age_weeks NUMERIC(5, 2),
     systolic_bp NUMERIC(6, 2),
     diastolic_bp NUMERIC(6, 2),
@@ -115,8 +115,8 @@ CREATE TABLE antenatal_assessments (
 );
 
 CREATE TABLE postnatal_assessments (
-    id UUID PRIMARY KEY,
-    visit_id UUID NOT NULL UNIQUE,
+    id VARCHAR(100) PRIMARY KEY,
+    visit_id VARCHAR(100) NOT NULL UNIQUE,
     systolic_bp NUMERIC(6, 2),
     diastolic_bp NUMERIC(6, 2),
     body_temperature_celsius NUMERIC(5, 2),
@@ -131,8 +131,8 @@ CREATE TABLE postnatal_assessments (
 );
 
 CREATE TABLE neonatal_assessments (
-    id UUID PRIMARY KEY,
-    visit_id UUID NOT NULL UNIQUE,
+    id VARCHAR(100) PRIMARY KEY,
+    visit_id VARCHAR(100) NOT NULL UNIQUE,
     weight NUMERIC(6, 3),
     body_temperature_celsius NUMERIC(5, 2),
     heart_rate NUMERIC(6, 2),

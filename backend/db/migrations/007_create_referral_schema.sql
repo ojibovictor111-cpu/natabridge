@@ -13,12 +13,12 @@ CREATE TYPE referral_status AS ENUM (
 );
 
 CREATE TABLE referrals (
-    id UUID PRIMARY KEY,
-    beneficiary_id UUID NOT NULL,
-    pregnancy_id UUID,
-    from_institution_id UUID NOT NULL,
-    to_institution_id UUID NOT NULL,
-    referred_by UUID NOT NULL,
+    id VARCHAR(100) PRIMARY KEY,
+    beneficiary_id VARCHAR(100) NOT NULL,
+    pregnancy_id VARCHAR(100),
+    from_institution_id VARCHAR(100) NOT NULL,
+    to_institution_id VARCHAR(100) NOT NULL,
+    referred_by VARCHAR(100) NOT NULL,
     reason TEXT NOT NULL,
     priority VARCHAR(30) NOT NULL,
     status referral_status NOT NULL DEFAULT 'PENDING',

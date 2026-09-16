@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { FastifyInstance } from "fastify";
+import { DEMO_USER_ID } from "../configs/demo-user";
 import { fetchAssessmentsByClinician } from "../services/assessment/assessment.service";
 
 class FakeAssessmentClient {
@@ -14,20 +15,20 @@ class FakeAssessmentClient {
 
         return {
             rows: [{
-                assessment_id: "ass-1",
-                clinician_id: "clinician-1",
+                assessment_id: "ass-00000000-0000-4000-8000-000000000003",
+                clinician_id: DEMO_USER_ID,
                 gestational_age: "24.00",
                 first_pregnancy: true,
                 previous_complications: null,
                 assessed_at: new Date("2026-09-01T10:00:00.000Z"),
-                patient_id: "pat-1",
+                patient_id: "pat-00000000-0000-4000-8000-000000000002",
                 patient_firstname: "Amina",
                 patient_middlename: null,
                 patient_lastname: "Bello",
                 patient_dob: "2000-01-01",
                 patient_email: "amina@example.com",
                 patient_phone: null,
-                prediction_run_id: "pred-run-1",
+                prediction_run_id: "pred-run-00000000-0000-4000-8000-000000000004",
                 prediction_status: "completed",
                 age: "26.00",
                 systolic_bp: "120.00",
@@ -35,7 +36,7 @@ class FakeAssessmentClient {
                 blood_sugar: "6.20",
                 body_temperature_celsius: "37.00",
                 heart_rate: "78.00",
-                prediction_result_id: "pred-res-1",
+                prediction_result_id: "pred-res-00000000-0000-4000-8000-000000000005",
                 prediction: "Low Risk",
                 confidence: "0.82000",
                 low_risk_probability: "0.82000",
@@ -64,10 +65,10 @@ test("clinician assessments are filtered and normalized", async () => {
     const client = new FakeAssessmentClient();
     const assessments = await fetchAssessmentsByClinician(
         createServer(client),
-        "clinician-1"
+        DEMO_USER_ID
     );
 
-    assert.deepEqual(client.queryValues, ["clinician-1"]);
+    assert.deepEqual(client.queryValues, [DEMO_USER_ID]);
     assert.match(client.querySql, /assessment\.created_by_user_id = \$1/);
     assert.match(client.querySql, /mother\.id = assessment\.beneficiary_id/);
     assert.match(client.querySql, /mother\.date_of_birth::TEXT AS patient_dob/);

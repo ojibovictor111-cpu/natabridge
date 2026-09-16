@@ -1,6 +1,7 @@
 -- Migration: Create identity and RBAC schema
 -- Created: 2026-09-01
 -- Description: Introduces roles, permissions, and their assignments for NataBridge access control.
+-- Application entity IDs use a descriptive prefix plus a UUID string, so keys and references are VARCHAR(100).
 
 CREATE TYPE role_scope AS ENUM (
     'PLATFORM',
@@ -23,7 +24,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TABLE users (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     firebase_uid VARCHAR(128) NOT NULL UNIQUE,
     firstname VARCHAR(100) NOT NULL,
     lastname VARCHAR(100) NOT NULL,
@@ -44,7 +45,7 @@ CREATE TRIGGER users_set_updated_at
     EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE roles (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     scope role_scope NOT NULL,
     description TEXT,
@@ -56,7 +57,7 @@ CREATE TABLE roles (
 );
 
 CREATE TABLE permissions (
-    id UUID PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     scope role_scope NOT NULL,
     description TEXT,
@@ -68,8 +69,8 @@ CREATE TABLE permissions (
 );
 
 CREATE TABLE role_permissions (
-    role_id UUID NOT NULL,
-    permission_id UUID NOT NULL,
+    role_id VARCHAR(100) NOT NULL,
+    permission_id VARCHAR(100) NOT NULL,
     scope role_scope NOT NULL,
 
     PRIMARY KEY (role_id, permission_id),
@@ -88,10 +89,10 @@ CREATE INDEX role_permissions_permission_idx
     ON role_permissions (permission_id);
 
 CREATE TABLE user_roles (
-    user_id UUID NOT NULL,
-    role_id UUID NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    role_id VARCHAR(100) NOT NULL,
     scope role_scope NOT NULL,
-    institution_id UUID,
+    institution_id VARCHAR(100),
     assigned_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT user_roles_role_scope_fk

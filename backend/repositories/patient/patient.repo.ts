@@ -1,14 +1,5 @@
 import type { PoolClient } from "pg";
-import type { PatientRepoInput } from "../../models/patient/repo/patients.repo";
-
-type PatientSummaryRow = {
-    id: string;
-    name: string;
-    age: string | number | null;
-    gestationalAge: string | number | null;
-    lastAssessment: string | Date | null;
-    currentRiskLevel: string | null;
-};
+import type { PatientRepoInput, PatientSummaryRow } from "../../models/patient/repo/patients.repo";
 
 const patientSummaryQuery = `
     SELECT
@@ -115,7 +106,3 @@ export {
     getPatientsWithLatestAssessment,
     patientExists
 }
-
-export type {
-    PatientSummaryRow
-};
