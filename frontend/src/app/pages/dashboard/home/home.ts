@@ -1,22 +1,13 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { DashboardAssessment } from '../../../models/dashboard/dashboard.api';
+import { ClinicianAssessmentApi } from '../../../models/assessment/Clinician-assessment.api';
+import type {
+  CriticalAlertView,
+  MonthlyAssessmentView,
+  RecentAssessmentView,
+  RiskTone,
+} from '../../../models/dashboard/dashboard.ui';
 import { DashboardService } from '../../../services/dashboard/dashboard-service';
-
-type RiskTone = 'high' | 'mid' | 'low';
-
-interface CriticalAlertView {
-  name: string;
-  detail: string;
-}
-
-interface RecentAssessmentView {
-  name: string;
-  vitals: string;
-  risk: string;
-  riskTone: RiskTone;
-  assessed: string;
-}
 
 @Component({
   selector: 'nata-home',
@@ -27,68 +18,145 @@ interface RecentAssessmentView {
 export class Home implements OnInit {
   private readonly dashboardService = inject(DashboardService);
 
-  readonly assessmentDetails = this.dashboardService.assessmentDetails;
-  readonly dashboardDetails = this.dashboardService.dashboardDetails;
+  readonly currentYear = new Date().getFullYear();
+  readonly clinicianAssessments = this.dashboardService.clinicianAssessments;
 
-  readonly totalAssessments = computed(() => {
-    const details = this.assessmentDetails();
-    if (!details) return null;
+  readonly assessmentsToday = computed(() => {
+    const assessments = this.clinicianAssessments();
+    if (!assessments) return null;
 
-    return details.high + details.mid + details.low;
+    const today = new Date().toDateString();
+    return assessments.filter((assessment) => {
+      const date = new Date(assessment.assessedAt);
+      return !Number.isNaN(date.getTime()) && date.toDateString() === today;
+    }).length;
+  });
+
+  readonly patientsMonitored = computed(() => {
+    const assessments = this.clinicianAssessments();
+    if (!assessments) return null;
+
+    return new Set(assessments.map((assessment) => assessment.patient.id)).size;
+  });
+
+  readonly highRiskPatients = computed(() => {
+    const assessments = this.clinicianAssessments();
+    if (!assessments) return null;
+
+    const latestByPatient = new Map<string, ClinicianAssessmentApi>();
+    assessments.forEach((assessment) => {
+      if (!latestByPatient.has(assessment.patient.id)) {
+        latestByPatient.set(assessment.patient.id, assessment);
+      }
+    });
+
+    return [...latestByPatient.values()].filter(
+      (assessment) => this.riskTone(assessment.prediction.risk) === 'high',
+    ).length;
   });
 
   readonly criticalAlerts = computed<CriticalAlertView[]>(() => {
-    const assessments = this.dashboardDetails()?.priorityAssessments ?? [];
+    const assessments = this.clinicianAssessments() ?? [];
 
-    return assessments.slice(0, 3).map((assessment) => ({
-      name: assessment.name,
-      detail: this.alertDetail(assessment),
-    }));
+    return assessments
+      .filter((assessment) => this.riskTone(assessment.prediction.risk) === 'high')
+      .slice(0, 3)
+      .map((assessment) => ({
+        name: this.patientName(assessment),
+        detail: this.alertDetail(assessment),
+      }));
   });
 
   readonly recentAssessments = computed<RecentAssessmentView[]>(() => {
-    const assessments = this.dashboardDetails()?.recentAssessments ?? [];
+    const assessments = this.clinicianAssessments() ?? [];
 
     return assessments.slice(0, 4).map((assessment) => {
-      const riskTone = this.riskTone(assessment.currentRiskLevel);
+      const riskTone = this.riskTone(assessment.prediction.risk);
+      const riskLabel = assessment.prediction.risk?.trim();
 
       return {
-        name: assessment.name,
-        vitals: `${assessment.systolicBP}/${assessment.diastolicBP} · ${assessment.heartRate} bpm`,
-        risk: `${riskTone === 'mid' ? 'Mid' : riskTone[0].toUpperCase() + riskTone.slice(1)} risk`,
+        name: this.patientName(assessment),
+        vitals: `${assessment.measurements.systolicBP}/${assessment.measurements.diastolicBP} · ${assessment.measurements.heartRate} bpm`,
+        risk: riskLabel
+          ? riskTone === 'none'
+            ? riskLabel
+            : `${riskTone === 'mid' ? 'Mid' : riskTone[0].toUpperCase() + riskTone.slice(1)} risk`
+          : 'Pending',
         riskTone,
-        assessed: this.assessedAt(assessment.lastAssessment),
+        assessed: this.assessedAt(assessment.assessedAt),
       };
     });
   });
 
+  readonly monthlyOverview = computed<MonthlyAssessmentView[] | null>(() => {
+    const assessments = this.clinicianAssessments();
+    if (!assessments) return null;
+
+    const year = new Date().getFullYear();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map(
+      (label) => ({ label, low: 0, mid: 0, high: 0, total: 0, height: 0 }),
+    );
+
+    assessments.forEach((assessment) => {
+      const date = new Date(assessment.assessedAt);
+      if (Number.isNaN(date.getTime()) || date.getFullYear() !== year) return;
+
+      const month = months[date.getMonth()];
+      const tone = this.riskTone(assessment.prediction.risk);
+      month.total += 1;
+      if (tone === 'high') month.high += 1;
+      if (tone === 'mid') month.mid += 1;
+      if (tone === 'low') month.low += 1;
+    });
+
+    const maximum = Math.max(1, ...months.map((month) => month.total));
+    return months.map((month) => ({ ...month, height: (month.total / maximum) * 100 }));
+  });
+
+  readonly monthlyAverage = computed(() => {
+    const months = this.monthlyOverview();
+    if (!months) return null;
+
+    const total = months.reduce((sum, month) => sum + month.total, 0);
+    return Number((total / 12).toFixed(1));
+  });
+
   ngOnInit() {
-    void this.dashboardService.getDashboardDetails();
+    this.dashboardService.getClinicianAssessments();
   }
 
-  private riskTone(risk: string): RiskTone {
-    const normalizedRisk = risk.toLowerCase();
+  private riskTone(risk: string | null): RiskTone {
+    const normalizedRisk = risk?.toLowerCase() ?? '';
 
     if (normalizedRisk.includes('high')) return 'high';
     if (normalizedRisk.includes('mid') || normalizedRisk.includes('medium')) return 'mid';
+    if (normalizedRisk.includes('low')) return 'low';
 
-    return 'low';
+    return 'none';
   }
 
-  private alertDetail(assessment: DashboardAssessment) {
-    if (assessment.systolicBP >= 140 || assessment.diastolicBP >= 90) {
-      return `BP ${assessment.systolicBP}/${assessment.diastolicBP} mmHg`;
+  private alertDetail(assessment: ClinicianAssessmentApi) {
+    const measurements = assessment.measurements;
+
+    if (measurements.systolicBP >= 140 || measurements.diastolicBP >= 90) {
+      return `BP ${measurements.systolicBP}/${measurements.diastolicBP} mmHg`;
     }
 
-    if (assessment.bodyTemperatureCelsius >= 38) {
-      return `Temperature ${assessment.bodyTemperatureCelsius.toFixed(1)} °C`;
+    if (measurements.bodyTemp >= 38) {
+      return `Temperature ${measurements.bodyTemp.toFixed(1)} °C`;
     }
 
-    if (assessment.bloodSugar >= 7.8) {
-      return `Blood sugar ${assessment.bloodSugar.toFixed(1)} mmol/L`;
+    if (measurements.bloodSugar >= 7.8) {
+      return `Blood sugar ${measurements.bloodSugar.toFixed(1)} mmol/L`;
     }
 
-    return `Heart rate ${assessment.heartRate} bpm`;
+    return `Heart rate ${measurements.heartRate} bpm`;
+  }
+
+  private patientName(assessment: ClinicianAssessmentApi) {
+    return [assessment.patient.firstName, assessment.patient.middleName, assessment.patient.lastName]
+      .filter(Boolean)
+      .join(' ');
   }
 
   private assessedAt(value: string) {
