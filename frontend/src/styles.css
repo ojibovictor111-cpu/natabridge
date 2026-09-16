@@ -1,6 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap');
-@import './assessment-result.css';
-@import './assessment-form.css';
 @import './patient-records.css';
 
 @import 'tailwindcss/theme.css' layer(theme);
@@ -292,8 +290,7 @@ h1[nata-h1] {
   padding-top: 2.5px;
 }
 
-/* Dashboard overview responsive composition lives globally to stay within Angular's
-   strict per-component style budget. */
+/* dashboard overview responsive composition lives globally to stay within Angular's strict per-component style budget */
 nata-home .assistant-card::after {
   content: '';
   position: absolute;
@@ -302,34 +299,150 @@ nata-home .assistant-card::after {
   background-image: radial-gradient(rgb(15 118 110 / 14%) 1px, transparent 1px);
   background-size: 18px 18px;
   mask-image: linear-gradient(to bottom, black, transparent 72%);
-  opacity: .28;
+  opacity: 0.28;
+}
+
+nata-home .bar-column {
+  display: flex;
+  height: 100%;
+  min-width: 12px;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  text-align: center;
+}
+
+nata-home .bar {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  border-radius: 4px 4px 2px 2px;
+}
+
+nata-home .bar i {
+  display: block;
+  flex-basis: 0;
+}
+
+nata-home .bar-low {
+  background: color-mix(in srgb, var(--nata-primary), #fff 72%);
+}
+
+nata-home .bar-mid {
+  background: color-mix(in srgb, var(--nata-primary), #fff 38%);
+}
+
+nata-home .bar-high {
+  background: var(--nata-primary-hover);
+}
+
+nata-home .bar-column > span {
+  margin: 5px -4px 0;
+  color: var(--dashboard-muted);
+  font-size: 8px;
+}
+
+nata-home .chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
+  color: var(--dashboard-muted);
+  font-size: 9px;
+}
+
+nata-home .chart-legend span::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 50%;
+}
+
+nata-home .chart-legend .low::before {
+  background: color-mix(in srgb, var(--nata-primary), #fff 72%);
+}
+
+nata-home .chart-legend .mid::before {
+  background: color-mix(in srgb, var(--nata-primary), #fff 38%);
+}
+
+nata-home .chart-legend .high::before {
+  background: var(--nata-primary-hover);
 }
 
 @media (max-width: 1100px) {
-  nata-home .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-  nata-home :is(.feature-grid, .bottom-grid) { grid-template-columns: 1fr; }
-  nata-home .overview-card { min-height: 300px; }
-  nata-home .bar-chart { height: 155px; }
+  nata-home .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  nata-home :is(.feature-grid, .bottom-grid) {
+    grid-template-columns: 1fr;
+  }
+  nata-home .overview-card {
+    min-height: 300px;
+  }
+  nata-home .bar-chart {
+    height: 155px;
+  }
 }
 
 @media (max-width: 767px) {
-  nata-home .dashboard-overview { padding: 20px; }
-  nata-home .page-heading { align-items: flex-start; }
-  nata-home :is(.outline-action, .alert-action) { display: none; }
-  nata-home .dashboard-tabs { overflow-x: auto; }
-  nata-home .dashboard-tabs a { white-space: nowrap; }
-  nata-home :is(.feature-grid, .bottom-grid) { grid-template-columns: minmax(0, 1fr); }
+  nata-home .dashboard-overview {
+    padding: 20px;
+  }
+  nata-home .page-heading {
+    align-items: flex-start;
+  }
+  nata-home :is(.outline-action, .alert-action) {
+    display: none;
+  }
+  nata-home .dashboard-tabs {
+    overflow-x: auto;
+  }
+  nata-home .dashboard-tabs a {
+    white-space: nowrap;
+  }
+  nata-home :is(.feature-grid, .bottom-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 520px) {
-  nata-home .dashboard-overview { padding: 16px; }
-  nata-home .page-heading { flex-direction: column; }
-  nata-home .primary-action { height: 36px !important; }
-  nata-home .metrics-grid { grid-template-columns: 1fr; gap: 10px; }
-  nata-home .metric-card { min-height: 96px; }
-  nata-home :is(.feature-grid, .bottom-grid) { gap: 12px; margin-top: 12px; }
-  nata-home .assistant-card { min-height: 300px; }
-  nata-home .assistant-prompts { display: grid; justify-items: start; }
-  nata-home .overview-card { padding-inline: 10px; }
-  nata-home .bar-chart { gap: 4px; padding-inline: 3px; }
+  nata-home .dashboard-overview {
+    padding: 16px;
+  }
+  nata-home .page-heading {
+    flex-direction: column;
+  }
+  nata-home .primary-action {
+    height: 36px !important;
+  }
+  nata-home .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  nata-home .metric-card {
+    min-height: 96px;
+  }
+  nata-home :is(.feature-grid, .bottom-grid) {
+    gap: 12px;
+    margin-top: 12px;
+  }
+  nata-home .assistant-card {
+    min-height: 300px;
+  }
+  nata-home .assistant-prompts {
+    display: grid;
+    justify-items: start;
+  }
+  nata-home .overview-card {
+    padding-inline: 10px;
+  }
+  nata-home .bar-chart {
+    gap: 4px;
+    padding-inline: 3px;
+  }
 }

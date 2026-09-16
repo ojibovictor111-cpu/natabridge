@@ -1,0 +1,57 @@
+.assessment-button {
+  display: inline-flex;
+  min-width: 118px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.assessment-button ng-icon {
+  font-size: 15px;
+}
+
+.assessment-button--primary {
+  border-color: #0b1f3a;
+  background: #0b1f3a;
+  color: #fff;
+}
+
+.assessment-button--primary:hover:not(:disabled) {
+  background: #13345b;
+}
+
+.assessment-button--secondary {
+  border-color: #d4d4d8;
+  background: #fff;
+  color: #52525b;
+}
+
+.assessment-button--secondary:hover:not(:disabled) {
+  border-color: #a1a1aa;
+  background: #f7f8fa;
+}
+
+.assessment-button:focus-visible {
+  outline: 3px solid rgb(29 158 117 / 25%);
+  outline-offset: 2px;
+}
+
+.assessment-button:disabled {
+  border-color: #e4e4e7 !important;
+  background: #f4f4f5 !important;
+  color: #71717a !important;
+  cursor: not-allowed;
+  opacity: 1;
+}

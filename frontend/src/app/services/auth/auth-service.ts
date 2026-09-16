@@ -13,6 +13,7 @@ export class AuthService {
      private router = inject(Router);
 
      private readonly AUTH_KEY = 'userAuthenticated';
+     private readonly CLINICIAN_ID_KEY = 'clinicianId';
 
      readonly loading = signal<boolean>(false);
      readonly errorMessage = signal<string | null>(null);
@@ -21,6 +22,7 @@ export class AuthService {
      readonly isUserAuthenticated = signal<boolean>(
           sessionStorage.getItem(this.AUTH_KEY) === 'true'
      );
+     readonly clinicianId = signal(sessionStorage.getItem(this.CLINICIAN_ID_KEY) ?? 'demo-user');
 
      async login(authCredentials: AuthCredentials) {
           this.loading.set(true);
@@ -36,6 +38,8 @@ export class AuthService {
                .subscribe({
                     next: (resp) => {
                          this.user.set(resp.data);
+                         this.clinicianId.set(authCredentials.id);
+                         sessionStorage.setItem(this.CLINICIAN_ID_KEY, authCredentials.id);
                          this.setAuthenticated(true);
 
                          this.router.navigateByUrl('/dashboard');
@@ -54,6 +58,8 @@ export class AuthService {
      async logout() {
           this.setAuthenticated(false);
           this.user.set(null);
+          this.clinicianId.set('demo-user');
+          sessionStorage.removeItem(this.CLINICIAN_ID_KEY);
 
           this.router.navigateByUrl('/auth');
 

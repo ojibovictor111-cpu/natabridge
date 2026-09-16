@@ -1,4 +1,256 @@
+@import '../../../shared/styles/form-controls.css';
+
+@import '../../../shared/styles/assessment-button.css';
+
 :host {
   display: block;
   min-width: 0;
+}
+
+.assessment-stepper.mat-stepper-horizontal {
+  background: transparent;
+}
+
+:host ::ng-deep .assessment-stepper .mat-horizontal-stepper-header-container {
+  margin-bottom: 18px;
+  padding: 7px 13px;
+  border: 1px solid #e4e4e7;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 4%);
+}
+
+:host ::ng-deep .assessment-stepper .mat-step-header {
+  min-width: 0;
+  height: 48px;
+  border-radius: 10px;
+}
+
+:host ::ng-deep .assessment-stepper .mat-step-header:hover:not([aria-disabled='true']) {
+  background: #f7f8fa;
+}
+
+:host ::ng-deep .assessment-stepper .mat-step-icon {
+  width: 26px;
+  height: 26px;
+  background: #f4f4f5;
+  color: #71717a;
+  font-size: 12px;
+}
+
+:host ::ng-deep .assessment-stepper .mat-step-icon-selected,
+:host ::ng-deep .assessment-stepper .mat-step-icon-state-edit,
+:host ::ng-deep .assessment-stepper .mat-step-icon-state-done {
+  background: #1d9e75;
+  color: #fff;
+}
+
+:host ::ng-deep .assessment-stepper .mat-step-label {
+  min-width: 0;
+  color: #71717a;
+  font-size: 12px;
+  font-weight: 550;
+}
+
+:host ::ng-deep .assessment-stepper .mat-step-label-selected {
+  color: #18181b;
+  font-weight: 600;
+}
+
+:host ::ng-deep .assessment-stepper .mat-stepper-horizontal-line {
+  min-width: 22px;
+  border-top-color: #e4e4e7;
+}
+
+:host ::ng-deep .assessment-stepper .mat-horizontal-content-container {
+  padding: 0;
+  overflow: visible;
+}
+
+.assessment-card--quick {
+  margin-top: 0;
+}
+
+.form-section-heading--quick {
+  padding-right: 0;
+}
+
+.quick-assessment-badge {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 7px 11px;
+  border: 1px solid #cbeade;
+  border-radius: 999px;
+  background: #f3fbf8;
+  color: #16805f;
+  font-size: 12px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.assessment-advisory {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: -2px 0 24px;
+  padding: 12px 14px;
+  border: 1px solid #d7eee6;
+  border-radius: 12px;
+  background: #f3fbf8;
+  color: #52615c;
+}
+
+.assessment-advisory > span {
+  color: #1d9e75;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.assessment-advisory p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #3f3f46;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.form-control--readonly {
+  border-color: #e4e4e7 !important;
+  background: #f7f8fa !important;
+  color: #71717a !important;
+  cursor: default;
+}
+
+.pressure-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr);
+  align-items: start;
+}
+
+.pressure-divider {
+  align-self: center;
+  justify-self: center;
+  margin-top: -15px;
+  color: #a1a1aa;
+  font-size: 15px;
+}
+
+.measurement-input small {
+  display: block;
+  margin-top: 5px;
+  color: #71717a;
+  font-size: 12px;
+}
+
+.assessment-form-actions {
+  display: flex;
+  min-height: 70px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 12px 17px;
+  border: 1px solid #e4e4e7;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 4%);
+}
+
+.assessment-form-actions > span {
+  color: #71717a;
+  font-size: 12px;
+}
+
+.assessment-action-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+::ng-deep .assessment-dialog-panel .mat-mdc-dialog-surface {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  border: 1px solid #e4e4e7;
+  border-radius: 20px !important;
+  background: #fff;
+  box-shadow: 0 24px 70px rgb(11 31 58 / 18%);
+}
+
+@media (max-width: 640px) {
+  :host ::ng-deep .assessment-stepper .mat-horizontal-stepper-header-container {
+    padding: 6px;
+  }
+
+  :host ::ng-deep .assessment-stepper .mat-step-header {
+    padding: 0 8px;
+  }
+
+  :host ::ng-deep .assessment-stepper .mat-step-label {
+    font-size: 12px;
+  }
+
+  .form-section-heading--quick {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .quick-assessment-badge {
+    margin-left: 49px;
+  }
+
+  .assessment-form-actions {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  .assessment-form-actions > span {
+    text-align: center;
+  }
+
+  .assessment-action-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .assessment-form-actions--quick .assessment-button,
+  .assessment-action-group .assessment-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  :host ::ng-deep .assessment-stepper .mat-step-header {
+    justify-content: center;
+  }
+
+  :host ::ng-deep .assessment-stepper .mat-step-header .mat-step-label {
+    position: absolute;
+    display: block !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  :host ::ng-deep .assessment-stepper .mat-stepper-horizontal-line {
+    min-width: 10px;
+  }
+  .pressure-inputs {
+    grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr);
+  }
+
+  .assessment-action-group {
+    grid-template-columns: 1fr;
+  }
 }
