@@ -1,7 +1,3 @@
-@import '../../../shared/styles/form-controls.css';
-
-@import '../../../shared/styles/assessment-button.css';
-
 :host {
   display: block;
   min-width: 0;
