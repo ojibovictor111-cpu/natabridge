@@ -1,5 +1,13 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { UserRequestPayload } from "../../models/users/user.model";
+import { requireAuthenticatedUserId } from "../../utils/auth";
+
+const getCurrentUser = async (request: FastifyRequest, reply: FastifyReply) => {
+    const id = requireAuthenticatedUserId(request);
+    return reply.code(200).send({
+        data: { id, email: request.user!.email }
+    });
+};
 
 const getAllUsers = async(request: FastifyRequest, reply: FastifyReply) => {
     // Logic to get all users
@@ -16,6 +24,7 @@ const postUser = async(request: FastifyRequest<{Body: UserRequestPayload}>, repl
 }
 
 export {
+     getCurrentUser,
      getAllUsers,
      getUserById,
      postUser

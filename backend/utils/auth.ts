@@ -1,9 +1,16 @@
 import type { FastifyRequest } from "fastify";
-import { DEMO_USER_ID } from "../configs/demo-user";
+import { ClientFacingError } from "../errors/api-error";
 
 const requireAuthenticatedUserId = (request: FastifyRequest): string => {
-	// temporary authentication bypass for the demo deployment. Keep returning an actor ID that exists in users because clinical writes have a foreign key.
-	return request.user?.id === DEMO_USER_ID ? request.user.id : DEMO_USER_ID;
+	if (request.user === null) {
+		throw new ClientFacingError({
+			statusCode: 401,
+			code: "AUTHENTICATION_REQUIRED",
+			message: "Sign in to access this resource."
+		});
+	}
+
+	return request.user.id;
 };
 
 export { requireAuthenticatedUserId };

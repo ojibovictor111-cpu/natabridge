@@ -5,7 +5,8 @@ declare module 'fastify' {
   interface FastifyRequest {
     user: {
       id: string;
-      email?: string;
+      email: string;
+      firebaseUid: string;
     } | null;
   }
 }

@@ -98,7 +98,7 @@ There is deliberately no `patientId` or `assessmentId`. The server records this 
 
 ```text
 POST /api/patients/:patientId/assessments
-Authentication: required (the current development `session_id` cookie)
+Authentication: required (`Authorization: Bearer <Firebase ID token>`)
 Success: 201 Created
 ```
 
@@ -256,7 +256,10 @@ Handle these route-relevant statuses and codes:
 | --- | --- | --- |
 | `400` | `VALIDATION_ERROR` | A path parameter or request body fails validation. |
 | `400` | `PATIENT_CONTACT_REQUIRED` | Patient creation omitted both email and phone. |
-| `401` | `AUTHENTICATION_REQUIRED` | A patient or patient-assessment route is called without a valid session cookie. |
+| `401` | `AUTHENTICATION_REQUIRED` | A protected route is called without a Bearer token. |
+| `401` | `INVALID_ID_TOKEN` | A Firebase ID token is invalid, expired, or revoked. |
+| `403` | `USER_NOT_PROVISIONED` | The verified Firebase UID does not have a matching `users.firebase_uid`. |
+| `403` | `USER_INACTIVE` | The matching user is suspended or disabled. |
 | `404` | `PATIENT_NOT_FOUND` | The selected patient ID does not exist. |
 | `409` | `PATIENT_EMAIL_ALREADY_EXISTS` | A new patient uses an existing email; `field` is `email`. |
 | `409` | `PATIENT_PHONE_ALREADY_EXISTS` | A new patient uses an existing phone; `field` is `phone`. |
@@ -279,4 +282,4 @@ Calling removed `POST /api/assessments` now returns `404 ROUTE_NOT_FOUND`. Updat
 - Model the public response without an `assessmentId`.
 - Model the patient response with required `assessmentId`, `patientId`, and `predictionRunId`.
 - Backend success envelopes contain `data`; they do not currently include a `success` boolean.
-- Sending `withCredentials: true` is required for patient routes and is harmless for the public prediction route.
+- Send the Firebase ID token in the `Authorization` header for protected routes. Cookie credentials are not used.
