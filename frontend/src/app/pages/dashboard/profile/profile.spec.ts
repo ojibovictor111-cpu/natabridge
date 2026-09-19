@@ -43,6 +43,25 @@ describe('Profile', () => {
     });
   });
 
+  it('shows invalid edits after blur and clears errors when corrected', () => {
+    component.startEditing();
+    const fullName = component.profileForm.controls.fullName;
+    fullName.setValue('');
+    fullName.markAsDirty();
+    fixture.detectChanges();
+
+    const page = fixture.nativeElement as HTMLElement;
+    expect(page.querySelector('.field-error')).toBeNull();
+
+    fullName.markAsTouched();
+    fixture.detectChanges();
+    expect(page.querySelector('.field-error')?.textContent).toContain('full name');
+
+    fullName.setValue('Amina Bello');
+    fixture.detectChanges();
+    expect(page.querySelector('.field-error')).toBeNull();
+  });
+
   it('signs out through the authentication service', () => {
     component.logout();
 

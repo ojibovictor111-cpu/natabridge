@@ -70,6 +70,9 @@ export class AssessmentService {
     request: Observable<ApiResponse<AssessmentResultApi>>,
     formData: AssessmentFormData,
   ) {
+    if (this.loading()) return;
+
+    this.loading.set(true);
     this.errorMessage.set(null);
     this.utilService.showLoader();
 
@@ -77,7 +80,12 @@ export class AssessmentService {
     localStorage.setItem('assessment_input', JSON.stringify(formData));
 
     request
-      .pipe(finalize(() => this.utilService.hideLoader()))
+      .pipe(
+        finalize(() => {
+          this.loading.set(false);
+          this.utilService.hideLoader();
+        }),
+      )
       .subscribe({
         next: (resp) => {
           this.result.set(resp.data);

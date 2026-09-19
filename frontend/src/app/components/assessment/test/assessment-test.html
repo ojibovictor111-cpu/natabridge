@@ -51,186 +51,181 @@
   @if (userAuthenticated()) {
     <mat-stepper class="assessment-stepper" [linear]="true" #stepper>
       @if (!patientId()) {
-      <mat-step [stepControl]="personalInformationFormGroup">
-        <ng-template matStepLabel>Patient details</ng-template>
+        <mat-step [stepControl]="personalInformationFormGroup">
+          <ng-template matStepLabel>Patient details</ng-template>
 
-        <form class="assessment-step-form" [formGroup]="personalInformationFormGroup">
-          <section class="assessment-card">
-            <header class="form-section-heading">
-              <span class="section-number">01</span>
-              <div>
-                <h2>Personal information</h2>
-                <p>Basic identifying and contact information for this assessment.</p>
-              </div>
-            </header>
+          <form class="assessment-step-form" [formGroup]="personalInformationFormGroup">
+            <section class="assessment-card">
+              <header class="form-section-heading">
+                <span class="section-number">01</span>
+                <div>
+                  <h2>Personal information</h2>
+                  <p>Basic identifying and contact information for this assessment.</p>
+                </div>
+              </header>
 
-            <div class="form-grid form-grid--three">
-              <div class="form-field">
-                <label for="firstname">First name <span class="required-marker">*</span></label>
-                <input
-                  id="firstname"
-                  type="text"
-                  formControlName="firstname"
-                  placeholder="e.g. Amina"
-                  autocomplete="given-name"
-                  required
-                  aria-required="true"
-                  aria-describedby="firstname-error"
-                  [attr.aria-invalid]="
+              <div class="form-grid form-grid--three">
+                <div class="form-field">
+                  <label for="firstname">First name <span class="required-marker">*</span></label>
+                  <input
+                    id="firstname"
+                    type="text"
+                    formControlName="firstname"
+                    placeholder="e.g. Amina"
+                    autocomplete="given-name"
+                    required
+                    aria-required="true"
+                    aria-describedby="firstname-error"
+                    [attr.aria-invalid]="
+                      personalInformationFormGroup.controls.firstname.invalid &&
+                      personalInformationFormGroup.controls.firstname.touched
+                    "
+                  />
+                  @if (
                     personalInformationFormGroup.controls.firstname.invalid &&
                     personalInformationFormGroup.controls.firstname.touched
-                  "
-                />
-                @if (
-                  personalInformationFormGroup.controls.firstname.invalid &&
-                  (personalInformationFormGroup.controls.firstname.touched ||
-                    personalInformationFormGroup.controls.firstname.dirty)
-                ) {
-                  <p class="field-error" id="firstname-error">Enter the patient’s first name.</p>
-                }
-              </div>
+                  ) {
+                    <p class="field-error" id="firstname-error">Enter the patient’s first name.</p>
+                  }
+                </div>
 
-              <div class="form-field">
-                <label for="lastname">Last name <span class="required-marker">*</span></label>
-                <input
-                  id="lastname"
-                  type="text"
-                  formControlName="lastname"
-                  placeholder="e.g. Bello"
-                  autocomplete="family-name"
-                  required
-                  aria-required="true"
-                  aria-describedby="lastname-error"
-                  [attr.aria-invalid]="
+                <div class="form-field">
+                  <label for="lastname">Last name <span class="required-marker">*</span></label>
+                  <input
+                    id="lastname"
+                    type="text"
+                    formControlName="lastname"
+                    placeholder="e.g. Bello"
+                    autocomplete="family-name"
+                    required
+                    aria-required="true"
+                    aria-describedby="lastname-error"
+                    [attr.aria-invalid]="
+                      personalInformationFormGroup.controls.lastname.invalid &&
+                      personalInformationFormGroup.controls.lastname.touched
+                    "
+                  />
+                  @if (
                     personalInformationFormGroup.controls.lastname.invalid &&
                     personalInformationFormGroup.controls.lastname.touched
-                  "
-                />
-                @if (
-                  personalInformationFormGroup.controls.lastname.invalid &&
-                  (personalInformationFormGroup.controls.lastname.touched ||
-                    personalInformationFormGroup.controls.lastname.dirty)
-                ) {
-                  <p class="field-error" id="lastname-error">Enter the patient’s last name.</p>
-                }
-              </div>
+                  ) {
+                    <p class="field-error" id="lastname-error">Enter the patient’s last name.</p>
+                  }
+                </div>
 
-              <div class="form-field">
-                <label for="middlename"
-                  >Middle name <span class="optional-label">Optional</span></label
-                >
-                <input
-                  id="middlename"
-                  type="text"
-                  formControlName="middlename"
-                  placeholder="e.g. Zainab"
-                  autocomplete="additional-name"
-                />
-              </div>
+                <div class="form-field">
+                  <label for="middlename"
+                    >Middle name <span class="optional-label">Optional</span></label
+                  >
+                  <input
+                    id="middlename"
+                    type="text"
+                    formControlName="middlename"
+                    placeholder="e.g. Zainab"
+                    autocomplete="additional-name"
+                  />
+                </div>
 
-              <div class="form-field">
-                <label for="email">Email address <span class="required-marker">*</span></label>
-                <input
-                  id="email"
-                  type="email"
-                  formControlName="email"
-                  placeholder="amina@example.com"
-                  autocomplete="email"
-                  required
-                  aria-required="true"
-                  aria-describedby="email-error"
-                  [attr.aria-invalid]="
+                <div class="form-field">
+                  <label for="email">Email address <span class="required-marker">*</span></label>
+                  <input
+                    id="email"
+                    type="email"
+                    formControlName="email"
+                    placeholder="amina@example.com"
+                    autocomplete="email"
+                    required
+                    aria-required="true"
+                    aria-describedby="email-error"
+                    [attr.aria-invalid]="
+                      personalInformationFormGroup.controls.email.invalid &&
+                      personalInformationFormGroup.controls.email.touched
+                    "
+                  />
+                  @if (
                     personalInformationFormGroup.controls.email.invalid &&
                     personalInformationFormGroup.controls.email.touched
-                  "
-                />
-                @if (
-                  personalInformationFormGroup.controls.email.invalid &&
-                  (personalInformationFormGroup.controls.email.touched ||
-                    personalInformationFormGroup.controls.email.dirty)
-                ) {
-                  <p class="field-error" id="email-error">
-                    {{
-                      personalInformationFormGroup.controls.email.hasError('email')
-                        ? 'Enter a valid email address.'
-                        : 'Enter the patient’s email address.'
-                    }}
-                  </p>
-                }
-              </div>
+                  ) {
+                    <p class="field-error" id="email-error">
+                      {{
+                        personalInformationFormGroup.controls.email.hasError('email')
+                          ? 'Enter a valid email address.'
+                          : 'Enter the patient’s email address.'
+                      }}
+                    </p>
+                  }
+                </div>
 
-              <div class="form-field">
-                <label for="phone">Phone number <span class="required-marker">*</span></label>
-                <input
-                  id="phone"
-                  type="tel"
-                  formControlName="phone"
-                  placeholder="e.g. +234 800 000 0000"
-                  autocomplete="tel"
-                  required
-                  aria-required="true"
-                  aria-describedby="phone-error"
-                  [attr.aria-invalid]="
+                <div class="form-field">
+                  <label for="phone">Phone number <span class="required-marker">*</span></label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    formControlName="phone"
+                    placeholder="e.g. +234 800 000 0000"
+                    autocomplete="tel"
+                    required
+                    aria-required="true"
+                    aria-describedby="phone-error"
+                    [attr.aria-invalid]="
+                      personalInformationFormGroup.controls.phone.invalid &&
+                      personalInformationFormGroup.controls.phone.touched
+                    "
+                  />
+                  @if (
                     personalInformationFormGroup.controls.phone.invalid &&
                     personalInformationFormGroup.controls.phone.touched
-                  "
-                />
-                @if (
-                  personalInformationFormGroup.controls.phone.invalid &&
-                  (personalInformationFormGroup.controls.phone.touched ||
-                    personalInformationFormGroup.controls.phone.dirty)
-                ) {
-                  <p class="field-error" id="phone-error">Enter the patient’s phone number.</p>
-                }
-              </div>
+                  ) {
+                    <p class="field-error" id="phone-error">Enter the patient’s phone number.</p>
+                  }
+                </div>
 
-              <div class="form-field">
-                <label for="dob">Date of birth <span class="required-marker">*</span></label>
-                <input
-                  id="dob"
-                  type="date"
-                  formControlName="dob"
-                  [max]="maximumDateOfBirth"
-                  autocomplete="bday"
-                  required
-                  aria-required="true"
-                  aria-describedby="dob-hint dob-error"
-                  [attr.aria-invalid]="
+                <div class="form-field">
+                  <label for="dob">Date of birth <span class="required-marker">*</span></label>
+                  <input
+                    id="dob"
+                    type="date"
+                    formControlName="dob"
+                    [max]="maximumDateOfBirth"
+                    autocomplete="bday"
+                    required
+                    aria-required="true"
+                    aria-describedby="dob-hint dob-error"
+                    [attr.aria-invalid]="
+                      personalInformationFormGroup.controls.dob.invalid &&
+                      personalInformationFormGroup.controls.dob.touched
+                    "
+                  />
+                  <p class="field-hint" id="dob-hint">Age will be calculated automatically.</p>
+                  @if (
                     personalInformationFormGroup.controls.dob.invalid &&
                     personalInformationFormGroup.controls.dob.touched
-                  "
-                />
-                <p class="field-hint" id="dob-hint">Age will be calculated automatically.</p>
-                @if (
-                  personalInformationFormGroup.controls.dob.invalid &&
-                  personalInformationFormGroup.controls.dob.touched
-                ) {
-                  <p class="field-error" id="dob-error">
-                    {{
-                      personalInformationFormGroup.controls.dob.hasError('underage')
-                        ? 'The patient must be at least 18 years old.'
-                        : 'Select a valid date of birth.'
-                    }}
-                  </p>
-                }
+                  ) {
+                    <p class="field-error" id="dob-error">
+                      {{
+                        personalInformationFormGroup.controls.dob.hasError('underage')
+                          ? 'The patient must be at least 18 years old.'
+                          : 'Select a valid date of birth.'
+                      }}
+                    </p>
+                  }
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <footer class="assessment-form-actions">
-            <span>Step 1 of 3</span>
-            <button
-              class="assessment-button assessment-button--primary"
-              type="button"
-              matStepperNext
-              [disabled]="personalInformationFormGroup.invalid"
-            >
-              Continue
-              <ng-icon name="heroArrowLongRight" />
-            </button>
-          </footer>
-        </form>
-      </mat-step>
+            <footer class="assessment-form-actions">
+              <span>Step 1 of 3</span>
+              <button
+                class="assessment-button assessment-button--primary"
+                type="button"
+                (click)="continueStep(personalInformationFormGroup)"
+              >
+                Continue
+                <ng-icon name="heroArrowLongRight" />
+              </button>
+            </footer>
+          </form>
+        </mat-step>
       }
 
       <mat-step [stepControl]="pregnancyInformationFormGroup">
@@ -254,47 +249,46 @@
 
             <div class="form-grid form-grid--two">
               @if (!hasPreviousAssessment()) {
-              <div class="form-field">
-                <label for="gestationalAge">
-                  Gestational age <span class="field-unit">Weeks</span>
-                  <span class="required-marker">*</span>
-                </label>
-                <input
-                  id="gestationalAge"
-                  type="number"
-                  min="1"
-                  max="45"
-                  formControlName="gestationalAge"
-                  placeholder="e.g. 24"
-                  required
-                  aria-required="true"
-                  aria-describedby="gestational-age-error"
-                  [attr.aria-invalid]="
+                <div class="form-field">
+                  <label for="gestationalAge">
+                    Gestational age <span class="field-unit">Weeks</span>
+                    <span class="required-marker">*</span>
+                  </label>
+                  <input
+                    id="gestationalAge"
+                    type="number"
+                    min="1"
+                    max="45"
+                    formControlName="gestationalAge"
+                    placeholder="e.g. 24"
+                    required
+                    aria-required="true"
+                    aria-describedby="gestational-age-error"
+                    [attr.aria-invalid]="
+                      pregnancyInformationFormGroup.controls.gestationalAge.invalid &&
+                      pregnancyInformationFormGroup.controls.gestationalAge.touched
+                    "
+                  />
+                  @if (
                     pregnancyInformationFormGroup.controls.gestationalAge.invalid &&
                     pregnancyInformationFormGroup.controls.gestationalAge.touched
-                  "
-                />
-                @if (
-                  pregnancyInformationFormGroup.controls.gestationalAge.invalid &&
-                  (pregnancyInformationFormGroup.controls.gestationalAge.touched ||
-                    pregnancyInformationFormGroup.controls.gestationalAge.dirty)
-                ) {
-                  <p class="field-error" id="gestational-age-error">
-                    Enter a gestational age between 1 and 45 weeks.
-                  </p>
-                }
-              </div>
+                  ) {
+                    <p class="field-error" id="gestational-age-error">
+                      Enter a gestational age between 1 and 45 weeks.
+                    </p>
+                  }
+                </div>
 
-              <div class="form-field">
-                <label for="firstPregnancy">
-                  Is this the first pregnancy? <span class="optional-label">Optional</span>
-                </label>
-                <select id="firstPregnancy" formControlName="firstPregnancy">
-                  <option [ngValue]="null">Select an answer</option>
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-                </select>
-              </div>
+                <div class="form-field">
+                  <label for="firstPregnancy">
+                    Is this the first pregnancy? <span class="optional-label">Optional</span>
+                  </label>
+                  <select id="firstPregnancy" formControlName="firstPregnancy">
+                    <option [ngValue]="null">Select an answer</option>
+                    <option [ngValue]="true">Yes</option>
+                    <option [ngValue]="false">No</option>
+                  </select>
+                </div>
               }
 
               <div class="form-field form-field--full">
@@ -324,8 +318,7 @@
               <button
                 class="assessment-button assessment-button--primary"
                 type="button"
-                matStepperNext
-                [disabled]="pregnancyInformationFormGroup.invalid"
+                (click)="continueStep(pregnancyInformationFormGroup)"
               >
                 Continue
                 <ng-icon name="heroArrowLongRight" />
@@ -368,9 +361,9 @@
               <button
                 class="assessment-button assessment-button--primary"
                 type="submit"
-                [disabled]="!isValidForSubmission()"
+                [disabled]="submitting()"
               >
-                Analyze assessment
+                {{ submitting() ? 'Analyzing assessment…' : 'Analyze assessment' }}
               </button>
             </div>
           </footer>
@@ -390,7 +383,10 @@
             <h2>Current health measurements</h2>
             <p>Enter the most recent values available to you.</p>
           </div>
-          <span class="quick-assessment-badge">Quick assessment</span>
+          <span
+            class="quick-assessment-badge ml-auto shrink-0 rounded-full border border-(--dashboard-border) bg-(--dashboard-green-soft) px-3 py-2 text-xs font-medium whitespace-nowrap text-(--dashboard-green) max-sm:ml-12"
+            >Quick assessment</span
+          >
         </header>
 
         <aside class="assessment-advisory">
@@ -409,9 +405,9 @@
         <button
           class="assessment-button assessment-button--primary"
           type="submit"
-          [disabled]="!isValidForSubmission()"
+          [disabled]="submitting()"
         >
-          Assess my pregnancy
+          {{ submitting() ? 'Assessing…' : 'Assess my pregnancy' }}
           <ng-icon name="heroArrowLongRight" />
         </button>
       </footer>
@@ -471,11 +467,9 @@
 
       @if (
         (healthMeasurementsFormGroup.controls.systolicBP.invalid &&
-          (healthMeasurementsFormGroup.controls.systolicBP.touched ||
-            healthMeasurementsFormGroup.controls.systolicBP.dirty)) ||
+          healthMeasurementsFormGroup.controls.systolicBP.touched) ||
         (healthMeasurementsFormGroup.controls.diastolicBP.invalid &&
-          (healthMeasurementsFormGroup.controls.diastolicBP.touched ||
-            healthMeasurementsFormGroup.controls.diastolicBP.dirty))
+          healthMeasurementsFormGroup.controls.diastolicBP.touched)
       ) {
         <p class="field-error" id="blood-pressure-error">
           Enter blood pressure between 60/30 and 250/150 mmHg.
@@ -509,8 +503,7 @@
       }
       @if (
         healthMeasurementsFormGroup.controls.age.invalid &&
-        (healthMeasurementsFormGroup.controls.age.touched ||
-          healthMeasurementsFormGroup.controls.age.dirty)
+        healthMeasurementsFormGroup.controls.age.touched
       ) {
         <p class="field-error" id="age-error">Enter an age between 10 and 70 years.</p>
       }
@@ -525,6 +518,7 @@
         id="bloodSugar"
         type="number"
         min="2"
+        max="25"
         step="0.1"
         [formControl]="healthMeasurementsFormGroup.controls.bloodSugar"
         placeholder="e.g. 4.5"
@@ -538,11 +532,10 @@
       />
       @if (
         healthMeasurementsFormGroup.controls.bloodSugar.invalid &&
-        (healthMeasurementsFormGroup.controls.bloodSugar.touched ||
-          healthMeasurementsFormGroup.controls.bloodSugar.dirty)
+        healthMeasurementsFormGroup.controls.bloodSugar.touched
       ) {
         <p class="field-error" id="blood-sugar-error">
-          Enter a blood-sugar reading of 2 mmol/L or higher.
+          Enter a valid blood-sugar reading between 2.0 and 25.0 mmol/L.
         </p>
       }
     </div>
@@ -570,8 +563,7 @@
       />
       @if (
         healthMeasurementsFormGroup.controls.bodyTemp.invalid &&
-        (healthMeasurementsFormGroup.controls.bodyTemp.touched ||
-          healthMeasurementsFormGroup.controls.bodyTemp.dirty)
+        healthMeasurementsFormGroup.controls.bodyTemp.touched
       ) {
         <p class="field-error" id="body-temperature-error">
           Enter a temperature between 36°C and 43°C.
@@ -601,8 +593,7 @@
       />
       @if (
         healthMeasurementsFormGroup.controls.heartRate.invalid &&
-        (healthMeasurementsFormGroup.controls.heartRate.touched ||
-          healthMeasurementsFormGroup.controls.heartRate.dirty)
+        healthMeasurementsFormGroup.controls.heartRate.touched
       ) {
         <p class="field-error" id="heart-rate-error">Enter a heart rate between 30 and 220 bpm.</p>
       }

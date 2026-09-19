@@ -14,6 +14,7 @@ describe('AssessmentTest', () => {
   let dialog: { open: ReturnType<typeof vi.fn> };
   let assessmentService: {
     errorMessage: ReturnType<typeof signal<string | null>>;
+    loading: ReturnType<typeof signal<boolean>>;
     submitPublicPrediction: ReturnType<typeof vi.fn>;
     submitPatientAssessment: ReturnType<typeof vi.fn>;
     createPatientAndSubmitAssessment: ReturnType<typeof vi.fn>;
@@ -23,6 +24,7 @@ describe('AssessmentTest', () => {
     dialog = { open: vi.fn() };
     assessmentService = {
       errorMessage: signal<string | null>(null),
+      loading: signal(false),
       submitPublicPrediction: vi.fn(),
       submitPatientAssessment: vi.fn(),
       createPatientAndSubmitAssessment: vi.fn(),
@@ -133,6 +135,50 @@ describe('AssessmentTest', () => {
     expect(payload.firstPregnancy).toBe(false);
     expect(typeof payload.firstPregnancy).toBe('boolean');
     expect(payload.previousComplications).toBe('Previous pre-eclampsia');
+  });
+
+  it('waits for blur or submit before showing errors and clears them after correction', () => {
+    const bloodSugar = component.healthMeasurementsFormGroup.controls.bloodSugar;
+    const page = fixture.nativeElement as HTMLElement;
+
+    expect(page.querySelector('#blood-sugar-error')).toBeNull();
+
+    bloodSugar.setValue(1);
+    bloodSugar.markAsDirty();
+    fixture.detectChanges();
+    expect(page.querySelector('#blood-sugar-error')).toBeNull();
+
+    bloodSugar.markAsTouched();
+    fixture.detectChanges();
+    expect(page.querySelector('#blood-sugar-error')).not.toBeNull();
+
+    bloodSugar.setValue(4.5);
+    fixture.detectChanges();
+    expect(page.querySelector('#blood-sugar-error')).toBeNull();
+
+    component.openDialog();
+    fixture.detectChanges();
+    expect(page.querySelector('#heart-rate-error')).not.toBeNull();
+    expect(dialog.open).not.toHaveBeenCalled();
+  });
+
+  it('enforces the displayed blood sugar limit', () => {
+    component.healthMeasurementsFormGroup.controls.bloodSugar.setValue(25.1);
+    expect(component.healthMeasurementsFormGroup.controls.bloodSugar.hasError('max')).toBe(true);
+  });
+
+  it('prevents a second assessment attempt while a request is in progress', () => {
+    setValidHealthMeasurements();
+    assessmentService.loading.set(true);
+    fixture.detectChanges();
+
+    const submit = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+      'button[type="submit"]',
+    );
+    expect(submit?.disabled).toBe(true);
+
+    component.openDialog();
+    expect(dialog.open).not.toHaveBeenCalled();
   });
 
   it('skips saved patient fields for a repeat assessment', () => {

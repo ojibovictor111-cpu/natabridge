@@ -1,108 +1,299 @@
-<section class="profile-page">
-  <header class="profile-page-heading">
+<section
+  class="profile-page min-h-full pt-7 px-8 pb-11 bg-(--dashboard-canvas) text-(--dashboard-text) max-sm:pt-5 max-sm:px-4 max-sm:pb-8"
+>
+  <header
+    class="profile-page-heading flex items-end justify-between gap-5 max-sm:items-stretch max-sm:flex-col"
+  >
     <div>
-      <p>Account settings</p>
-      <h1>My profile</h1>
-      <span>Manage your personal information and dashboard preferences.</span>
+      <p class="mt-0 mx-0 mb-1 text-(--nata-primary) text-xs font-semibold uppercase">
+        Account settings
+      </p>
+      <h1 class="m-0 text-2xl font-semibold">My profile</h1>
+      <span class="block mt-1 text-(--dashboard-muted) text-xs"
+        >Manage your personal information and dashboard preferences.</span
+      >
     </div>
 
     @if (!isEditing()) {
-      <button class="profile-button profile-button--primary" type="button" (click)="startEditing()">
-        <ng-icon name="lucideEdit3" aria-hidden="true" />
+      <button
+        class="profile-button profile-button--primary inline-flex h-9 items-center justify-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-3 cursor-pointer bg-(--nata-primary) text-white max-sm:self-start"
+        type="button"
+        (click)="startEditing()"
+      >
+        <ng-icon name="lucideEdit3" aria-hidden="true" class="text-sm" />
         Edit profile
       </button>
     }
   </header>
 
-  <section class="profile-hero" aria-labelledby="profile-name">
-    <span class="profile-avatar">{{ initials() || 'JS' }}</span>
+  <section
+    class="profile-hero flex min-h-32 items-center gap-4 mt-6 border border-(--dashboard-border) rounded-xl p-6 max-sm:p-4 max-sm:items-start"
+    aria-labelledby="profile-name"
+  >
+    <span
+      class="profile-avatar grid w-18 h-18 place-items-center rounded-full bg-(--nata-primary) text-white text-xl font-semibold max-sm:w-14 max-sm:h-14 max-sm:text-lg"
+      >{{ initials() || 'JS' }}</span
+    >
     <div class="profile-identity">
-      <div class="profile-name-row">
-        <h2 id="profile-name">{{ profile().fullName }}</h2>
-        <span class="active-badge"><i></i> Active</span>
+      <div
+        class="profile-name-row flex items-center gap-2 max-sm:items-start max-sm:flex-col max-sm:gap-1.25"
+      >
+        <h2 id="profile-name" class="m-0 text-xl font-semibold">{{ profile().fullName }}</h2>
+        <span
+          class="active-badge inline-flex items-center gap-1.25 rounded-full bg-white py-0.5 px-2 text-(--dashboard-green) font-semibold"
+          ><i class="w-1.25 h-1.25 rounded-full bg-(--dashboard-green)"></i> Active</span
+        >
       </div>
-      <p>{{ profile().role }}</p>
-      <span>NataBridge maternal health workspace</span>
+      <p class="mt-1 mx-0 mb-0 text-(--nata-primary-hover) text-xs font-medium">
+        {{ profile().role }}
+      </p>
+      <span class="block mt-1.25 text-(--dashboard-muted) text-xs"
+        >NataBridge maternal health workspace</span
+      >
     </div>
   </section>
 
-  <div class="profile-layout">
-    <section class="profile-card account-card" aria-labelledby="account-information-title">
-      <header class="card-heading">
-        <span><ng-icon name="lucideUserRound" aria-hidden="true" /></span>
+  <div class="profile-layout grid gap-4 mt-4 max-lg:grid-cols-1">
+    <section
+      class="profile-card account-card border border-(--dashboard-border) rounded-xl bg-white p-5"
+      aria-labelledby="account-information-title"
+    >
+      <header class="card-heading flex items-center gap-2.5 pb-4">
+        <span
+          class="grid w-8 h-8 place-items-center rounded-lg bg-(--dashboard-green-soft) text-(--nata-primary)"
+          ><ng-icon name="lucideUserRound" aria-hidden="true"
+        /></span>
         <div>
-          <h2 id="account-information-title">Account information</h2>
-          <p>Your contact details and workspace role.</p>
+          <h2 id="account-information-title" class="m-0 text-sm font-semibold">
+            Account information
+          </h2>
+          <p class="mt-0.5 mx-0 mb-0 text-(--dashboard-muted) text-xs">
+            Your contact details and workspace role.
+          </p>
         </div>
       </header>
 
-      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
-        <div class="profile-field profile-field--wide">
-          <label for="profile-full-name">Full name</label>
-          <div class="profile-input-wrap">
-            <ng-icon name="lucideUserRound" aria-hidden="true" />
-            <input id="profile-full-name" type="text" formControlName="fullName" [readOnly]="!isEditing()" autocomplete="name" />
+      <form
+        [formGroup]="profileForm"
+        (ngSubmit)="saveProfile()"
+        novalidate
+        class="grid grid-cols-2 gap-4 mt-4 max-sm:grid-cols-1"
+      >
+        <div class="profile-field profile-field--wide grid gap-1.25">
+          <label for="profile-full-name" class="text-(--dashboard-muted) text-xs font-medium"
+            >Full name</label
+          >
+          <div
+            class="profile-input-wrap flex h-10 items-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-2.5"
+            [class.profile-input-wrap--error]="
+              isEditing() &&
+              profileForm.controls.fullName.invalid &&
+              (profileForm.controls.fullName.touched || submitted())
+            "
+          >
+            <ng-icon
+              name="lucideUserRound"
+              aria-hidden="true"
+              class="text-(--dashboard-muted) text-sm"
+            />
+            <input
+              id="profile-full-name"
+              type="text"
+              formControlName="fullName"
+              [readOnly]="!isEditing()"
+              autocomplete="name"
+              [attr.aria-invalid]="
+                isEditing() &&
+                profileForm.controls.fullName.invalid &&
+                (profileForm.controls.fullName.touched || submitted())
+              "
+              class="border-0 bg-transparent text-(--dashboard-text)"
+            />
           </div>
-          @if (profileForm.controls.fullName.invalid && profileForm.controls.fullName.touched) {
-            <small class="field-error">Enter your full name.</small>
+          @if (
+            isEditing() &&
+            profileForm.controls.fullName.invalid &&
+            (profileForm.controls.fullName.touched || submitted())
+          ) {
+            <small class="field-error text-(--dashboard-danger)">Enter your full name.</small>
           }
         </div>
 
-        <div class="profile-field">
-          <label for="profile-email">Email address</label>
-          <div class="profile-input-wrap">
-            <ng-icon name="lucideMail" aria-hidden="true" />
-            <input id="profile-email" type="email" formControlName="email" [readOnly]="!isEditing()" autocomplete="email" />
+        <div class="profile-field grid gap-1.25">
+          <label for="profile-email" class="text-(--dashboard-muted) text-xs font-medium"
+            >Email address</label
+          >
+          <div
+            class="profile-input-wrap flex h-10 items-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-2.5"
+            [class.profile-input-wrap--error]="
+              isEditing() &&
+              profileForm.controls.email.invalid &&
+              (profileForm.controls.email.touched || submitted())
+            "
+          >
+            <ng-icon
+              name="lucideMail"
+              aria-hidden="true"
+              class="text-(--dashboard-muted) text-sm"
+            />
+            <input
+              id="profile-email"
+              type="email"
+              formControlName="email"
+              [readOnly]="!isEditing()"
+              autocomplete="email"
+              [attr.aria-invalid]="
+                isEditing() &&
+                profileForm.controls.email.invalid &&
+                (profileForm.controls.email.touched || submitted())
+              "
+              class="border-0 bg-transparent text-(--dashboard-text)"
+            />
           </div>
-          @if (profileForm.controls.email.invalid && profileForm.controls.email.touched) {
-            <small class="field-error">Enter a valid email address.</small>
+          @if (
+            isEditing() &&
+            profileForm.controls.email.invalid &&
+            (profileForm.controls.email.touched || submitted())
+          ) {
+            <small class="field-error text-(--dashboard-danger)"
+              >Enter a valid email address.</small
+            >
           }
         </div>
 
-        <div class="profile-field">
-          <label for="profile-phone">Phone number</label>
-          <div class="profile-input-wrap">
-            <ng-icon name="lucidePhone" aria-hidden="true" />
-            <input id="profile-phone" type="tel" formControlName="phone" [readOnly]="!isEditing()" autocomplete="tel" />
+        <div class="profile-field grid gap-1.25">
+          <label for="profile-phone" class="text-(--dashboard-muted) text-xs font-medium"
+            >Phone number</label
+          >
+          <div
+            class="profile-input-wrap flex h-10 items-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-2.5"
+          >
+            <ng-icon
+              name="lucidePhone"
+              aria-hidden="true"
+              class="text-(--dashboard-muted) text-sm"
+            />
+            <input
+              id="profile-phone"
+              type="tel"
+              formControlName="phone"
+              [readOnly]="!isEditing()"
+              autocomplete="tel"
+              class="border-0 bg-transparent text-(--dashboard-text)"
+            />
           </div>
         </div>
 
-        <div class="profile-field profile-field--wide">
-          <label>Workspace role</label>
-          <div class="profile-role"><ng-icon name="lucideShieldCheck" aria-hidden="true" /><span>{{ profile().role }}</span><small>Managed by your organisation</small></div>
+        <div class="profile-field profile-field--wide grid gap-1.25">
+          <label class="text-(--dashboard-muted) text-xs font-medium">Workspace role</label>
+          <div
+            class="profile-role flex min-h-10 items-center gap-2 border border-(--dashboard-border) rounded-lg bg-(--dashboard-canvas) py-0 px-2.5 max-sm:items-start max-sm:flex-col"
+          >
+            <ng-icon
+              name="lucideShieldCheck"
+              aria-hidden="true"
+              class="text-(--nata-primary)"
+            /><span class="text-xs">{{ profile().role }}</span
+            ><small class="ml-auto text-(--dashboard-muted) max-sm:ml-0"
+              >Managed by your organisation</small
+            >
+          </div>
         </div>
 
         @if (isEditing()) {
-          <footer class="form-actions">
-            <button class="profile-button profile-button--secondary" type="button" (click)="cancelEditing()"><ng-icon name="lucideX" /> Cancel</button>
-            <button class="profile-button profile-button--primary" type="submit"><ng-icon name="lucideCheck" /> Save changes</button>
+          <footer class="form-actions flex justify-end gap-2 pt-1 max-sm:flex-wrap">
+            <button
+              class="profile-button profile-button--secondary inline-flex h-9 items-center justify-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-3 cursor-pointer bg-white text-(--dashboard-text)"
+              type="button"
+              (click)="cancelEditing()"
+            >
+              <ng-icon name="lucideX" class="text-sm" /> Cancel
+            </button>
+            <button
+              class="profile-button profile-button--primary inline-flex h-9 items-center justify-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-3 cursor-pointer bg-(--nata-primary) text-white"
+              type="submit"
+            >
+              <ng-icon name="lucideCheck" class="text-sm" /> Save changes
+            </button>
           </footer>
         } @else if (saved()) {
-          <p class="save-confirmation" role="status"><ng-icon name="lucideCheck" /> Profile updated for this session.</p>
+          <p
+            class="save-confirmation flex items-center gap-1.25 m-0 text-(--dashboard-green) text-xs"
+            role="status"
+          >
+            <ng-icon name="lucideCheck" /> Profile updated for this session.
+          </p>
         }
       </form>
     </section>
 
-    <aside class="profile-side-column">
-      <section class="profile-card preferences-card" aria-labelledby="preferences-title">
-        <header class="card-heading">
-          <span><ng-icon name="lucideBell" aria-hidden="true" /></span>
-          <div><h2 id="preferences-title">Notifications</h2><p>Choose what reaches you.</p></div>
+    <aside class="profile-side-column grid gap-4 max-sm:grid-cols-1">
+      <section
+        class="profile-card preferences-card border border-(--dashboard-border) rounded-xl bg-white p-5 pb-2"
+        aria-labelledby="preferences-title"
+      >
+        <header class="card-heading flex items-center gap-2.5 pb-4">
+          <span
+            class="grid w-8 h-8 place-items-center rounded-lg bg-(--dashboard-green-soft) text-(--nata-primary)"
+            ><ng-icon name="lucideBell" aria-hidden="true"
+          /></span>
+          <div>
+            <h2 id="preferences-title" class="m-0 text-sm font-semibold">Notifications</h2>
+            <p class="mt-0.5 mx-0 mb-0 text-(--dashboard-muted) text-xs">
+              Choose what reaches you.
+            </p>
+          </div>
         </header>
 
-        <label class="preference-row">
-          <span><strong>Email updates</strong><small>Assessment and programme summaries</small></span>
-          <input type="checkbox" [checked]="emailNotifications()" (change)="emailNotifications.set(!emailNotifications())" />
+        <label
+          class="preference-row flex min-h-16 items-center justify-between gap-3 cursor-pointer"
+        >
+          <span class="grid gap-0.5"
+            ><strong class="font-medium">Email updates</strong
+            ><small class="text-(--dashboard-muted)"
+              >Assessment and programme summaries</small
+            ></span
+          >
+          <input
+            type="checkbox"
+            [checked]="emailNotifications()"
+            (change)="emailNotifications.set(!emailNotifications())"
+            class="w-7 h-4 cursor-pointer"
+          />
         </label>
-        <label class="preference-row">
-          <span><strong>Critical alerts</strong><small>High-risk patient notifications</small></span>
-          <input type="checkbox" [checked]="criticalAlerts()" (change)="criticalAlerts.set(!criticalAlerts())" />
+        <label
+          class="preference-row flex min-h-16 items-center justify-between gap-3 cursor-pointer"
+        >
+          <span class="grid gap-0.5"
+            ><strong class="font-medium">Critical alerts</strong
+            ><small class="text-(--dashboard-muted)">High-risk patient notifications</small></span
+          >
+          <input
+            type="checkbox"
+            [checked]="criticalAlerts()"
+            (change)="criticalAlerts.set(!criticalAlerts())"
+            class="w-7 h-4 cursor-pointer"
+          />
         </label>
       </section>
 
-      <section class="profile-card session-card" aria-labelledby="session-title">
-        <div><h2 id="session-title">Account session</h2><p>You are signed in to the NataBridge dashboard.</p></div>
-        <button type="button" (click)="logout()"><ng-icon name="lucideLogOut" aria-hidden="true" /> Sign out</button>
+      <section
+        class="profile-card session-card border border-(--dashboard-border) rounded-xl bg-white p-5 flex items-center justify-between gap-3 max-lg:items-start max-lg:flex-col max-sm:flex-row max-sm:items-center max-sm:items-start max-sm:flex-col"
+        aria-labelledby="session-title"
+      >
+        <div>
+          <h2 id="session-title" class="m-0 text-sm font-semibold">Account session</h2>
+          <p class="mt-0.5 mx-0 mb-0 text-(--dashboard-muted) text-xs">
+            You are signed in to the NataBridge dashboard.
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="logout()"
+          class="inline-flex h-8 items-center gap-1.25 rounded-lg bg-white py-0 px-2.5 text-(--dashboard-danger) cursor-pointer whitespace-nowrap"
+        >
+          <ng-icon name="lucideLogOut" aria-hidden="true" /> Sign out
+        </button>
       </section>
     </aside>
   </div>

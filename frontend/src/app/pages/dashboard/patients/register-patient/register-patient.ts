@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
@@ -14,6 +14,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideUserPlus } from '@ng-icons/lucide';
 import { CreatePatientInput } from '../../../../models/patient/Patient.api';
 import { PatientService } from '../../../../services/patient/patient-service';
+import { focusFirstInvalidControl } from '../../../../shared/forms/focus-first-invalid-control';
 
 function patientContactValidator(control: AbstractControl): ValidationErrors | null {
   const email = control.get('email')?.value?.trim();
@@ -33,8 +34,10 @@ export class RegisterPatient {
   private readonly patientService = inject(PatientService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject(ElementRef<HTMLElement>);
 
   readonly submitting = signal(false);
+  readonly submitted = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly maximumDateOfBirth = new Date().toISOString().slice(0, 10);
 
@@ -52,21 +55,20 @@ export class RegisterPatient {
       dob: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
       email: new FormControl<string | null>(null, [Validators.email, Validators.maxLength(255)]),
       phone: new FormControl<string | null>(null, [Validators.maxLength(30)]),
-      gestationalAge: new FormControl<number | null>(null, [
-        Validators.min(1),
-        Validators.max(45),
-      ]),
+      gestationalAge: new FormControl<number | null>(null, [Validators.min(1), Validators.max(45)]),
       firstPregnancy: new FormControl<boolean | null>(null),
-      previousComplications: new FormControl<string | null>(null, [
-        Validators.maxLength(2000),
-      ]),
+      previousComplications: new FormControl<string | null>(null, [Validators.maxLength(2000)]),
     },
     { validators: patientContactValidator },
   );
 
   submit() {
-    if (this.registrationForm.invalid || this.submitting()) {
+    if (this.submitting()) return;
+
+    this.submitted.set(true);
+    if (this.registrationForm.invalid) {
       this.registrationForm.markAllAsTouched();
+      focusFirstInvalidControl(this.registrationForm, this.host.nativeElement, 'email');
       return;
     }
 

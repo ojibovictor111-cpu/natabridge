@@ -4,7 +4,7 @@
 }
 
 .assessment-form-shell {
-  width: min(100%, 1068px);
+  width: min(100%, var(--container-5xl));
   margin: 0 auto;
   color: #202124;
   font-family: var(--dashboard-font, 'DM Sans', sans-serif);
@@ -228,9 +228,9 @@
   box-shadow: 0 0 0 3px rgb(29 158 117 / 12%);
 }
 
-.form-field input.ng-invalid.ng-touched,
-.form-field select.ng-invalid.ng-touched,
-.form-field textarea.ng-invalid.ng-touched {
+.form-field input.ng-invalid.ng-touched:not(:focus),
+.form-field select.ng-invalid.ng-touched:not(:focus),
+.form-field textarea.ng-invalid.ng-touched:not(:focus) {
   border-color: #cf5c5c;
   box-shadow: 0 0 0 3px rgb(163 45 45 / 8%);
 }

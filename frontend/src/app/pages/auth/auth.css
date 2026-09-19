@@ -1,0 +1,9 @@
+.auth-field-error {
+  margin-top: 5px;
+  color: var(--destructive);
+  font-size: 12px;
+}
+
+.field input[aria-invalid='true']:not(:focus) {
+  border-color: var(--destructive);
+}

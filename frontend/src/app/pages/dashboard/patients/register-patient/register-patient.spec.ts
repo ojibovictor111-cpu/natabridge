@@ -28,10 +28,7 @@ describe('RegisterPatient', () => {
 
     await TestBed.configureTestingModule({
       imports: [RegisterPatient],
-      providers: [
-        provideRouter([]),
-        { provide: PatientService, useValue: { registerPatient } },
-      ],
+      providers: [provideRouter([]), { provide: PatientService, useValue: { registerPatient } }],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -47,9 +44,9 @@ describe('RegisterPatient', () => {
     expect(page.querySelector('#gestationalAge')).not.toBeNull();
     expect(page.querySelector('#systolicBP')).toBeNull();
     expect(page.querySelector('#heartRate')).toBeNull();
-    expect(page.querySelector<HTMLAnchorElement>('.patient-detail-back')?.getAttribute('href')).toBe(
-      '/dashboard/patients',
-    );
+    expect(
+      page.querySelector<HTMLAnchorElement>('.patient-detail-back')?.getAttribute('href'),
+    ).toBe('/dashboard/patients');
   });
 
   it('requires at least one patient contact method', () => {
@@ -64,6 +61,30 @@ describe('RegisterPatient', () => {
     component.registrationForm.controls.phone.setValue('+2348000000000');
 
     expect(component.registrationForm.hasError('contactRequired')).toBe(false);
+  });
+
+  it('shows field errors after blur or submit and clears corrected errors immediately', () => {
+    const page = fixture.nativeElement as HTMLElement;
+    const firstName = component.registrationForm.controls.firstName;
+
+    expect(page.querySelector('.field-error')).toBeNull();
+    firstName.markAsDirty();
+    fixture.detectChanges();
+    expect(page.querySelector('.field-error')).toBeNull();
+
+    firstName.markAsTouched();
+    fixture.detectChanges();
+    expect(page.querySelector('.field-error')?.textContent).toContain('first name');
+
+    firstName.setValue('Amina');
+    fixture.detectChanges();
+    expect(page.querySelector('.field-error')).toBeNull();
+
+    component.submit();
+    fixture.detectChanges();
+    expect(page.querySelector('.field-error')?.textContent).toContain('last name');
+    expect(page.querySelector('.contact-error')).not.toBeNull();
+    expect(registerPatient).not.toHaveBeenCalled();
   });
 
   it('submits normalized registration data and opens the created patient record', () => {
