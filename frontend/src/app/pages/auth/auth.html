@@ -11,25 +11,25 @@
       <form [formGroup]="authFormGroup" (ngSubmit)="login()" novalidate class="mt-5">
         <div class="row">
           <div class="field">
-            <label for="id">Clinician ID</label>
+            <label for="email">Clinician email</label>
             <input
-              type="text"
-              name="clinician id field"
-              id="id"
-              placeholder="Enter your ID"
-              formControlName="id"
-              autocomplete="username"
+              type="email"
+              name="clinician email"
+              id="email"
+              placeholder="Enter your email"
+              formControlName="email"
+              autocomplete="email"
               [attr.aria-invalid]="
-                authFormGroup.controls.id.invalid && authFormGroup.controls.id.touched
+                authFormGroup.controls.email.invalid && authFormGroup.controls.email.touched
               "
               [attr.aria-describedby]="
-                authFormGroup.controls.id.invalid && authFormGroup.controls.id.touched
-                  ? 'id-error'
+                authFormGroup.controls.email.invalid && authFormGroup.controls.email.touched
+                  ? 'email-error'
                   : null
               "
             />
-            @if (authFormGroup.controls.id.invalid && authFormGroup.controls.id.touched) {
-              <p class="auth-field-error" id="id-error">Enter your clinician ID.</p>
+            @if (authFormGroup.controls.email.invalid && authFormGroup.controls.email.touched) {
+              <p class="auth-field-error" id="email-error">Enter a valid clinician email.</p>
             }
           </div>
         </div>
@@ -55,13 +55,7 @@
             @if (
               authFormGroup.controls.password.invalid && authFormGroup.controls.password.touched
             ) {
-              <p class="auth-field-error" id="password-error">
-                {{
-                  authFormGroup.controls.password.hasError('required')
-                    ? 'Enter your password.'
-                    : 'Password must be at least 8 characters.'
-                }}
-              </p>
+              <p class="auth-field-error" id="password-error">Enter your password.</p>
             }
           </div>
         </div>

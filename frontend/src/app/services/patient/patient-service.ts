@@ -24,9 +24,7 @@ export class PatientService {
   }
 
   registerPatient(patient: CreatePatientInput) {
-    return this.http.post<ApiResponse<CreatedPatientApi>>(`${environment.api}/patients`, patient, {
-      withCredentials: true,
-    });
+    return this.http.post<ApiResponse<CreatedPatientApi>>(`${environment.api}/patients`, patient);
   }
 
   getPatient(patientId: string) {
@@ -49,9 +47,7 @@ export class PatientService {
     this.errorMessage.set(null);
 
     this.http
-      .get<ApiResponse<PatientApi[]>>(`${environment.api}/patients`, {
-        withCredentials: true,
-      })
+      .get<ApiResponse<PatientApi[]>>(`${environment.api}/patients`)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (response) => {

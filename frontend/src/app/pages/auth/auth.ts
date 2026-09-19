@@ -21,13 +21,13 @@ export class Auth {
   readonly errorMessage = this.authService.errorMessage;
 
   authFormGroup = new FormGroup({
-    id: new FormControl<string>('', {
+    email: new FormControl<string>('', {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.email],
     }),
     password: new FormControl<string>('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(8)],
+      validators: [Validators.required],
     }),
   });
 
@@ -41,7 +41,7 @@ export class Auth {
     }
 
     void this.authService.login({
-      id: this.authFormGroup.controls.id.getRawValue(),
+      email: this.authFormGroup.controls.email.getRawValue(),
       password: this.authFormGroup.controls.password.getRawValue(),
     });
   }

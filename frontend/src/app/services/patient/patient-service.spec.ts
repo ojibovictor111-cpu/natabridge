@@ -46,7 +46,7 @@ describe('PatientService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('loads the patient collection with credentials', () => {
+  it('loads the patient collection without cookies', () => {
     service.getPatients();
 
     expect(service.loading()).toBe(true);
@@ -54,7 +54,7 @@ describe('PatientService', () => {
 
     const request = httpTesting.expectOne(`${environment.api}/patients`);
     expect(request.request.method).toBe('GET');
-    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.withCredentials).toBe(false);
 
     request.flush({ data: patients });
 
@@ -80,7 +80,7 @@ describe('PatientService', () => {
 
     const request = httpTesting.expectOne(`${environment.api}/patients`);
     expect(request.request.method).toBe('POST');
-    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.withCredentials).toBe(false);
     expect(request.request.body).toEqual(payload);
 
     request.flush({
@@ -118,7 +118,7 @@ describe('PatientService', () => {
 
     const request = httpTesting.expectOne(`${environment.api}/patients`);
     expect(request.request.method).toBe('GET');
-    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.withCredentials).toBe(false);
 
     request.flush({ data: patients });
 

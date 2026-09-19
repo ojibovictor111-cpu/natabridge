@@ -32,24 +32,24 @@ describe('Auth', () => {
 
   it('validates on submit and prevents an incomplete login request', () => {
     const page = fixture.nativeElement as HTMLElement;
-    expect(page.querySelector('#id-error')).toBeNull();
+    expect(page.querySelector('#email-error')).toBeNull();
 
-    component.authFormGroup.controls.id.markAsDirty();
+    component.authFormGroup.controls.email.markAsDirty();
     fixture.detectChanges();
-    expect(page.querySelector('#id-error')).toBeNull();
+    expect(page.querySelector('#email-error')).toBeNull();
 
     component.login();
     fixture.detectChanges();
-    expect(page.querySelector('#id-error')).not.toBeNull();
+    expect(page.querySelector('#email-error')).not.toBeNull();
     expect(page.querySelector('#password-error')).not.toBeNull();
     expect(login).not.toHaveBeenCalled();
 
-    component.authFormGroup.setValue({ id: 'clinician-1', password: 'password123' });
+    component.authFormGroup.setValue({ email: 'clinician@example.com', password: 'password123' });
     fixture.detectChanges();
-    expect(page.querySelector('#id-error')).toBeNull();
+    expect(page.querySelector('#email-error')).toBeNull();
     expect(page.querySelector('#password-error')).toBeNull();
 
     component.login();
-    expect(login).toHaveBeenCalledWith({ id: 'clinician-1', password: 'password123' });
+    expect(login).toHaveBeenCalledWith({ email: 'clinician@example.com', password: 'password123' });
   });
 });

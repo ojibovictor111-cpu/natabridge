@@ -185,3 +185,26 @@
     display: none;
   }
 }
+
+@media print {
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) {
+    display: block;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-sidebar,
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-topbar {
+    display: none;
+  }
+
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-workspace {
+    display: block;
+    height: auto;
+    min-height: 0;
+  }
+
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-content {
+    overflow: visible;
+  }
+}

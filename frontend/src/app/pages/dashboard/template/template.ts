@@ -2,7 +2,6 @@ import { Component, HostListener, inject, signal } from '@angular/core';
 import { DashboardNavBar } from '../../../components/nav-bars/dashboard-nav-bar/dashboard-nav-bar';
 import { Router, RouterModule } from '@angular/router';
 import { PageLoader } from '../../../components/loaders/page-loader/page-loader';
-import { AuthService } from '../../../services/auth/auth-service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { hugeMenu02, hugeMinusSign } from '@ng-icons/huge-icons';
 
@@ -20,14 +19,7 @@ import { hugeMenu02, hugeMinusSign } from '@ng-icons/huge-icons';
 })
 export class Template {
   readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
   readonly isNavBarOpened = signal(false);
-
-  constructor() {
-    if (!this.authService.isUserAuthenticated()) {
-      this.router.navigateByUrl('/auth');
-    }
-  }
 
   openNavBar() {
     this.isNavBarOpened.set(true);

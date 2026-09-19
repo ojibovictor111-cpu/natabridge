@@ -32,7 +32,7 @@ describe('DashboardService', () => {
       `${environment.api}/clinicians/demo-user/assessments`,
     );
     expect(request.request.method).toBe('GET');
-    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.withCredentials).toBe(false);
 
     request.flush({ data: [] });
 

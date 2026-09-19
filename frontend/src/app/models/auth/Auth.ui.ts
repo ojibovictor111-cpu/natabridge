@@ -1,6 +1,6 @@
 interface AuthCredentials {
-     id: string;
-     password: string;
+  email: string;
+  password: string;
 }
 
-export type {AuthCredentials};
+export type { AuthCredentials };

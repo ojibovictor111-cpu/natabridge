@@ -35,7 +35,6 @@ export class AssessmentService {
       this.http.post<ApiResponse<AssessmentResultApi>>(
         `${environment.api}/predictions`,
         predictionInput,
-        { withCredentials: true },
       ),
       formData,
     );
@@ -47,7 +46,6 @@ export class AssessmentService {
       this.http.post<ApiResponse<AssessmentResultApi>>(
         `${environment.api}/patients/${encodeURIComponent(patientId)}/assessments`,
         assessmentInput,
-        { withCredentials: true },
       ),
       formData,
     );
@@ -58,9 +56,6 @@ export class AssessmentService {
       this.http.post<ApiResponse<AssessmentResultApi>>(
         `${environment.api}/patients/assessments`,
         formData,
-        {
-          withCredentials: true,
-        },
       ),
       formData,
     );

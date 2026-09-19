@@ -9,50 +9,50 @@ import { AuthService } from '../auth/auth-service';
 
 @Service()
 export class DashboardService {
-     private http = inject(HttpClient);
-     private authService = inject(AuthService);
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
 
-     readonly loading = signal<boolean>(false);
-     readonly errorMessage = signal<string | null>(null);
+  readonly loading = signal<boolean>(false);
+  readonly errorMessage = signal<string | null>(null);
 
-     readonly dashboardDetails = signal<DashboardResponse | null>(null);
-     readonly clinicianAssessments = signal<ClinicianAssessmentApi[] | null>(null);
-     readonly assessmentDetails = signal<{
-          high: number,
-          mid: number,
-          low: number
-     } | null>(null);
+  readonly dashboardDetails = signal<DashboardResponse | null>(null);
+  readonly clinicianAssessments = signal<ClinicianAssessmentApi[] | null>(null);
+  readonly assessmentDetails = signal<{
+    high: number;
+    mid: number;
+    low: number;
+  } | null>(null);
 
+  async getDashboardDetails() {
+    this.loading.set(true);
 
-     async getDashboardDetails() {
-          this.loading.set(true);
+    this.http
+      .get<ApiResponse<DashboardResponse>>(`${environment.api}/dashboard`)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (resp) => {
+          this.dashboardDetails.set(resp.data);
 
-          this.http
-               .get<ApiResponse<DashboardResponse>>(`${environment.api}/dashboard`, {
-                    withCredentials: true
-               })
-               .pipe(finalize(() => this.loading.set(false)))
-               .subscribe({
-                    next: (resp) => {
-                         this.dashboardDetails.set(resp.data)
+          this.assessmentDetails.set(resp.data.summary);
+        },
+        error: (err) => this.errorMessage.set(err),
+      });
+  }
 
-                         this.assessmentDetails.set(resp.data.summary)
-                    },
-                    error: (err) => this.errorMessage.set(err),
-               });
-     }
+  getClinicianAssessments() {
+    const clinicianId = this.authService.clinicianId();
+    if (!clinicianId) {
+      this.clinicianAssessments.set(null);
+      return;
+    }
 
-     getClinicianAssessments() {
-          const clinicianId = this.authService.clinicianId();
-
-          this.http
-               .get<ApiResponse<ClinicianAssessmentApi[]>>(
-                    `${environment.api}/clinicians/${encodeURIComponent(clinicianId)}/assessments`,
-                    { withCredentials: true },
-               )
-               .subscribe({
-                    next: (response) => this.clinicianAssessments.set(response.data ?? []),
-                    error: () => this.clinicianAssessments.set(null),
-               });
-     }
+    this.http
+      .get<ApiResponse<ClinicianAssessmentApi[]>>(
+        `${environment.api}/clinicians/${encodeURIComponent(clinicianId)}/assessments`,
+      )
+      .subscribe({
+        next: (response) => this.clinicianAssessments.set(response.data ?? []),
+        error: () => this.clinicianAssessments.set(null),
+      });
+  }
 }

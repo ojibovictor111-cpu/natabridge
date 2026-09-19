@@ -1,5 +1,6 @@
 interface UserApi {
-
+  id: string;
+  email: string;
 }
 
-export type {UserApi};
+export type { UserApi };

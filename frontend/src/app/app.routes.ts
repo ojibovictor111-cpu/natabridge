@@ -1,3 +1,4 @@
+import { EnvironmentInjector, inject, runInInjectionContext } from '@angular/core';
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -20,6 +21,14 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
+    canActivate: [
+      () => {
+        const injector = inject(EnvironmentInjector);
+        return import('./core/firebase/auth.guard').then(({ requireFirebaseUser }) =>
+          runInInjectionContext(injector, requireFirebaseUser),
+        );
+      },
+    ],
     loadComponent: () =>
       import('./pages/dashboard/template/template').then((page) => page.Template),
     children: [
