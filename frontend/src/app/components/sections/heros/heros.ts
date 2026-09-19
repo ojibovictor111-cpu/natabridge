@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { H1 } from "../../../core/typography/h1/h1";
-import { Muted } from "../../../core/typography/muted/muted";
-import { Footer } from "../../footer/footer";
+import { H1 } from '../../../core/typography/h1/h1';
+import { Muted } from '../../../core/typography/muted/muted';
+import { Footer } from '../../footer/footer';
 import { RouterModule } from '@angular/router';
-import Splitting from 'splitting';
-import { NgIcon, provideIcons } from "@ng-icons/core";
+import { NgIcon, provideIcons } from '@ng-icons/core';
 import { fluentTextQuoteOpening } from '@ng-icons/fluent-ui';
 
 @Component({
@@ -14,16 +13,8 @@ import { fluentTextQuoteOpening } from '@ng-icons/fluent-ui';
   styleUrl: './heros.css',
   viewProviders: [
     provideIcons({
-      fluentTextQuoteOpening
-    })
-  ]
+      fluentTextQuoteOpening,
+    }),
+  ],
 })
-export class Heros {
-  constructor() {
-    Splitting({
-      target: "[data-splitting]",
-      by: "words",
-      key: null
-    })
-  }
-}
+export class Heros {}

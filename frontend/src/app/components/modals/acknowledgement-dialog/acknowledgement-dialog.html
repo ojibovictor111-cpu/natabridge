@@ -1,8 +1,12 @@
-<section class="consent-dialog" aria-labelledby="consent-dialog-title">
-  <header class="dialog-heading">
-    <span class="dialog-symbol" aria-hidden="true">◆</span>
+<section class="p-7 max-md:py-5 max-md:px-4.5" aria-labelledby="consent-dialog-title">
+  <header class="dialog-heading flex-center gap-3 pb-5">
+    <span class="dialog-symbol flex-center justify-center text-(--dashboard-green)">
+      <ng-icon name="lucideShieldCheck" aria-hidden="true" size="1rem" />
+    </span>
     <div>
-      <span class="dialog-kicker">Before you continue</span>
+      <span class="dialog-kicker text-xs text-(--dashboard-green) font-semibold uppercase"
+        >Before you continue</span
+      >
       <h2 id="consent-dialog-title">Assessment consent</h2>
     </div>
   </header>
@@ -13,9 +17,11 @@
       replace diagnosis or treatment by a qualified healthcare professional.
     </p>
 
-    <aside class="dialog-note">
-      <span aria-hidden="true">i</span>
-      <p>Your submitted measurements will be used to generate this assessment result.</p>
+    <aside class="dialog-note mt-4 px-3 py-2.5 flex gap-2.5 max-sm:flex-col">
+      <ng-icon name="phosphorInfoFill" class="text-(--dashboard-green)" />
+      <p class="text-xs">
+        Your submitted measurements will be used to generate this assessment result.
+      </p>
     </aside>
   </div>
 

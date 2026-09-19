@@ -37,7 +37,7 @@
 :host ::ng-deep .assessment-stepper .mat-step-icon-selected,
 :host ::ng-deep .assessment-stepper .mat-step-icon-state-edit,
 :host ::ng-deep .assessment-stepper .mat-step-icon-state-done {
-  background: #1d9e75;
+  background: var(--dashboard-green);
   color: #fff;
 }
 
@@ -63,49 +63,13 @@
   overflow: visible;
 }
 
-.assessment-card--quick {
-  margin-top: 0;
-}
-
-.form-section-heading--quick {
-  padding-right: 0;
-}
-
-.quick-assessment-badge {
-  flex: 0 0 auto;
-  margin-left: auto;
-  padding: 7px 11px;
-  border: 1px solid #cbeade;
-  border-radius: 999px;
-  background: #f3fbf8;
-  color: #16805f;
-  font-size: 12px;
-  font-weight: 550;
-  white-space: nowrap;
-}
-
 .assessment-advisory {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
   margin: -2px 0 24px;
   padding: 12px 14px;
   border: 1px solid #d7eee6;
   border-radius: 12px;
   background: #f3fbf8;
   color: #52615c;
-}
-
-.assessment-advisory > span {
-  color: #1d9e75;
-  font-size: 11px;
-  line-height: 1.7;
-}
-
-.assessment-advisory p {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
 }
 
 .field-label {
@@ -195,10 +159,6 @@
   .form-section-heading--quick {
     align-items: flex-start;
     flex-wrap: wrap;
-  }
-
-  .quick-assessment-badge {
-    margin-left: 49px;
   }
 
   .assessment-form-actions {

@@ -43,7 +43,7 @@
 
   @if (submissionError(); as errorMessage) {
     <div class="assessment-error-banner" role="alert">
-      <span aria-hidden="true">!</span>
+      <ng-icon name="phosphorWarningCircleFill" size="1.25rem" />
       <p>{{ errorMessage }}</p>
     </div>
   }
@@ -389,9 +389,9 @@
           >
         </header>
 
-        <aside class="assessment-advisory">
-          <span aria-hidden="true">◆</span>
-          <p>
+        <aside class="assessment-advisory flex-center gap-2.5">
+          <ng-icon name="phosphorInfoFill" class="text-(--dashboard-green)" />
+          <p class="text-[13px]">
             This AI-supported assessment does not replace professional medical advice, diagnosis, or
             emergency care.
           </p>

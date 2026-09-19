@@ -11,35 +11,19 @@
 }
 
 .quick-assessment-header {
-  position: sticky;
-  z-index: 40;
-  top: 0;
-  padding: 0 68px;
   border-bottom: 1px solid #e8eeec;
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(12px);
 }
 
-.quick-assessment-content {
-  padding: 12px 68px 48px;
-}
-
 @media (max-width: 760px) {
   .quick-assessment-header {
-    padding: 0 24px;
-  }
-
-  .quick-assessment-content {
-    padding: 12px 24px 40px;
+    padding-inline: 24px;
   }
 }
 
 @media (max-width: 480px) {
   .quick-assessment-header {
-    padding: 0 16px;
-  }
-
-  .quick-assessment-content {
-    padding: 10px 16px 32px;
+    padding-inline: 16px;
   }
 }

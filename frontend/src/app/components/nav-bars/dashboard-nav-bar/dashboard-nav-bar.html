@@ -5,7 +5,7 @@
     (click)="toggleSidebar()"
     aria-label="NataBridge dashboard overview"
   >
-    <img src="/logo.webp" alt="natabridge's logo" class="w-[35px]" />
+    <img src="/logo.webp" alt="natabridge's logo" class="w-9" />
     <span class="brand-copy">
       <strong>NataBridge</strong>
       <small>Maternal Health AI</small>
@@ -68,7 +68,9 @@
   </aside>
 
   <a class="sidebar-profile" routerLink="profile" (click)="toggleSidebar()">
-    <span>JS</span><div><strong>Jane Smith</strong><small>Health coordinator</small></div><b>⌄</b>
+    <span>JS</span>
+    <div><strong>Jane Smith</strong><small>Health coordinator</small></div>
+    <b>⌄</b>
   </a>
 
   <button class="nav-item mobile-logout" type="button" (click)="logout()">

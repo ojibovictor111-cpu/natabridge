@@ -78,22 +78,6 @@
   font-size: 13px;
 }
 
-.assessment-error-banner > span {
-  display: grid;
-  width: 22px;
-  height: 22px;
-  flex: 0 0 22px;
-  place-items: center;
-  border-radius: 50%;
-  background: #a32d2d;
-  color: #fff;
-  font-weight: 700;
-}
-
-.assessment-error-banner p {
-  margin: 0;
-}
-
 .assessment-card {
   padding: 27px;
   border: 1px solid #e4e4e7;
@@ -224,7 +208,7 @@
 .form-field input:focus,
 .form-field select:focus,
 .form-field textarea:focus {
-  border-color: #1d9e75;
+  border-color: var(--dashboard-green);
   box-shadow: 0 0 0 3px rgb(29 158 117 / 12%);
 }
 

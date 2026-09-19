@@ -1,30 +1,27 @@
 import { Routes } from '@angular/router';
-import { Home } from './pages/home/home';
-import { Auth } from './pages/auth/auth';
-import { QuickTest } from './pages/quick-test/quick-test';
-import { QuickTestResult } from './pages/quick-test-result/quick-test-result';
-import { Template } from './pages/dashboard/template/template';
 
 export const routes: Routes = [
   {
     path: '',
-    component: Home,
+    loadComponent: () => import('./pages/home/home').then((page) => page.Home),
   },
   {
     path: 'auth',
-    component: Auth,
+    loadComponent: () => import('./pages/auth/auth').then((page) => page.Auth),
   },
   {
     path: 'assessment',
-    component: QuickTest,
+    loadComponent: () => import('./pages/quick-test/quick-test').then((page) => page.QuickTest),
   },
   {
     path: 'assessment/result',
-    component: QuickTestResult,
+    loadComponent: () =>
+      import('./pages/quick-test-result/quick-test-result').then((page) => page.QuickTestResult),
   },
   {
     path: 'dashboard',
-    component: Template,
+    loadComponent: () =>
+      import('./pages/dashboard/template/template').then((page) => page.Template),
     children: [
       {
         path: '',
