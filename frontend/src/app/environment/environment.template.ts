@@ -1,3 +1,12 @@
 export const Environment = {
-     api: '---',
-}
+  api: '---',
+  firebase: {
+    apiKey: '---',
+    authDomain: '---',
+    projectId: '---',
+    storageBucket: '---',
+    messagingSenderId: '---',
+    appId: '---',
+    measurementId: '---',
+  },
+};
