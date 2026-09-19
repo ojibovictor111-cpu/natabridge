@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, input } from '@angular/core';
+import { Component, DestroyRef, ElementRef, effect, inject, input, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -11,13 +11,17 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroArrowLongRight, heroSlash } from '@ng-icons/heroicons/outline';
 import { AssessmentFormData } from '../../../models/assessment/Assessment.api';
 import { AssessmentService } from '../../../services/assessment/assessment-service';
 import { AcknowledgementDialog } from '../../modals/acknowledgement-dialog/acknowledgement-dialog';
 import { EmergencyOverrideDialog } from '../../modals/emergency-override-dialog/emergency-override-dialog';
+import { focusFirstInvalidControl } from '../../../shared/forms/focus-first-invalid-control';
+import { phosphorInfoFill } from '@ng-icons/phosphor-icons/fill';
+import { phosphorWarningCircleFill } from '@ng-icons/phosphor-icons/fill';
+
 
 function calculateAgeFromDateOfBirth(dateOfBirth: string | null): number | null {
   if (!dateOfBirth) return null;
@@ -59,12 +63,14 @@ const adultDateOfBirthValidator: ValidatorFn = (
   imports: [NgIcon, NgTemplateOutlet, MatStepperModule, ReactiveFormsModule, MatDialogModule],
   templateUrl: './assessment-test.html',
   styleUrl: './assessment-test.css',
-  viewProviders: [provideIcons({ heroArrowLongRight, heroSlash })],
+  viewProviders: [provideIcons({ heroArrowLongRight, heroSlash, phosphorInfoFill, phosphorWarningCircleFill })],
 })
 export class AssessmentTest {
   private readonly dialog = inject(MatDialog);
   private readonly assessmentService = inject(AssessmentService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly stepper = viewChild<MatStepper>('stepper');
 
   readonly userAuthenticated = input(false);
   readonly patientId = input<string | null>(null);
@@ -72,6 +78,7 @@ export class AssessmentTest {
   readonly hasPreviousAssessment = input(false);
   readonly maximumDateOfBirth = this.formatDateForInput(new Date());
   readonly submissionError = this.assessmentService.errorMessage.asReadonly();
+  readonly submitting = this.assessmentService.loading.asReadonly();
 
   readonly personalInformationFormGroup = new FormGroup({
     lastname: new FormControl<string | null>(null, [Validators.required]),
@@ -111,7 +118,7 @@ export class AssessmentTest {
     bloodSugar: new FormControl<number | null>(null, [
       Validators.required,
       Validators.min(2),
-      Validators.max(9999.99),
+      Validators.max(25),
     ]),
     bodyTemp: new FormControl<number | null>(null, [
       Validators.required,
@@ -191,14 +198,36 @@ export class AssessmentTest {
     );
   }
 
-  openDialog(): void {
-    if (!this.isValidForSubmission()) {
-      this.healthMeasurementsFormGroup.markAllAsTouched();
+  continueStep(form: FormGroup): void {
+    if (form.invalid) {
+      form.markAllAsTouched();
+      focusFirstInvalidControl(form, this.host.nativeElement);
+      return;
+    }
 
+    this.stepper()?.next();
+  }
+
+  openDialog(): void {
+    if (this.submitting()) return;
+
+    if (!this.isValidForSubmission()) {
       if (this.userAuthenticated() && !this.patientId()) {
         this.personalInformationFormGroup.markAllAsTouched();
-        this.pregnancyInformationFormGroup.markAllAsTouched();
       }
+      if (this.userAuthenticated()) this.pregnancyInformationFormGroup.markAllAsTouched();
+      this.healthMeasurementsFormGroup.markAllAsTouched();
+
+      const invalidStep =
+        this.userAuthenticated() && !this.patientId() && this.personalInformationFormGroup.invalid
+          ? { form: this.personalInformationFormGroup, index: 0 }
+          : this.userAuthenticated() && this.pregnancyInformationFormGroup.invalid
+            ? { form: this.pregnancyInformationFormGroup, index: this.patientId() ? 0 : 1 }
+            : { form: this.healthMeasurementsFormGroup, index: this.patientId() ? 1 : 2 };
+
+      invalidStep.form.markAllAsTouched();
+      if (this.userAuthenticated()) this.stepper()!.selectedIndex = invalidStep.index;
+      focusFirstInvalidControl(invalidStep.form, this.host.nativeElement);
 
       return;
     }
