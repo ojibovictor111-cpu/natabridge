@@ -65,6 +65,19 @@ describe('AssessmentResult', () => {
     expect(findButton('Save to patient record')).toBeUndefined();
   });
 
+  it('does not render Generate referral letter for a guest', () => {
+    expect(findButton('Generate referral letter')).toBeUndefined();
+    expect(findButton('Print clinical report')).toBeDefined();
+  });
+
+  it('shows patient vitals without clinical interpretation for a guest', () => {
+    const page = fixture.nativeElement as HTMLElement;
+
+    expect(page.querySelector('.interpretation-list')).toBeNull();
+    expect(page.textContent).not.toContain('Clinical interpretation');
+    expect(page.textContent).toContain('Patient vitals');
+  });
+
   it('uses a concise Back label for a guest', () => {
     const backButton = (fixture.nativeElement as HTMLElement).querySelector('.back-button');
 
@@ -88,6 +101,7 @@ describe('AssessmentResult', () => {
   });
 
   it('renders each unique clinical interpretation as a list item', () => {
+    isAuthenticated.set(true);
     fixture.componentRef.setInput('result', {
       ...result,
       prediction: {

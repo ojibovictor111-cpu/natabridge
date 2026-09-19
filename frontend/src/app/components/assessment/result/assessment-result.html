@@ -10,11 +10,7 @@
     type="button"
     (click)="goBack()"
   >
-    <svg
-      class="w-4 fill-none stroke-current"
-      aria-hidden="true"
-      viewBox="0 0 16 16"
-    >
+    <svg class="w-4 fill-none stroke-current" aria-hidden="true" viewBox="0 0 16 16">
       <path d="M13 8H3m4-4L3 8l4 4" />
     </svg>
 
@@ -23,9 +19,7 @@
 
   @if (result(); as assessmentResult) {
     <header class="mt-6">
-      <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight">
-        Assessment result
-      </h1>
+      <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight">Assessment result</h1>
 
       <p class="mt-1 mb-0 text-sm text-(--dashboard-muted)">
         {{ patientMeta() }}
@@ -102,11 +96,7 @@
           class="escalation-message absolute right-6 bottom-4 left-6 flex min-h-7 items-center gap-2 rounded-lg px-4 py-2 text-xs leading-snug text-white max-sm:right-5 max-sm:left-5"
           role="note"
         >
-          <svg
-            class="w-3 shrink-0 fill-white"
-            aria-hidden="true"
-            viewBox="0 0 16 16"
-          >
+          <svg class="w-3 shrink-0 fill-white" aria-hidden="true" viewBox="0 0 16 16">
             <path d="M8 2 14 13H2L8 2Z" />
             <path d="M8 6v3.5M8 11.7v.1" />
           </svg>
@@ -121,9 +111,7 @@
         class="result-card min-h-64 min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 shadow-sm max-sm:p-4 lg:col-span-2"
       >
         <header>
-          <h2 class="m-0 text-base leading-snug font-semibold">
-            Key contributing factors
-          </h2>
+          <h2 class="m-0 text-base leading-snug font-semibold">Key contributing factors</h2>
 
           <p class="mt-2 mb-0 text-sm text-(--dashboard-muted)">
             Positive measurements with the strongest model influence.
@@ -181,12 +169,10 @@
       </section>
 
       <section
-        class="result-card min-h-64 min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 shadow-sm max-sm:p-4"
+        class="result-card min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 pb-6 shadow-sm max-sm:p-4"
       >
         <header>
-          <h2 class="m-0 text-base leading-snug font-semibold">
-            Recommended actions
-          </h2>
+          <h2 class="m-0 text-base leading-snug font-semibold">Recommended actions</h2>
 
           <p class="mt-2 mb-0 text-sm text-(--dashboard-muted)">
             Based on this patient’s current readings.
@@ -217,36 +203,34 @@
       </section>
     </div>
 
-    <div class="mt-6 grid gap-6 md:grid-cols-2">
+    <div class="mt-6 grid gap-6" [class]="isAuthenticated() ? 'md:grid-cols-2' : ''">
+      @if (isAuthenticated()) {
+        <section
+          class="result-card min-h-48 min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 shadow-sm max-sm:p-4"
+        >
+          <h2 class="m-0 text-base leading-snug font-semibold">Clinical interpretation</h2>
+
+          <ul
+            class="interpretation-list mt-4 mb-0 max-w-md pl-5 text-sm leading-relaxed text-(--dashboard-muted)"
+          >
+            @for (interpretation of clinicalInterpretations(); track interpretation) {
+              <li>{{ interpretation }}</li>
+            }
+          </ul>
+
+          <span
+            class="mt-5 inline-flex h-7 items-center gap-2 rounded-full bg-(--dashboard-green-soft) px-3 text-xs text-(--dashboard-green)"
+          >
+            <span class="text-xs" aria-hidden="true">◆</span>
+            AI clinical summary
+          </span>
+        </section>
+      }
+
       <section
         class="result-card min-h-48 min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 shadow-sm max-sm:p-4"
       >
-        <h2 class="m-0 text-base leading-snug font-semibold">
-          Clinical interpretation
-        </h2>
-
-        <ul
-          class="interpretation-list mt-4 mb-0 max-w-md pl-5 text-sm leading-relaxed text-(--dashboard-muted)"
-        >
-          @for (interpretation of clinicalInterpretations(); track interpretation) {
-            <li>{{ interpretation }}</li>
-          }
-        </ul>
-
-        <span
-          class="mt-5 inline-flex h-7 items-center gap-2 rounded-full bg-(--dashboard-green-soft) px-3 text-xs text-(--dashboard-green)"
-        >
-          <span class="text-xs" aria-hidden="true">◆</span>
-          AI clinical summary
-        </span>
-      </section>
-
-      <section
-        class="result-card min-h-48 min-w-0 rounded-2xl border border-(--dashboard-border) bg-white p-5 shadow-sm max-sm:p-4"
-      >
-        <h2 class="m-0 text-base leading-snug font-semibold">
-          Patient vitals
-        </h2>
+        <h2 class="m-0 text-base leading-snug font-semibold">Patient vitals</h2>
 
         <div class="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
           @for (vital of patientVitals(); track vital.label) {
@@ -268,25 +252,26 @@
     </div>
 
     <section
-      class="result-actions mt-6 grid grid-cols-1 gap-4 rounded-2xl border border-(--dashboard-border) bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3"
+      class="result-actions mt-6 grid grid-cols-1 gap-4 rounded-2xl border border-(--dashboard-border) bg-white p-4 shadow-sm"
+      [class]="isAuthenticated() ? 'sm:grid-cols-2 lg:grid-cols-3' : ''"
       aria-label="Assessment actions"
     >
-      <button
-        class="action-button action-button--unavailable inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-dashed border-(--dashboard-border) px-4 text-sm opacity-100 focus-visible:outline-2 focus-visible:outline-(--dashboard-green) focus-visible:outline-offset-2"
-        type="button"
-        disabled
-        aria-label="Generate referral letter, coming soon"
-      >
-        <span>Generate referral letter</span>
-
-        <small
-          class="rounded-full bg-(--dashboard-border) px-2 py-1 text-xs font-semibold text-(--dashboard-muted) uppercase"
-        >
-          Coming soon
-        </small>
-      </button>
-
       @if (isAuthenticated()) {
+        <button
+          class="action-button action-button--unavailable inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-dashed border-(--dashboard-border) px-4 text-sm opacity-100 focus-visible:outline-2 focus-visible:outline-(--dashboard-green) focus-visible:outline-offset-2"
+          type="button"
+          disabled
+          aria-label="Generate referral letter, coming soon"
+        >
+          <span>Generate referral letter</span>
+
+          <small
+            class="rounded-full bg-(--dashboard-border) px-2 py-1 text-xs font-semibold text-(--dashboard-muted) uppercase"
+          >
+            Coming soon
+          </small>
+        </button>
+
         <button
           class="action-button action-button--unavailable inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-dashed border-(--dashboard-border) px-4 text-sm opacity-100 focus-visible:outline-2 focus-visible:outline-(--dashboard-green) focus-visible:outline-offset-2"
           type="button"
@@ -333,9 +318,7 @@
         !
       </span>
 
-      <h1 class="mt-5 mb-0 text-xl font-semibold">
-        No assessment result available
-      </h1>
+      <h1 class="mt-5 mb-0 text-xl font-semibold">No assessment result available</h1>
 
       <p class="mt-2 mb-6 text-sm text-(--dashboard-muted)">
         Complete an assessment first, then return here to review its clinical report.
