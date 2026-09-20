@@ -171,6 +171,7 @@ test("one patient can receive repeated assessments without reinserting the patie
           existingPatientId,
           assessmentBody,
           DEMO_USER_ID,
+          "inst-test",
           "req-clinical-1"
      );
      const second = await processPatientAssessment(
@@ -178,6 +179,7 @@ test("one patient can receive repeated assessments without reinserting the patie
           existingPatientId,
           assessmentBody,
           DEMO_USER_ID,
+          "inst-test",
           "req-clinical-2"
      );
 
@@ -188,6 +190,7 @@ test("one patient can receive repeated assessments without reinserting the patie
      assert.match(first.predictionResultId, idPattern("pred-res"));
      assert.notEqual(first.assessmentId, second.assessmentId);
      assert.equal(getAiCallCount(), 2);
+     assert.equal(client.calls.filter((call) => call.sql.includes("SELECT EXISTS") && call.values[1] === "inst-test").length, 2);
      assert.equal(
           client.calls.filter((call) => call.sql.includes("INSERT INTO assessments")).length,
           2
@@ -215,6 +218,7 @@ test("new patient and assessment persistence uses one transaction", async (conte
                previousComplications: null
           },
           DEMO_USER_ID,
+          "inst-test",
           "req-new-patient"
      );
 
@@ -240,6 +244,7 @@ test("new patient and assessment persistence uses one transaction", async (conte
      assert.equal(patientInsert?.values[0], result.patientId);
      assert.equal(patientInsert?.values[1], "Amina");
      assert.equal(patientInsert?.values[5], "amina@example.com");
+     assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO institutional_care") && call.values[1] === "inst-test"), true);
      assert.equal(runInsert?.values[3], "req-new-patient");
      assert.equal(client.releaseCount, 1);
 });
@@ -265,7 +270,8 @@ test("new patient creation rolls back when assessment persistence fails", async 
                     firstPregnancy: true,
                     previousComplications: null
                },
-               DEMO_USER_ID
+               DEMO_USER_ID,
+               "inst-test"
           ),
           /assessment storage failed/
      );
@@ -303,7 +309,8 @@ test("new patient is not persisted when AI assessment fails", async (context) =>
                     firstPregnancy: true,
                     previousComplications: null
                },
-               DEMO_USER_ID
+               DEMO_USER_ID,
+               "inst-test"
           ),
           (error: unknown) => error instanceof ClientFacingError
                && error.code === "PREDICTION_SERVICE_ERROR"
@@ -331,7 +338,8 @@ test("missing patients are rejected before a prediction run is created", async (
                     firstPregnancy: null,
                     previousComplications: null
                },
-               DEMO_USER_ID
+               DEMO_USER_ID,
+               "inst-test"
           ),
           (error: unknown) => error instanceof ClientFacingError
                && error.statusCode === 404

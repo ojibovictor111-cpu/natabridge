@@ -19,6 +19,7 @@ type DashboardRow = {
 
 const getDashboard = async (
      server: FastifyInstance,
+     institutionId: string,
 ) => {
      const client = await server.pg.connect();
 
@@ -46,6 +47,13 @@ const getDashboard = async (
                          AND prediction_run.status = 'completed'
                     INNER JOIN prediction_results prediction_result
                          ON prediction_result.prediction_run_id = prediction_run.id
+                    WHERE EXISTS (
+                         SELECT 1 FROM institutional_care care
+                         WHERE care.beneficiary_id = assessment.beneficiary_id
+                           AND care.institution_id = $1
+                           AND care.status = 'ACTIVE'
+                           AND care.ended_at IS NULL
+                    )
                     ORDER BY assessment.beneficiary_id,
                          assessment.created_at DESC,
                          assessment.id DESC
@@ -79,7 +87,7 @@ const getDashboard = async (
                     WHERE factor.prediction_result_id = latest.prediction_result_id
                ) factors ON TRUE
                ORDER BY latest.created_at DESC, latest.assessment_id DESC
-          `);
+          `, [institutionId]);
 
           const assessments = rows.rows.map((row) => ({
                id: row.assessment_id,

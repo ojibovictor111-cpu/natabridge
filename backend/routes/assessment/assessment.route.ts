@@ -8,11 +8,17 @@ import {
     patientAssessmentParamsSchema,
     patientAssessmentRequestSchema
 } from "../../models/assessment/dto/assessment.dto";
+import type { CreatePatientAssessmentRequest, PatientAssessmentParams, PatientAssessmentRequest } from "../../models/assessment/dto/assessment.dto";
 
 export async function assessmentRoutes(fastify: FastifyInstance) {
-    fastify.post(
+    fastify.post<{ Body: CreatePatientAssessmentRequest }>(
         "/assessments",
         {
+            preHandler: fastify.requirePermissions([
+                "clinical.beneficiaries.create",
+                "clinical.assessments.create",
+                "clinical.predictions.run"
+            ]),
             schema: {
                 body: createPatientAssessmentRequestSchema
             }
@@ -20,9 +26,14 @@ export async function assessmentRoutes(fastify: FastifyInstance) {
         postNewPatientAssessment
     );
 
-    fastify.post(
+    fastify.post<{ Body: PatientAssessmentRequest; Params: PatientAssessmentParams }>(
         "/:patientId/assessments",
         {
+            preHandler: fastify.requirePermissions([
+                "clinical.beneficiaries.read",
+                "clinical.assessments.create",
+                "clinical.predictions.run"
+            ]),
             schema: {
                 body: patientAssessmentRequestSchema,
                 params: patientAssessmentParamsSchema

@@ -69,7 +69,7 @@ test("patient registration preserves the submitted calendar date", async () => {
           dob: "2000-01-01",
           email: "AMINA@EXAMPLE.COM",
           phone: null
-     });
+     }, "inst-test", "usr-clinician");
 
      assert.equal(patient.dob, "2000-01-01");
      assert.equal(patient.email, "amina@example.com");
@@ -78,15 +78,17 @@ test("patient registration preserves the submitted calendar date", async () => {
      assert.equal(client.values[beneficiaryInsertIndex]?.[0], patient.id);
      assert.equal(client.queries.some((sql) => sql.includes("INSERT INTO beneficiaries")), true);
      assert.equal(client.queries.some((sql) => sql.includes("INSERT INTO mothers")), true);
+     assert.equal(client.queries.some((sql) => sql.includes("INSERT INTO institutional_care")), true);
      assert.equal(client.releaseCount, 1);
 });
 
 test("patient summaries expose PostgreSQL numeric values as JSON numbers", async () => {
      const client = new FakePatientClient();
-     const patients = await fetchPatientsWithLatestAssessment(createServer(client));
+     const patients = await fetchPatientsWithLatestAssessment(createServer(client), "inst-test");
 
      assert.equal(patients[0]?.age, 26);
      assert.equal(patients[0]?.gestationalAge, 24);
      assert.match(client.queries[0] ?? "", /assessment\.beneficiary_id = mother\.id/);
+     assert.deepEqual(client.values[0], ["inst-test"]);
      assert.equal(client.releaseCount, 1);
 });

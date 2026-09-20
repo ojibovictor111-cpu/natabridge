@@ -53,12 +53,14 @@ const preparePatientForCreation = (
 
 const registerPatient = async (
      server: FastifyInstance,
-     patient: CreatePatientRequest
+     patient: CreatePatientRequest,
+     institutionId: string,
+     createdByUserId: string
 ) => {
      const patientToCreate = preparePatientForCreation(patient);
      const createdPatient = await withTransaction(
           server,
-          (client) => createPatient(client, patientToCreate)
+          (client) => createPatient(client, patientToCreate, institutionId, createdByUserId)
      );
 
      return {
@@ -75,11 +77,11 @@ const registerPatient = async (
      };
 };
 
-const fetchPatientsWithLatestAssessment = async (server: FastifyInstance) => {
+const fetchPatientsWithLatestAssessment = async (server: FastifyInstance, institutionId: string) => {
      const client = await server.pg.connect();
 
      try {
-          const patients = await getPatientsWithLatestAssessment(client);
+          const patients = await getPatientsWithLatestAssessment(client, institutionId);
 
           return patients.map(toPatientSummary);
      } finally {
@@ -89,12 +91,13 @@ const fetchPatientsWithLatestAssessment = async (server: FastifyInstance) => {
 
 const fetchPatientById = async (
      server: FastifyInstance,
-     patientId: string
+     patientId: string,
+     institutionId: string
 ) => {
      const client = await server.pg.connect();
 
      try {
-          const patient = await getPatientById(client, patientId);
+          const patient = await getPatientById(client, patientId, institutionId);
 
           if (patient === undefined) {
                throw new ClientFacingError({

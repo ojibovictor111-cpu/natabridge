@@ -210,7 +210,12 @@ test("a clinician cannot request another clinician's assessments", async (contex
                id: "usr-clinician",
                email: "jane@natabridge.com",
                status: "ACTIVE"
-          })
+          }),
+          findPermissionGrants: async () => [{
+               name: "clinical.assessments.read",
+               scope: "CLINICAL",
+               institution_id: "inst-test"
+          }]
      });
      context.after(() => server.close());
 

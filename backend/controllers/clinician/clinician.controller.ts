@@ -3,6 +3,7 @@ import type { ClinicianAssessmentParams } from "../../models/assessment/dto/asse
 import { fetchAssessmentsByClinician } from "../../services/assessment/assessment.service";
 import { requireAuthenticatedUserId } from "../../utils/auth";
 import { ClientFacingError } from "../../errors/api-error";
+import { requireInstitutionId } from "../../utils/permissions";
 
 const getClinicianAssessments = async (
     request: FastifyRequest<{ Params: ClinicianAssessmentParams }>,
@@ -18,7 +19,8 @@ const getClinicianAssessments = async (
 
     const assessments = await fetchAssessmentsByClinician(
         request.server,
-        request.params.clinicianId
+        request.params.clinicianId,
+        requireInstitutionId(request)
     );
 
     return reply.code(200).send({

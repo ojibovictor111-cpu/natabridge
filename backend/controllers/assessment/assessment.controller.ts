@@ -9,6 +9,7 @@ import {
     processPatientAssessment
 } from "../../services/assessment/assessment.service";
 import { requireAuthenticatedUserId } from "../../utils/auth";
+import { requireInstitutionId } from "../../utils/permissions";
 
 const postPatientAssessment = async (
     request: FastifyRequest<{
@@ -24,6 +25,7 @@ const postPatientAssessment = async (
         request.params.patientId,
         request.body,
         userId,
+        requireInstitutionId(request),
         request.id
     );
 
@@ -43,6 +45,7 @@ const postNewPatientAssessment = async (
         request.server,
         request.body,
         userId,
+        requireInstitutionId(request),
         request.id
     );
 

@@ -178,11 +178,12 @@ const getAiPrediction = async (
 const ensurePatientExists = async (
 	server: FastifyInstance,
 	patientId: string,
+	institutionId: string,
 ) => {
 	const client = await server.pg.connect();
 
 	try {
-		if (!(await patientExists(client, patientId))) {
+		if (!(await patientExists(client, patientId, institutionId))) {
 			throw new ClientFacingError({
 				statusCode: 404,
 				code: "PATIENT_NOT_FOUND",
@@ -316,9 +317,10 @@ const processPatientAssessment = async (
 	patientId: string,
 	assessmentRequest: PatientAssessmentRequest,
 	createdByUserId: string,
+	institutionId: string,
 	requestId?: string,
 ) => {
-	await ensurePatientExists(server, patientId);
+	await ensurePatientExists(server, patientId, institutionId);
 
 	const {
 		gestationalAge,
@@ -351,6 +353,7 @@ const createPatientAndProcessAssessment = async (
 	server: FastifyInstance,
 	request: CreatePatientAssessmentRequest,
 	createdByUserId: string,
+	institutionId: string,
 	requestId?: string,
 ) => {
 	const {
@@ -379,7 +382,7 @@ const createPatientAndProcessAssessment = async (
 	const assessmentId = `ass-${uuidv7()}`;
 
 	await withTransaction(server, async (client) => {
-		await createPatient(client, patient);
+		await createPatient(client, patient, institutionId, createdByUserId);
 		await createPredictionRun(client, {
 			id: predictionRunId,
 			source: "patient_assessment",

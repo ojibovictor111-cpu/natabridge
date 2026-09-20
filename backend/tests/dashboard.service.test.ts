@@ -36,11 +36,12 @@ test("dashboard reads the latest completed assessment for each mother without le
           pg: { connect: async () => client }
      } as unknown as FastifyInstance;
 
-     const result = await getDashboard(server);
+     const result = await getDashboard(server, "inst-test");
 
      assert.match(querySql, /DISTINCT ON \(assessment\.beneficiary_id\)/);
      assert.match(querySql, /INNER JOIN mothers mother/);
      assert.match(querySql, /prediction_run\.status = 'completed'/);
+     assert.match(querySql, /care\.institution_id = \$1/);
      assert.doesNotMatch(querySql, /get_dashboard_details|\bpatients\b/);
      assert.equal(result.summary.high, 1);
      assert.equal(result.recentAssessments[0]?.patientId, "mother-1");

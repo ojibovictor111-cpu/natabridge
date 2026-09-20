@@ -3,7 +3,7 @@ import { getAllUsers, getCurrentUser, getUserById } from "../../controllers/user
 
 export async function userRoutes(fastify: FastifyInstance) {
     fastify.get('/me', getCurrentUser);
-    fastify.get('', getAllUsers);
-    fastify.get('/:id', getUserById);
+    fastify.get('', { preHandler: fastify.requirePermissions(['platform.users.read']) }, getAllUsers);
+    fastify.get<{ Params: { id: string } }>('/:id', { preHandler: fastify.requirePermissions(['platform.users.read']) }, getUserById);
 
 }

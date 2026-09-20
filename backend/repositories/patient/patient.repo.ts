@@ -1,5 +1,6 @@
 import type { PoolClient } from "pg";
 import type { PatientRepoInput, PatientSummaryRow } from "../../models/patient/repo/patients.repo";
+import { uuidv7 } from "uuidv7";
 
 const patientSummaryQuery = `
     SELECT
@@ -31,7 +32,9 @@ const patientSummaryQuery = `
 
 const createPatient = async (
     client: PoolClient,
-    patient: PatientRepoInput
+    patient: PatientRepoInput,
+    institutionId: string,
+    createdByUserId: string
 ) => {
     await client.query(
         "INSERT INTO beneficiaries (id, type) VALUES ($1, 'MOTHER')",
@@ -63,14 +66,27 @@ const createPatient = async (
         ]
     );
 
+    await client.query(`
+        INSERT INTO institutional_care (id, institution_id, beneficiary_id, created_by)
+        VALUES ($1, $2, $3, $4)
+    `, [`care-${uuidv7()}`, institutionId, patient.id, createdByUserId]);
+
     return result.rows[0];
 };
 
 const getPatientsWithLatestAssessment = async(
     client: PoolClient,
+    institutionId: string
 ) => {
     const result = await client.query<PatientSummaryRow>(
-        `${patientSummaryQuery} ORDER BY mother.created_at DESC, mother.id DESC`
+        `${patientSummaryQuery} WHERE EXISTS (
+            SELECT 1 FROM institutional_care care
+            WHERE care.beneficiary_id = mother.id
+              AND care.institution_id = $1
+              AND care.status = 'ACTIVE'
+              AND care.ended_at IS NULL
+        ) ORDER BY mother.created_at DESC, mother.id DESC`,
+        [institutionId]
     );
 
     return result.rows;
@@ -78,11 +94,18 @@ const getPatientsWithLatestAssessment = async(
 
 const getPatientById = async (
     client: PoolClient,
-    patientId: string
+    patientId: string,
+    institutionId: string
 ) => {
     const result = await client.query<PatientSummaryRow>(
-        `${patientSummaryQuery} WHERE mother.id = $1`,
-        [patientId]
+        `${patientSummaryQuery} WHERE mother.id = $1 AND EXISTS (
+            SELECT 1 FROM institutional_care care
+            WHERE care.beneficiary_id = mother.id
+              AND care.institution_id = $2
+              AND care.status = 'ACTIVE'
+              AND care.ended_at IS NULL
+        )`,
+        [patientId, institutionId]
     );
 
     return result.rows[0];
@@ -90,11 +113,17 @@ const getPatientById = async (
 
 const patientExists = async (
     client: PoolClient,
-    patientId: string
+    patientId: string,
+    institutionId: string
 ) => {
     const result = await client.query(
-        "SELECT EXISTS (SELECT 1 FROM mothers WHERE id = $1) AS exists",
-        [patientId]
+        `SELECT EXISTS (
+            SELECT 1 FROM mothers mother
+            JOIN institutional_care care ON care.beneficiary_id = mother.id
+            WHERE mother.id = $1 AND care.institution_id = $2
+              AND care.status = 'ACTIVE' AND care.ended_at IS NULL
+        ) AS exists`,
+        [patientId, institutionId]
     );
 
     return result.rows[0]?.exists === true;

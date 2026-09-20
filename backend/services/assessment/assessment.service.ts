@@ -6,12 +6,13 @@ const toNumberOrNull = (value: string | number | null) =>
 
 const fetchAssessmentsByClinician = async (
     server: FastifyInstance,
-    clinicianId: string
+    clinicianId: string,
+    institutionId: string
 ) => {
     const client = await server.pg.connect();
 
     try {
-        const assessments = await getAssessmentsByClinician(client, clinicianId);
+        const assessments = await getAssessmentsByClinician(client, clinicianId, institutionId);
 
         return assessments.map((assessment) => ({
             id: assessment.assessment_id,

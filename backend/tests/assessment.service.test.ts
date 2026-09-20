@@ -65,11 +65,13 @@ test("clinician assessments are filtered and normalized", async () => {
     const client = new FakeAssessmentClient();
     const assessments = await fetchAssessmentsByClinician(
         createServer(client),
-        DEMO_USER_ID
+        DEMO_USER_ID,
+        "inst-test"
     );
 
-    assert.deepEqual(client.queryValues, [DEMO_USER_ID]);
+    assert.deepEqual(client.queryValues, [DEMO_USER_ID, "inst-test"]);
     assert.match(client.querySql, /assessment\.created_by_user_id = \$1/);
+    assert.match(client.querySql, /care\.institution_id = \$2/);
     assert.match(client.querySql, /mother\.id = assessment\.beneficiary_id/);
     assert.match(client.querySql, /mother\.date_of_birth::TEXT AS patient_dob/);
     assert.match(client.querySql, /ORDER BY assessment\.created_at DESC/);

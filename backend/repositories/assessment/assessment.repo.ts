@@ -38,7 +38,8 @@ const createAssessment = async (
 
 const getAssessmentsByClinician = async (
     client: PoolClient,
-    clinicianId: string
+    clinicianId: string,
+    institutionId: string
 ) => {
     const result = await client.query<ClinicianAssessmentRow>(
         `
@@ -97,9 +98,16 @@ const getAssessmentsByClinician = async (
         LEFT JOIN prediction_results prediction_result
             ON prediction_result.prediction_run_id = prediction_run.id
         WHERE assessment.created_by_user_id = $1
+          AND EXISTS (
+              SELECT 1 FROM institutional_care care
+              WHERE care.beneficiary_id = assessment.beneficiary_id
+                AND care.institution_id = $2
+                AND care.status = 'ACTIVE'
+                AND care.ended_at IS NULL
+          )
         ORDER BY assessment.created_at DESC, assessment.id DESC
         `,
-        [clinicianId]
+        [clinicianId, institutionId]
     );
 
     return result.rows;

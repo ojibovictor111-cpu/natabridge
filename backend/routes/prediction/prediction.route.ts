@@ -3,13 +3,13 @@ import { postPrediction } from "../../controllers/prediction/prediction.controll
 import { predictionRequestSchema } from "../../models/prediction/dto/prediction.dto";
 
 export async function predictionRoutes(fastify: FastifyInstance) {
-     fastify.post(
-          "",
-          {
-               schema: {
-                    body: predictionRequestSchema
-               }
-          },
-          postPrediction
-     );
+	fastify.post(
+		"",
+		{
+			schema: {
+				body: predictionRequestSchema,
+			},
+		},
+		postPrediction,
+	);
 }

@@ -12,11 +12,14 @@ import { predictionRoutes } from "./routes/prediction/prediction.route";
 import { userRoutes } from "./routes/user/user.route";
 import { createFirebaseAuthHook } from "./utils/firebase-auth";
 import type { FindUserByFirebaseUid, VerifyIdToken } from "./utils/firebase-auth";
+import { createPermissionHook } from "./utils/permissions";
+import type { FindPermissionGrants } from "./utils/permissions";
 
 type BuildServerOptions = {
      logger?: boolean;
      verifyIdToken?: VerifyIdToken;
      findUserByFirebaseUid?: FindUserByFirebaseUid;
+     findPermissionGrants?: FindPermissionGrants;
 };
 
 const buildServer = (options: BuildServerOptions = {}) => {
@@ -40,17 +43,20 @@ const buildServer = (options: BuildServerOptions = {}) => {
      server.register(fastifyCors, {
           origin: process.env.frontend_origin ?? false,
           methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-          allowedHeaders: ["Content-Type", "Authorization"],
+          allowedHeaders: ["Content-Type", "Authorization", "X-Institution-Id"],
      });
      server.register(fastifyPostgres, dbConfig);
 
      server.decorateRequest("user", null);
+     server.decorateRequest("institutionId", null);
      server.register(predictionRoutes, { prefix: "/api/predictions" });
      server.register(async (protectedApi) => {
           protectedApi.addHook("onRequest", createFirebaseAuthHook(
                options.verifyIdToken,
                options.findUserByFirebaseUid
           ));
+          protectedApi.decorate("requirePermissions", (permissions: readonly string[]) =>
+               createPermissionHook(permissions, options.findPermissionGrants));
           protectedApi.register(userRoutes, { prefix: "/api/users" });
           protectedApi.register(patientRoutes, { prefix: "/api/patients" });
           protectedApi.register(assessmentRoutes, { prefix: "/api/patients" });

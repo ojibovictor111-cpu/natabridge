@@ -9,6 +9,7 @@ import type {
      PatientParams
 } from "../../models/patient/dto/patient.dto";
 import { requireAuthenticatedUserId } from "../../utils/auth";
+import { requireInstitutionId } from "../../utils/permissions";
 
 const postPatient = async (
      request: FastifyRequest<{
@@ -16,9 +17,8 @@ const postPatient = async (
      }>,
      reply: FastifyReply
 ) => {
-     requireAuthenticatedUserId(request);
-
-     const patient = await registerPatient(request.server, request.body);
+     const userId = requireAuthenticatedUserId(request);
+     const patient = await registerPatient(request.server, request.body, requireInstitutionId(request), userId);
 
      return reply.code(201).send({
           data: patient
@@ -31,7 +31,7 @@ const getPatients = async (
 ) => {
      requireAuthenticatedUserId(request);
 
-     const patients = await fetchPatientsWithLatestAssessment(request.server);
+     const patients = await fetchPatientsWithLatestAssessment(request.server, requireInstitutionId(request));
 
      return reply.status(200).send({
           data: patients
@@ -46,7 +46,8 @@ const getPatient = async (
 
      const patient = await fetchPatientById(
           request.server,
-          request.params.patientId
+          request.params.patientId,
+          requireInstitutionId(request)
      );
 
      return reply.status(200).send({
