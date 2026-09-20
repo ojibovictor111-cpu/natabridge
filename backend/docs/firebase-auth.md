@@ -8,13 +8,12 @@ internal `id` and `email` for the frontend. Public predictions remain open.
 
 ## Backend configuration
 
-Use Firebase project `natabridge-cf0da`, or set `FIREBASE_PROJECT_ID` to the
-project used by the frontend. Supply Firebase Admin credentials using the
-hosting platform's Application Default Credentials, a service account JSON
-file pointed to by `GOOGLE_APPLICATION_CREDENTIALS`, or
-`FIREBASE_SERVICE_ACCOUNT_JSON` containing the complete JSON document. Keep
-the service account private; the frontend Firebase config is not an Admin
-credential. The credential must be able to check revoked tokens.
+Set `FIREBASE_SERVICE_ACCOUNT_PROJECT_ID`, `FIREBASE_SERVICE_ACCOUNT_CLIENT_EMAIL`,
+and `FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY` from a Firebase Admin service account
+for the same project used by the frontend (`natabridge-cf0da`). The private key
+may contain literal `\\n` sequences; `configs/firebase.config.ts` converts
+them to newlines. Keep these values private and do not commit them. The
+credential must be able to check revoked tokens.
 
 ## Link a clinician
 

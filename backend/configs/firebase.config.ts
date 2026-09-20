@@ -1,17 +1,17 @@
-import { applicationDefault, cert, getApps, initializeApp } from "firebase-admin/app";
 import type { ServiceAccount } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
 
-const getFirebaseAuth = () => {
-     const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
-     const app = getApps().find((candidate) => candidate.name === "[DEFAULT]") ?? initializeApp({
-          credential: serviceAccountJson
-               ? cert(JSON.parse(serviceAccountJson) as ServiceAccount)
-               : applicationDefault(),
-          projectId: process.env.FIREBASE_PROJECT_ID || "natabridge-cf0da"
-     });
+const getFirebaseApp = () => {
+    const existing = getApps().find((app) => app.name === "[DEFAULT]");
+    if (existing) return existing;
 
-     return getAuth(app);
+    const serviceAccount: ServiceAccount = {
+        clientEmail: process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_EMAIL!,
+        privateKey: process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, "\n")!,
+        projectId: process.env.FIREBASE_SERVICE_ACCOUNT_PROJECT_ID!
+    };
+
+    return initializeApp({ credential: cert(serviceAccount) });
 };
 
-export { getFirebaseAuth };
+export { getFirebaseApp };

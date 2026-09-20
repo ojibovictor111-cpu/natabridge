@@ -1,6 +1,7 @@
 import type { FastifyRequest } from "fastify";
 import type { DecodedIdToken } from "firebase-admin/auth";
-import { getFirebaseAuth } from "../configs/firebase.config";
+import { getAuth } from "firebase-admin/auth";
+import { getFirebaseApp } from "../configs/firebase.config";
 import { ClientFacingError } from "../errors/api-error";
 
 type VerifyIdToken = (token: string) => Promise<Pick<DecodedIdToken, "uid">>;
@@ -8,7 +9,7 @@ type UserRecord = { id: string; email: string; status: "ACTIVE" | "SUSPENDED" | 
 type FindUserByFirebaseUid = (request: FastifyRequest, uid: string) => Promise<UserRecord | null>;
 
 const verifyIdToken: VerifyIdToken = (token) =>
-     getFirebaseAuth().verifyIdToken(token, true);
+     getAuth(getFirebaseApp()).verifyIdToken(token, true);
 
 const findUserByFirebaseUid: FindUserByFirebaseUid = async (request, uid) => {
      const result = await request.server.pg.query<UserRecord>(
