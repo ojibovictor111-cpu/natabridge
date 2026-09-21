@@ -1,14 +1,17 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 
 import { Environment as environment } from '../../environment/environment';
 import { CreatePatientInput, PatientApi } from '../../models/patient/Patient.api';
 import { PatientService } from './patient-service';
+import { AuthService } from '../auth/auth-service';
 
 describe('PatientService', () => {
   let service: PatientService;
   let httpTesting: HttpTestingController;
+  const clinicianId = signal<string | null>('clinician-1');
 
   const patients: PatientApi[] = [
     {
@@ -30,8 +33,13 @@ describe('PatientService', () => {
   ];
 
   beforeEach(() => {
+    clinicianId.set('clinician-1');
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: { clinicianId } },
+      ],
     });
 
     service = TestBed.inject(PatientService);
@@ -98,6 +106,8 @@ describe('PatientService', () => {
   });
 
   it('selects a cached patient without making another request', () => {
+    service.getPatients();
+    httpTesting.expectOne(`${environment.api}/patients`).flush({ data: patients });
     service.patients.set(patients);
     service.loading.set(true);
     service.errorMessage.set('Previous error');
@@ -108,6 +118,18 @@ describe('PatientService', () => {
     expect(service.loading()).toBe(false);
     expect(service.errorMessage()).toBeNull();
     httpTesting.expectNone(`${environment.api}/patients`);
+  });
+
+  it('discards cached patient records when the clinician changes', () => {
+    service.getPatients();
+    httpTesting.expectOne(`${environment.api}/patients`).flush({ data: patients });
+    clinicianId.set('clinician-2');
+
+    service.getPatient('patient-1');
+
+    expect(service.patient()).toBeNull();
+    expect(service.patients()).toEqual([]);
+    httpTesting.expectOne(`${environment.api}/patients`).flush({ data: [] });
   });
 
   it('looks up an uncached patient through the existing collection endpoint', () => {

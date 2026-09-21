@@ -72,7 +72,7 @@ export class AuthService {
 
       await this.router.navigateByUrl('/dashboard');
     } catch (error) {
-      if (error instanceof HttpErrorResponse && error.status === 403) {
+      if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
         await signOut(this.auth);
       }
       this.errorMessage.set(this.loginErrorMessage(error));
@@ -83,11 +83,21 @@ export class AuthService {
 
   async logout(): Promise<void> {
     await signOut(this.auth);
-    this.user.set(null);
-    this.assessmentService.clearAssessmentStorage();
-    sessionStorage.removeItem('dashboard_profile');
+    this.clearSession();
     this.resetContext();
     await this.router.navigateByUrl('/auth');
+  }
+
+  async expireSession(message: string): Promise<void> {
+    if (!this.auth.currentUser && !this.user()) return;
+
+    try {
+      await signOut(this.auth);
+    } finally {
+      this.clearSession();
+      this.errorMessage.set(message);
+      await this.router.navigateByUrl('/auth');
+    }
   }
 
   resetContext(): void {
@@ -97,27 +107,61 @@ export class AuthService {
 
   private async syncUser(firebaseUser: User | null, reportError = false): Promise<void> {
     if (!firebaseUser) {
+      if (this.profileUid) this.clearSession();
       this.profileUid = null;
       this.profileRequest = null;
       this.user.set(null);
       return;
     }
 
-    if (this.profileUid !== firebaseUser.uid || !this.profileRequest) {
+    if (this.profileUid !== firebaseUser.uid) {
+      if (this.profileUid) this.clearSession();
+      this.user.set(null);
       this.profileUid = firebaseUser.uid;
+      this.profileRequest = null;
+    }
+
+    if (!this.profileRequest) {
       this.profileRequest = firstValueFrom(
         this.http.get<ApiResponse<UserApi>>(`${environment.api}/users/me`),
-      ).then((response) => response.data);
+      ).then((response) => {
+        const profile = response.data;
+        if (
+          !profile ||
+          typeof profile.id !== 'string' ||
+          !profile.id ||
+          typeof profile.email !== 'string' ||
+          !profile.email
+        ) {
+          throw new Error('The verified user profile is incomplete.');
+        }
+        return profile;
+      });
     }
 
     try {
       const profile = await this.profileRequest;
       if (this.auth.currentUser?.uid === firebaseUser.uid) this.user.set(profile);
     } catch (error) {
-      this.profileRequest = null;
+      if (this.profileUid === firebaseUser.uid) this.profileRequest = null;
       if (this.auth.currentUser?.uid === firebaseUser.uid) this.user.set(null);
+      if (
+        error instanceof HttpErrorResponse &&
+        (error.status === 401 || error.status === 403) &&
+        this.auth.currentUser?.uid === firebaseUser.uid
+      ) {
+        await signOut(this.auth);
+      }
       if (reportError) throw error;
     }
+  }
+
+  private clearSession(): void {
+    this.profileUid = null;
+    this.profileRequest = null;
+    this.user.set(null);
+    this.assessmentService.clearAssessmentStorage();
+    sessionStorage.removeItem('dashboard_profile');
   }
 
   private loginErrorMessage(error: unknown): string {
@@ -135,6 +179,9 @@ export class AuthService {
     }
     if (error instanceof HttpErrorResponse && error.status === 403) {
       return 'This Firebase account is not linked to an active NataBridge clinician.';
+    }
+    if (error instanceof HttpErrorResponse && error.status === 401) {
+      return 'Your sign-in session could not be verified. Please sign in again.';
     }
     if (error instanceof Error && error.message.includes('not linked')) return error.message;
 

@@ -1,6 +1,27 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { from, switchMap } from 'rxjs';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { inject, InjectionToken, Injector } from '@angular/core';
+import { catchError, from, of, switchMap, throwError } from 'rxjs';
 import { Environment as environment } from '../../environment/environment';
+
+const accessDeniedCodes = new Set([
+  'AUTHENTICATION_REQUIRED',
+  'INVALID_ID_TOKEN',
+  'USER_NOT_PROVISIONED',
+  'USER_INACTIVE',
+]);
+
+export const FIREBASE_ID_TOKEN = new InjectionToken<() => Promise<string | null>>(
+  'Firebase ID token for protected API requests',
+  {
+    providedIn: 'root',
+    factory: () => async () => {
+      const [{ getAuth }, { app }] = await Promise.all([import('firebase/auth'), import('./app')]);
+      const auth = getAuth(app);
+      await auth.authStateReady();
+      return auth.currentUser?.getIdToken() ?? null;
+    },
+  },
+);
 
 export const firebaseTokenInterceptor: HttpInterceptorFn = (request, next) => {
   if (
@@ -10,15 +31,31 @@ export const firebaseTokenInterceptor: HttpInterceptorFn = (request, next) => {
     return next(request);
   }
 
-  return from(
-    Promise.all([import('firebase/auth'), import('./app')]).then(async ([{ getAuth }, { app }]) => {
-      const auth = getAuth(app);
-      await auth.authStateReady();
-      return auth.currentUser?.getIdToken() ?? null;
-    }),
-  ).pipe(
+  const injector = inject(Injector);
+  const getIdToken = inject(FIREBASE_ID_TOKEN);
+
+  return from(getIdToken()).pipe(
     switchMap((token) =>
       next(token ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : request),
     ),
+    catchError((error: unknown) => {
+      const code = error instanceof HttpErrorResponse ? error.error?.code : null;
+      if (request.url !== `${environment.api}/users/me` && accessDeniedCodes.has(code)) {
+        const message =
+          code === 'USER_INACTIVE' || code === 'USER_NOT_PROVISIONED'
+            ? 'Your NataBridge account no longer has access. Contact your facility administrator.'
+            : 'Your sign-in session has expired. Please sign in again.';
+
+        return from(
+          import('../../services/auth/auth-service').then(({ AuthService }) =>
+            injector.get(AuthService).expireSession(message),
+          ),
+        ).pipe(
+          catchError(() => of(undefined)),
+          switchMap(() => throwError(() => error)),
+        );
+      }
+      return throwError(() => error);
+    }),
   );
 };

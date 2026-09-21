@@ -68,8 +68,8 @@
   </aside>
 
   <a class="sidebar-profile" routerLink="profile" (click)="toggleSidebar()">
-    <span>JS</span>
-    <div><strong>Jane Smith</strong><small>Health coordinator</small></div>
+    <span>{{ initials() || 'C' }}</span>
+    <div><strong>{{ clinician()?.email }}</strong><small>Clinician</small></div>
     <b>⌄</b>
   </a>
 

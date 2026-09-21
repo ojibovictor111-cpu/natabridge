@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { hugeLogout01 } from '@ng-icons/huge-icons';
@@ -17,6 +17,8 @@ import { lucideBellRing, lucideChartNoAxesCombined, lucideClipboardPlus, lucideL
 export class DashboardNavBar {
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
+  readonly clinician = this.authService.user;
+  readonly initials = computed(() => this.clinician()?.email.slice(0, 2).toUpperCase() ?? '');
 
   @Output() readonly navClicked = new EventEmitter<boolean>();
 
@@ -25,7 +27,7 @@ export class DashboardNavBar {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.authService.logout();
+        void this.authService.logout();
       }
     });
   }

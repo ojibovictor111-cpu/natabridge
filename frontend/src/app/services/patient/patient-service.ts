@@ -9,10 +9,13 @@ import {
 import { ApiResponse } from '../../models/api/ApiResponse';
 import { Environment as environment } from '../../environment/environment';
 import { finalize } from 'rxjs';
+import { AuthService } from '../auth/auth-service';
 
 @Service()
 export class PatientService {
   private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private ownerId: string | null = null;
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -20,6 +23,7 @@ export class PatientService {
   readonly patients = signal<PatientApi[]>([]);
 
   getPatients() {
+    this.syncOwner();
     this.loadPatients();
   }
 
@@ -28,6 +32,7 @@ export class PatientService {
   }
 
   getPatient(patientId: string) {
+    this.syncOwner();
     this.errorMessage.set(null);
 
     const cachedPatient = this.patients().find((patient) => patient.id === patientId);
@@ -43,6 +48,7 @@ export class PatientService {
   }
 
   private loadPatients(selectedPatientId?: string) {
+    const ownerId = this.ownerId;
     this.loading.set(true);
     this.errorMessage.set(null);
 
@@ -51,6 +57,7 @@ export class PatientService {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (response) => {
+          if (this.authService.clinicianId() !== ownerId) return;
           const patients = response.data ?? [];
           this.patients.set(patients);
 
@@ -64,10 +71,21 @@ export class PatientService {
           }
         },
         error: (error: HttpErrorResponse) => {
+          if (this.authService.clinicianId() !== ownerId) return;
           if (selectedPatientId) this.patient.set(null);
           this.errorMessage.set(this.getErrorMessage(error));
         },
       });
+  }
+
+  private syncOwner(): void {
+    const ownerId = this.authService.clinicianId();
+    if (this.ownerId === ownerId) return;
+
+    this.ownerId = ownerId;
+    this.patient.set(null);
+    this.patients.set([]);
+    this.errorMessage.set(null);
   }
 
   private getErrorMessage(error: HttpErrorResponse) {

@@ -22,12 +22,23 @@ export class AssessmentService {
   readonly errorMessage = signal<string | null>(null);
 
   readonly result = signal<AssessmentResultApi | null>(
-    this.utilService.getStoredData<AssessmentResultApi>('assessment_result'),
+    localStorage.getItem('assessment_access') === 'public'
+      ? this.utilService.getStoredData<AssessmentResultApi>('assessment_result')
+      : null,
   );
 
   readonly userInput = signal<AssessmentFormData | null>(
-    this.utilService.getStoredData<AssessmentFormData>('assessment_input'),
+    localStorage.getItem('assessment_access') === 'public'
+      ? this.utilService.getStoredData<AssessmentFormData>('assessment_input')
+      : null,
   );
+
+  constructor() {
+    if (localStorage.getItem('assessment_access') !== 'public') {
+      localStorage.removeItem('assessment_input');
+      localStorage.removeItem('assessment_result');
+    }
+  }
 
   submitPublicPrediction(formData: AssessmentFormData) {
     const predictionInput = this.toPredictionInput(formData);
@@ -37,6 +48,7 @@ export class AssessmentService {
         predictionInput,
       ),
       formData,
+      true,
     );
   }
 
@@ -48,6 +60,7 @@ export class AssessmentService {
         assessmentInput,
       ),
       formData,
+      false,
     );
   }
 
@@ -58,12 +71,14 @@ export class AssessmentService {
         formData,
       ),
       formData,
+      false,
     );
   }
 
   private submit(
     request: Observable<ApiResponse<AssessmentResultApi>>,
     formData: AssessmentFormData,
+    persistPublicResult: boolean,
   ) {
     if (this.loading()) return;
 
@@ -71,8 +86,16 @@ export class AssessmentService {
     this.errorMessage.set(null);
     this.utilService.showLoader();
 
+    this.result.set(null);
     this.userInput.set(formData);
-    localStorage.setItem('assessment_input', JSON.stringify(formData));
+    if (persistPublicResult) {
+      localStorage.setItem('assessment_access', 'public');
+      localStorage.setItem('assessment_input', JSON.stringify(formData));
+    } else {
+      localStorage.removeItem('assessment_access');
+      localStorage.removeItem('assessment_input');
+      localStorage.removeItem('assessment_result');
+    }
 
     request
       .pipe(
@@ -85,7 +108,9 @@ export class AssessmentService {
         next: (resp) => {
           this.result.set(resp.data);
 
-          localStorage.setItem('assessment_result', JSON.stringify(resp.data));
+          if (persistPublicResult) {
+            localStorage.setItem('assessment_result', JSON.stringify(resp.data));
+          }
 
           this.router.navigateByUrl('/assessment/result');
         },
@@ -112,6 +137,7 @@ export class AssessmentService {
   }
 
   clearAssessmentStorage() {
+    localStorage.removeItem('assessment_access');
     localStorage.removeItem('assessment_result');
     localStorage.removeItem('assessment_input');
 

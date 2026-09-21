@@ -24,6 +24,9 @@ export class DashboardService {
   } | null>(null);
 
   async getDashboardDetails() {
+    const clinicianId = this.authService.clinicianId();
+    this.dashboardDetails.set(null);
+    this.assessmentDetails.set(null);
     this.loading.set(true);
 
     this.http
@@ -31,18 +34,21 @@ export class DashboardService {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (resp) => {
+          if (this.authService.clinicianId() !== clinicianId) return;
           this.dashboardDetails.set(resp.data);
 
           this.assessmentDetails.set(resp.data.summary);
         },
-        error: (err) => this.errorMessage.set(err),
+        error: (err) => {
+          if (this.authService.clinicianId() === clinicianId) this.errorMessage.set(err);
+        },
       });
   }
 
   getClinicianAssessments() {
     const clinicianId = this.authService.clinicianId();
+    this.clinicianAssessments.set(null);
     if (!clinicianId) {
-      this.clinicianAssessments.set(null);
       return;
     }
 
@@ -51,8 +57,14 @@ export class DashboardService {
         `${environment.api}/clinicians/${encodeURIComponent(clinicianId)}/assessments`,
       )
       .subscribe({
-        next: (response) => this.clinicianAssessments.set(response.data ?? []),
-        error: () => this.clinicianAssessments.set(null),
+        next: (response) => {
+          if (this.authService.clinicianId() === clinicianId) {
+            this.clinicianAssessments.set(response.data ?? []);
+          }
+        },
+        error: () => {
+          if (this.authService.clinicianId() === clinicianId) this.clinicianAssessments.set(null);
+        },
       });
   }
 }

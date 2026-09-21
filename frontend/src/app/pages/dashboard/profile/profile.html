@@ -32,13 +32,15 @@
   >
     <span
       class="profile-avatar grid w-18 h-18 place-items-center rounded-full bg-(--nata-primary) text-white text-xl font-semibold max-sm:w-14 max-sm:h-14 max-sm:text-lg"
-      >{{ initials() || 'JS' }}</span
+      >{{ initials() || 'C' }}</span
     >
     <div class="profile-identity">
       <div
         class="profile-name-row flex items-center gap-2 max-sm:items-start max-sm:flex-col max-sm:gap-1.25"
       >
-        <h2 id="profile-name" class="m-0 text-xl font-semibold">{{ profile().fullName }}</h2>
+        <h2 id="profile-name" class="m-0 text-xl font-semibold">
+          {{ profile().fullName || profile().email }}
+        </h2>
         <span
           class="active-badge inline-flex items-center gap-1.25 rounded-full bg-white py-0.5 px-2 text-(--dashboard-green) font-semibold"
           ><i class="w-1.25 h-1.25 rounded-full bg-(--dashboard-green)"></i> Active</span
@@ -121,7 +123,7 @@
 
         <div class="profile-field grid gap-1.25">
           <label for="profile-email" class="text-(--dashboard-muted) text-xs font-medium"
-            >Email address</label
+            >Verified email address</label
           >
           <div
             class="profile-input-wrap flex h-10 items-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-2.5"
@@ -140,7 +142,7 @@
               id="profile-email"
               type="email"
               formControlName="email"
-              [readOnly]="!isEditing()"
+              readonly
               autocomplete="email"
               [attr.aria-invalid]="
                 isEditing() &&

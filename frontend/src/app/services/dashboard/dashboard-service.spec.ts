@@ -9,7 +9,7 @@ import { DashboardService } from './dashboard-service';
 describe('DashboardService', () => {
   let service: DashboardService;
   let httpTesting: HttpTestingController;
-  const clinicianId = signal('demo-user');
+  const clinicianId = signal('clinician-1');
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -25,11 +25,11 @@ describe('DashboardService', () => {
 
   afterEach(() => httpTesting.verify());
 
-  it('loads clinician assessment history with credentials during the auth bypass', () => {
+  it('loads assessment history for the verified clinician without cookies', () => {
     service.getClinicianAssessments();
 
     const request = httpTesting.expectOne(
-      `${environment.api}/clinicians/demo-user/assessments`,
+      `${environment.api}/clinicians/clinician-1/assessments`,
     );
     expect(request.request.method).toBe('GET');
     expect(request.request.withCredentials).toBe(false);
