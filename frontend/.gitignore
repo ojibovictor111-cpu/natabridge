@@ -39,6 +39,10 @@ testem.log
 /typings
 __screenshots__/
 
+# Spartan UI is generated as local source under libs/ui.
+!libs/ui/**/src/lib/
+!libs/ui/**/src/lib/**
+
 # System files
 .DS_Store
 Thumbs.db
