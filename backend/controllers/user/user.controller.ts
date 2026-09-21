@@ -4,8 +4,9 @@ import { requireAuthenticatedUserId } from "../../utils/auth";
 
 const getCurrentUser = async (request: FastifyRequest, reply: FastifyReply) => {
     const id = requireAuthenticatedUserId(request);
+    const access = await request.server.findUserAccess(request, id);
     return reply.code(200).send({
-        data: { id, email: request.user!.email }
+        data: { id, email: request.user!.email, ...access }
     });
 };
 

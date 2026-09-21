@@ -152,7 +152,16 @@ test("verified Firebase UID must map to an active user", async (context) => {
           findUserByFirebaseUid: async (_request, uid) => {
                lookedUpUids.push(uid);
                return status === null ? null : { id: "usr-clinician", email: "jane@natabridge.com", status };
-          }
+          },
+          findUserAccess: async () => ({
+               roles: [{
+                    id: "rol-clinician",
+                    name: "CLINICIAN",
+                    scope: "CLINICAL",
+                    institutionId: "inst-test",
+                    permissions: ["clinical.assessments.read", "clinical.predictions.run"]
+               }]
+          })
      });
      context.after(() => server.close());
 
@@ -176,7 +185,14 @@ test("verified Firebase UID must map to an active user", async (context) => {
      assert.equal(active.statusCode, 200);
      assert.deepEqual(active.json().data, {
           id: "usr-clinician",
-          email: "jane@natabridge.com"
+          email: "jane@natabridge.com",
+          roles: [{
+               id: "rol-clinician",
+               name: "CLINICIAN",
+               scope: "CLINICAL",
+               institutionId: "inst-test",
+               permissions: ["clinical.assessments.read", "clinical.predictions.run"]
+          }]
      });
      assert.deepEqual(lookedUpUids, ["firebase-uid", "firebase-uid", "firebase-uid"]);
 });

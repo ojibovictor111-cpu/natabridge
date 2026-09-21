@@ -14,12 +14,15 @@ import { createFirebaseAuthHook } from "./utils/firebase-auth";
 import type { FindUserByFirebaseUid, VerifyIdToken } from "./utils/firebase-auth";
 import { createPermissionHook } from "./utils/permissions";
 import type { FindPermissionGrants } from "./utils/permissions";
+import { findUserAccess } from "./services/user/user-access.service";
+import type { FindUserAccess } from "./services/user/user-access.service";
 
 type BuildServerOptions = {
      logger?: boolean;
      verifyIdToken?: VerifyIdToken;
      findUserByFirebaseUid?: FindUserByFirebaseUid;
      findPermissionGrants?: FindPermissionGrants;
+     findUserAccess?: FindUserAccess;
 };
 
 const buildServer = (options: BuildServerOptions = {}) => {
@@ -49,6 +52,7 @@ const buildServer = (options: BuildServerOptions = {}) => {
 
      server.decorateRequest("user", null);
      server.decorateRequest("institutionId", null);
+     server.decorate("findUserAccess", options.findUserAccess ?? findUserAccess);
      server.register(predictionRoutes, { prefix: "/api/predictions" });
      server.register(async (protectedApi) => {
           protectedApi.addHook("onRequest", createFirebaseAuthHook(
