@@ -2,14 +2,15 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ClinicianAssessmentApi } from '../../../models/assessment/Clinician-assessment.api';
+import { AuthService } from '../../../services/auth/auth-service';
 import { DashboardService } from '../../../services/dashboard/dashboard-service';
 import { Home } from './home';
 
 describe('DashboardHome', () => {
   let component: Home;
   let fixture: ComponentFixture<Home>;
-  const clinicianAssessments = signal<ClinicianAssessmentApi[] | null>(null);
-  const getClinicianAssessments = vi.fn();
+  const assessments = signal<ClinicianAssessmentApi[] | null>(null);
+  const getAssessments = vi.fn();
 
   const assessment = (overrides: Partial<ClinicianAssessmentApi> = {}): ClinicianAssessmentApi => ({
     id: 'assessment-1',
@@ -52,8 +53,8 @@ describe('DashboardHome', () => {
   });
 
   beforeEach(async () => {
-    clinicianAssessments.set(null);
-    getClinicianAssessments.mockClear();
+    assessments.set(null);
+    getAssessments.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [Home],
@@ -61,7 +62,14 @@ describe('DashboardHome', () => {
         provideRouter([]),
         {
           provide: DashboardService,
-          useValue: { clinicianAssessments, getClinicianAssessments },
+          useValue: { assessments, getAssessments },
+        },
+        {
+          provide: AuthService,
+          useValue: {
+            user: signal({ id: 'user-1', email: 'amina@example.com', roles: [] }),
+            hasAllPermissions: () => true,
+          },
         },
       ],
     }).compileComponents();
@@ -75,13 +83,13 @@ describe('DashboardHome', () => {
     const page = fixture.nativeElement as HTMLElement;
 
     expect(component).toBeTruthy();
-    expect(getClinicianAssessments).toHaveBeenCalledOnce();
+    expect(getAssessments).toHaveBeenCalledOnce();
     expect(page.textContent).toContain('--');
     expect(page.textContent).toContain('No recent assessment data available');
   });
 
   it('derives live metrics and recent records from clinician history', () => {
-    clinicianAssessments.set([
+    assessments.set([
       assessment(),
       assessment({
         id: 'assessment-2',
@@ -108,17 +116,15 @@ describe('DashboardHome', () => {
       (fixture.nativeElement as HTMLElement).querySelectorAll('.metric-card > strong'),
     ).map((element) => element.textContent?.trim());
 
-    expect(metricValues).toEqual(['1', '2', '1', '--']);
+    expect(metricValues).toEqual(['1', '2', '1', '0']);
     expect(fixture.nativeElement.textContent).toContain('Amina Bello');
     expect(fixture.nativeElement.textContent).toContain('Chioma Okafor');
   });
 
-  it('presents the Nata assistant as a disabled coming feature', () => {
-    const card = (fixture.nativeElement as HTMLElement).querySelector('.assistant-card')!;
-    const controls = card.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input, button');
+  it('greets the verified user without rendering the Nata assistant', () => {
+    const page = fixture.nativeElement as HTMLElement;
 
-    expect(card.getAttribute('aria-disabled')).toBe('true');
-    expect(card.textContent).toContain('Coming soon');
-    expect(Array.from(controls).every((control) => control.disabled)).toBe(true);
+    expect(page.querySelector('h1')?.textContent).toContain('Hello, amina');
+    expect(page.textContent).not.toContain('Hi, I’m Nata');
   });
 });

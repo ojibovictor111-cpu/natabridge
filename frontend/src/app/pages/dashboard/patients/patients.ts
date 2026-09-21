@@ -1,6 +1,9 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideActivity,
@@ -12,6 +15,8 @@ import {
   lucideUsersRound,
 } from '@ng-icons/lucide';
 import { PatientApi } from '../../../models/patient/Patient.api';
+import { ACCESS } from '../../../core/auth/access';
+import { AuthService } from '../../../services/auth/auth-service';
 import { PatientService } from '../../../services/patient/patient-service';
 
 type RiskTone = 'high' | 'mid' | 'low' | 'none';
@@ -21,7 +26,14 @@ type SortDirection = 'asc' | 'desc';
 
 @Component({
   selector: 'nata-patients',
-  imports: [DatePipe, NgIcon, RouterLink],
+  imports: [
+    DatePipe,
+    NgIcon,
+    RouterLink,
+    ...HlmButtonImports,
+    ...HlmInputImports,
+    ...HlmSkeletonImports,
+  ],
   templateUrl: './patients.html',
   styleUrl: './patients.css',
   viewProviders: [
@@ -38,6 +50,7 @@ type SortDirection = 'asc' | 'desc';
 })
 export class Patients implements OnInit {
   private readonly patientService = inject(PatientService);
+  private readonly authService = inject(AuthService);
 
   readonly loading = this.patientService.loading;
   readonly errorMessage = this.patientService.errorMessage;
@@ -48,6 +61,9 @@ export class Patients implements OnInit {
   readonly sortDirection = signal<SortDirection>('asc');
   readonly currentPage = signal(1);
   readonly pageSize = signal(10);
+  readonly canRegisterPatient = computed(() =>
+    this.authService.hasAllPermissions(ACCESS.clinical.patients.create),
+  );
 
   readonly filteredPatients = computed(() => {
     const search = this.searchTerm().trim().toLowerCase();

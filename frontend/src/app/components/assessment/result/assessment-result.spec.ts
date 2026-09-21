@@ -84,11 +84,11 @@ describe('AssessmentResult', () => {
     expect(backButton?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Back');
   });
 
-  it('renders Save to patient record for an authenticated user', () => {
+  it('does not render Save to patient record for an authenticated user', () => {
     isAuthenticated.set(true);
     fixture.detectChanges();
 
-    expect(findButton('Save to patient record')).toBeDefined();
+    expect(findButton('Save to patient record')).toBeUndefined();
   });
 
   it('uses Back to patient for an authenticated user', () => {
@@ -140,12 +140,11 @@ describe('AssessmentResult', () => {
     expect(items).toEqual(['Elevated blood pressure', 'Elevated heart rate']);
   });
 
-  it('disables unavailable referral and save actions', () => {
+  it('disables the unavailable referral action', () => {
     isAuthenticated.set(true);
     fixture.detectChanges();
 
     expect(findButton('Generate referral letter')?.disabled).toBe(true);
-    expect(findButton('Save to patient record')?.disabled).toBe(true);
   });
 
   it('keeps Print clinical report enabled and invokes printing', () => {

@@ -9,12 +9,16 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmInputImports } from '@spartan-ng/helm/input';
 import { finalize } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideUserPlus } from '@ng-icons/lucide';
 import { CreatePatientInput } from '../../../../models/patient/Patient.api';
 import { PatientService } from '../../../../services/patient/patient-service';
 import { focusFirstInvalidControl } from '../../../../shared/forms/focus-first-invalid-control';
+import { phosphorWarningCircleFill } from '@ng-icons/phosphor-icons/fill';
+
 
 function patientContactValidator(control: AbstractControl): ValidationErrors | null {
   const email = control.get('email')?.value?.trim();
@@ -25,10 +29,16 @@ function patientContactValidator(control: AbstractControl): ValidationErrors | n
 
 @Component({
   selector: 'nata-register-patient',
-  imports: [NgIcon, ReactiveFormsModule, RouterLink],
+  imports: [
+    NgIcon,
+    ReactiveFormsModule,
+    RouterLink,
+    ...HlmButtonImports,
+    ...HlmInputImports,
+  ],
   templateUrl: './register-patient.html',
   styleUrl: './register-patient.css',
-  viewProviders: [provideIcons({ lucideArrowLeft, lucideUserPlus })],
+  viewProviders: [provideIcons({ lucideArrowLeft, lucideUserPlus, phosphorWarningCircleFill })],
 })
 export class RegisterPatient {
   private readonly patientService = inject(PatientService);

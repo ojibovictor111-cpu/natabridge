@@ -1,22 +1,23 @@
 <section
-  class="profile-page min-h-full pt-7 px-8 pb-11 bg-(--dashboard-canvas) text-(--dashboard-text) max-sm:pt-5 max-sm:px-4 max-sm:pb-8"
+  class="profile-page min-h-full pt-7 px-8 pb-11 bg-background text-foreground max-sm:pt-5 max-sm:px-4 max-sm:pb-8"
 >
   <header
     class="profile-page-heading flex items-end justify-between gap-5 max-sm:items-stretch max-sm:flex-col"
   >
     <div>
-      <p class="mt-0 mx-0 mb-1 text-(--nata-primary) text-xs font-semibold uppercase">
+      <p class="mt-0 mx-0 mb-1 text-primary text-xs font-semibold uppercase">
         Account settings
       </p>
       <h1 class="m-0 text-2xl font-semibold">My profile</h1>
-      <span class="block mt-1 text-(--dashboard-muted) text-xs"
+      <span class="block mt-1 text-muted-foreground text-xs"
         >Manage your personal information and dashboard preferences.</span
       >
     </div>
 
     @if (!isEditing()) {
       <button
-        class="profile-button profile-button--primary inline-flex h-9 items-center justify-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-3 cursor-pointer bg-(--nata-primary) text-white max-sm:self-start"
+        hlmBtn
+        class="max-sm:self-start"
         type="button"
         (click)="startEditing()"
       >
@@ -27,13 +28,12 @@
   </header>
 
   <section
-    class="profile-hero flex min-h-32 items-center gap-4 mt-6 border border-(--dashboard-border) rounded-xl p-6 max-sm:p-4 max-sm:items-start"
+    class="profile-hero flex min-h-32 items-center gap-4 mt-6 border border-border rounded-none p-6 max-sm:p-4 max-sm:items-start"
     aria-labelledby="profile-name"
   >
-    <span
-      class="profile-avatar grid w-18 h-18 place-items-center rounded-full bg-(--nata-primary) text-white text-xl font-semibold max-sm:w-14 max-sm:h-14 max-sm:text-lg"
-      >{{ initials() || 'C' }}</span
-    >
+    <hlm-avatar size="lg">
+      <span hlmAvatarFallback>{{ initials() || 'C' }}</span>
+    </hlm-avatar>
     <div class="profile-identity">
       <div
         class="profile-name-row flex items-center gap-2 max-sm:items-start max-sm:flex-col max-sm:gap-1.25"
@@ -42,14 +42,14 @@
           {{ profile().fullName || profile().email }}
         </h2>
         <span
-          class="active-badge inline-flex items-center gap-1.25 rounded-full bg-white py-0.5 px-2 text-(--dashboard-green) font-semibold"
-          ><i class="w-1.25 h-1.25 rounded-full bg-(--dashboard-green)"></i> Active</span
+          class="inline-flex items-center gap-1.5 border bg-background px-2 py-0.5 text-xs text-muted-foreground"
+          ><i class="size-1.5 rounded-full bg-primary"></i> Active</span
         >
       </div>
-      <p class="mt-1 mx-0 mb-0 text-(--nata-primary-hover) text-xs font-medium">
+      <p class="mt-1 mx-0 mb-0 text-muted-foreground text-xs font-medium">
         {{ profile().role }}
       </p>
-      <span class="block mt-1.25 text-(--dashboard-muted) text-xs"
+      <span class="block mt-1.25 text-muted-foreground text-xs"
         >NataBridge maternal health workspace</span
       >
     </div>
@@ -57,19 +57,19 @@
 
   <div class="profile-layout grid gap-4 mt-4 max-lg:grid-cols-1">
     <section
-      class="profile-card account-card border border-(--dashboard-border) rounded-xl bg-white p-5"
+      class="profile-card account-card border border-border rounded-none bg-background p-5"
       aria-labelledby="account-information-title"
     >
       <header class="card-heading flex items-center gap-2.5 pb-4">
         <span
-          class="grid w-8 h-8 place-items-center rounded-lg bg-(--dashboard-green-soft) text-(--nata-primary)"
+          class="grid w-8 h-8 place-items-center rounded-none bg-muted text-primary"
           ><ng-icon name="lucideUserRound" aria-hidden="true"
         /></span>
         <div>
           <h2 id="account-information-title" class="m-0 text-sm font-semibold">
             Account information
           </h2>
-          <p class="mt-0.5 mx-0 mb-0 text-(--dashboard-muted) text-xs">
+          <p class="mt-0.5 mx-0 mb-0 text-muted-foreground text-xs">
             Your contact details and workspace role.
           </p>
         </div>
@@ -82,121 +82,84 @@
         class="grid grid-cols-2 gap-4 mt-4 max-sm:grid-cols-1"
       >
         <div class="profile-field profile-field--wide grid gap-1.25">
-          <label for="profile-full-name" class="text-(--dashboard-muted) text-xs font-medium"
+          <label for="profile-full-name" class="text-muted-foreground text-xs font-medium"
             >Full name</label
           >
-          <div
-            class="profile-input-wrap flex h-10 items-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-2.5"
-            [class.profile-input-wrap--error]="
+          <input
+            hlmInput
+            id="profile-full-name"
+            type="text"
+            formControlName="fullName"
+            [readOnly]="!isEditing()"
+            autocomplete="name"
+            [attr.aria-invalid]="
               isEditing() &&
               profileForm.controls.fullName.invalid &&
               (profileForm.controls.fullName.touched || submitted())
             "
-          >
-            <ng-icon
-              name="lucideUserRound"
-              aria-hidden="true"
-              class="text-(--dashboard-muted) text-sm"
-            />
-            <input
-              id="profile-full-name"
-              type="text"
-              formControlName="fullName"
-              [readOnly]="!isEditing()"
-              autocomplete="name"
-              [attr.aria-invalid]="
-                isEditing() &&
-                profileForm.controls.fullName.invalid &&
-                (profileForm.controls.fullName.touched || submitted())
-              "
-              class="border-0 bg-transparent text-(--dashboard-text)"
-            />
-          </div>
+          />
           @if (
             isEditing() &&
             profileForm.controls.fullName.invalid &&
             (profileForm.controls.fullName.touched || submitted())
           ) {
-            <small class="field-error text-(--dashboard-danger)">Enter your full name.</small>
+            <small class="field-error text-destructive">Enter your full name.</small>
           }
         </div>
 
         <div class="profile-field grid gap-1.25">
-          <label for="profile-email" class="text-(--dashboard-muted) text-xs font-medium"
+          <label for="profile-email" class="text-muted-foreground text-xs font-medium"
             >Verified email address</label
           >
-          <div
-            class="profile-input-wrap flex h-10 items-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-2.5"
-            [class.profile-input-wrap--error]="
+          <input
+            hlmInput
+            id="profile-email"
+            type="email"
+            formControlName="email"
+            readonly
+            autocomplete="email"
+            [attr.aria-invalid]="
               isEditing() &&
               profileForm.controls.email.invalid &&
               (profileForm.controls.email.touched || submitted())
             "
-          >
-            <ng-icon
-              name="lucideMail"
-              aria-hidden="true"
-              class="text-(--dashboard-muted) text-sm"
-            />
-            <input
-              id="profile-email"
-              type="email"
-              formControlName="email"
-              readonly
-              autocomplete="email"
-              [attr.aria-invalid]="
-                isEditing() &&
-                profileForm.controls.email.invalid &&
-                (profileForm.controls.email.touched || submitted())
-              "
-              class="border-0 bg-transparent text-(--dashboard-text)"
-            />
-          </div>
+          />
           @if (
             isEditing() &&
             profileForm.controls.email.invalid &&
             (profileForm.controls.email.touched || submitted())
           ) {
-            <small class="field-error text-(--dashboard-danger)"
+            <small class="field-error text-destructive"
               >Enter a valid email address.</small
             >
           }
         </div>
 
         <div class="profile-field grid gap-1.25">
-          <label for="profile-phone" class="text-(--dashboard-muted) text-xs font-medium"
+          <label for="profile-phone" class="text-muted-foreground text-xs font-medium"
             >Phone number</label
           >
-          <div
-            class="profile-input-wrap flex h-10 items-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-2.5"
-          >
-            <ng-icon
-              name="lucidePhone"
-              aria-hidden="true"
-              class="text-(--dashboard-muted) text-sm"
-            />
-            <input
-              id="profile-phone"
-              type="tel"
-              formControlName="phone"
-              [readOnly]="!isEditing()"
-              autocomplete="tel"
-              class="border-0 bg-transparent text-(--dashboard-text)"
-            />
-          </div>
+          <input
+            hlmInput
+            id="profile-phone"
+            type="tel"
+            formControlName="phone"
+            [readOnly]="!isEditing()"
+            autocomplete="tel"
+          />
         </div>
 
         <div class="profile-field profile-field--wide grid gap-1.25">
-          <label class="text-(--dashboard-muted) text-xs font-medium">Workspace role</label>
+          <label class="text-muted-foreground text-xs font-medium">Workspace role</label>
           <div
-            class="profile-role flex min-h-10 items-center gap-2 border border-(--dashboard-border) rounded-lg bg-(--dashboard-canvas) py-0 px-2.5 max-sm:items-start max-sm:flex-col"
+            class="profile-role flex min-h-10 items-center gap-2 border border-border rounded-none bg-background py-0 px-2.5 max-sm:items-start max-sm:flex-col"
           >
             <ng-icon
               name="lucideShieldCheck"
               aria-hidden="true"
-              class="text-(--nata-primary)"
+              class="text-primary"
             /><span class="text-xs">{{ profile().role }}</span
-            ><small class="ml-auto text-(--dashboard-muted) max-sm:ml-0"
+            ><small class="ml-auto text-muted-foreground max-sm:ml-0"
               >Managed by your organisation</small
             >
           </div>
@@ -205,14 +168,15 @@
         @if (isEditing()) {
           <footer class="form-actions flex justify-end gap-2 pt-1 max-sm:flex-wrap">
             <button
-              class="profile-button profile-button--secondary inline-flex h-9 items-center justify-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-3 cursor-pointer bg-white text-(--dashboard-text)"
+              hlmBtn
+              variant="outline"
               type="button"
               (click)="cancelEditing()"
             >
               <ng-icon name="lucideX" class="text-sm" /> Cancel
             </button>
             <button
-              class="profile-button profile-button--primary inline-flex h-9 items-center justify-center gap-2 border border-(--dashboard-border) rounded-lg py-0 px-3 cursor-pointer bg-(--nata-primary) text-white"
+              hlmBtn
               type="submit"
             >
               <ng-icon name="lucideCheck" class="text-sm" /> Save changes
@@ -220,7 +184,7 @@
           </footer>
         } @else if (saved()) {
           <p
-            class="save-confirmation flex items-center gap-1.25 m-0 text-(--dashboard-green) text-xs"
+            class="save-confirmation flex items-center gap-1.25 m-0 text-primary text-xs"
             role="status"
           >
             <ng-icon name="lucideCheck" /> Profile updated for this session.
@@ -231,17 +195,17 @@
 
     <aside class="profile-side-column grid gap-4 max-sm:grid-cols-1">
       <section
-        class="profile-card preferences-card border border-(--dashboard-border) rounded-xl bg-white p-5 pb-2"
+        class="profile-card preferences-card border border-border rounded-none bg-background p-5 pb-2"
         aria-labelledby="preferences-title"
       >
         <header class="card-heading flex items-center gap-2.5 pb-4">
           <span
-            class="grid w-8 h-8 place-items-center rounded-lg bg-(--dashboard-green-soft) text-(--nata-primary)"
+            class="grid w-8 h-8 place-items-center rounded-none bg-muted text-primary"
             ><ng-icon name="lucideBell" aria-hidden="true"
           /></span>
           <div>
             <h2 id="preferences-title" class="m-0 text-sm font-semibold">Notifications</h2>
-            <p class="mt-0.5 mx-0 mb-0 text-(--dashboard-muted) text-xs">
+            <p class="mt-0.5 mx-0 mb-0 text-muted-foreground text-xs">
               Choose what reaches you.
             </p>
           </div>
@@ -252,7 +216,7 @@
         >
           <span class="grid gap-0.5"
             ><strong class="font-medium">Email updates</strong
-            ><small class="text-(--dashboard-muted)"
+            ><small class="text-muted-foreground"
               >Assessment and programme summaries</small
             ></span
           >
@@ -268,7 +232,7 @@
         >
           <span class="grid gap-0.5"
             ><strong class="font-medium">Critical alerts</strong
-            ><small class="text-(--dashboard-muted)">High-risk patient notifications</small></span
+            ><small class="text-muted-foreground">High-risk patient notifications</small></span
           >
           <input
             type="checkbox"
@@ -280,19 +244,20 @@
       </section>
 
       <section
-        class="profile-card session-card border border-(--dashboard-border) rounded-xl bg-white p-5 flex items-center justify-between gap-3 max-lg:items-start max-lg:flex-col max-sm:flex-row max-sm:items-center max-sm:items-start max-sm:flex-col"
+        class="profile-card session-card border border-border rounded-none bg-background p-5 flex items-center justify-between gap-3 max-lg:items-start max-lg:flex-col max-sm:flex-row max-sm:items-center max-sm:items-start max-sm:flex-col"
         aria-labelledby="session-title"
       >
         <div>
           <h2 id="session-title" class="m-0 text-sm font-semibold">Account session</h2>
-          <p class="mt-0.5 mx-0 mb-0 text-(--dashboard-muted) text-xs">
+          <p class="mt-0.5 mx-0 mb-0 text-muted-foreground text-xs">
             You are signed in to the NataBridge dashboard.
           </p>
         </div>
         <button
+          hlmBtn
+          variant="destructive"
           type="button"
           (click)="logout()"
-          class="inline-flex h-8 items-center gap-1.25 rounded-lg bg-white py-0 px-2.5 text-(--dashboard-danger) cursor-pointer whitespace-nowrap"
         >
           <ng-icon name="lucideLogOut" aria-hidden="true" /> Sign out
         </button>

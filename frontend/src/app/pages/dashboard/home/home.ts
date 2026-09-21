@@ -1,5 +1,7 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { ACCESS } from '../../../core/auth/access';
 import { ClinicianAssessmentApi } from '../../../models/assessment/Clinician-assessment.api';
 import type {
   CriticalAlertView,
@@ -8,21 +10,36 @@ import type {
   RiskTone,
 } from '../../../models/dashboard/dashboard.ui';
 import { DashboardService } from '../../../services/dashboard/dashboard-service';
+import { AuthService } from '../../../services/auth/auth-service';
 
 @Component({
   selector: 'nata-home',
-  imports: [RouterModule],
+  imports: [RouterModule, ...HlmButtonImports],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
   private readonly dashboardService = inject(DashboardService);
+  private readonly authService = inject(AuthService);
 
   readonly currentYear = new Date().getFullYear();
-  readonly clinicianAssessments = this.dashboardService.clinicianAssessments;
+  readonly assessments = this.dashboardService.assessments;
+  readonly username = computed(() => this.authService.user()?.email.split('@')[0] || 'there');
+  readonly canViewPatients = computed(() =>
+    this.authService.hasAllPermissions(ACCESS.clinical.patients.list),
+  );
+  readonly canViewAssessments = computed(() =>
+    this.authService.hasAllPermissions(ACCESS.clinical.assessments.list),
+  );
+  readonly canCreateAssessment = computed(() =>
+    this.authService.hasAllPermissions(ACCESS.clinical.assessments.createWithNewPatient),
+  );
+  readonly canExportRecords = computed(() =>
+    this.authService.hasAllPermissions(ACCESS.clinical.records.export),
+  );
 
   readonly assessmentsToday = computed(() => {
-    const assessments = this.clinicianAssessments();
+    const assessments = this.assessments();
     if (!assessments) return null;
 
     const today = new Date().toDateString();
@@ -33,14 +50,14 @@ export class Home implements OnInit {
   });
 
   readonly patientsMonitored = computed(() => {
-    const assessments = this.clinicianAssessments();
+    const assessments = this.assessments();
     if (!assessments) return null;
 
     return new Set(assessments.map((assessment) => assessment.patient.id)).size;
   });
 
   readonly highRiskPatients = computed(() => {
-    const assessments = this.clinicianAssessments();
+    const assessments = this.assessments();
     if (!assessments) return null;
 
     const latestByPatient = new Map<string, ClinicianAssessmentApi>();
@@ -55,26 +72,37 @@ export class Home implements OnInit {
     ).length;
   });
 
+  readonly pendingAssessments = computed(() => {
+    const assessments = this.assessments();
+    if (!assessments) return null;
+
+    return assessments.filter(
+      (assessment) => this.riskTone(assessment.prediction.risk) === 'none',
+    ).length;
+  });
+
   readonly criticalAlerts = computed<CriticalAlertView[]>(() => {
-    const assessments = this.clinicianAssessments() ?? [];
+    const assessments = this.assessments() ?? [];
 
     return assessments
       .filter((assessment) => this.riskTone(assessment.prediction.risk) === 'high')
       .slice(0, 3)
       .map((assessment) => ({
+        id: assessment.id,
         name: this.patientName(assessment),
         detail: this.alertDetail(assessment),
       }));
   });
 
   readonly recentAssessments = computed<RecentAssessmentView[]>(() => {
-    const assessments = this.clinicianAssessments() ?? [];
+    const assessments = this.assessments() ?? [];
 
     return assessments.slice(0, 4).map((assessment) => {
       const riskTone = this.riskTone(assessment.prediction.risk);
       const riskLabel = assessment.prediction.risk?.trim();
 
       return {
+        id: assessment.id,
         name: this.patientName(assessment),
         vitals: `${assessment.measurements.systolicBP}/${assessment.measurements.diastolicBP} · ${assessment.measurements.heartRate} bpm`,
         risk: riskLabel
@@ -89,7 +117,7 @@ export class Home implements OnInit {
   });
 
   readonly monthlyOverview = computed<MonthlyAssessmentView[] | null>(() => {
-    const assessments = this.clinicianAssessments();
+    const assessments = this.assessments();
     if (!assessments) return null;
 
     const year = new Date().getFullYear();
@@ -122,7 +150,7 @@ export class Home implements OnInit {
   });
 
   ngOnInit() {
-    this.dashboardService.getClinicianAssessments();
+    if (this.canViewAssessments()) this.dashboardService.getAssessments();
   }
 
   private riskTone(risk: string | null): RiskTone {

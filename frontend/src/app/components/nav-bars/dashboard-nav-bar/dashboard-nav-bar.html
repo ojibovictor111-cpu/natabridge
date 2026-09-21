@@ -1,80 +1,159 @@
-<nav class="dashboard-nav" aria-label="Dashboard navigation">
-  <a
-    class="brand"
-    routerLink="."
-    (click)="toggleSidebar()"
-    aria-label="NataBridge dashboard overview"
-  >
-    <img src="/logo.webp" alt="natabridge's logo" class="w-9" />
-    <span class="brand-copy">
-      <strong>NataBridge</strong>
-      <small>Maternal Health AI</small>
-    </span>
-  </a>
+<div hlmSidebarHeader>
+  <ul hlmSidebarMenu>
+    <li hlmSidebarMenuItem>
+      <a
+        hlmSidebarMenuButton
+        size="lg"
+        routerLink="."
+        tooltip="NataBridge dashboard"
+        closeMobileSidebarOnClick
+        aria-label="NataBridge dashboard overview"
+      >
+        <img class="size-8 rounded-md" src="/logo.webp" alt="" />
+        <span class="grid min-w-0 text-left leading-tight group-data-[collapsible=icon]:hidden">
+          <strong class="truncate text-sm font-semibold">NataBridge</strong>
+          <small class="truncate text-xs text-muted-foreground">Maternal Health AI</small>
+        </span>
+      </a>
+    </li>
+  </ul>
+  @if (institutionIds().length > 1) {
+    <label class="grid gap-1 px-2 pb-2 text-xs text-muted-foreground">
+      <span>Institution</span>
+      <select
+        class="h-9 min-w-0 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+        [value]="activeInstitutionId() ?? ''"
+        (change)="selectInstitution($event)"
+      >
+        <option value="" disabled>Select an institution</option>
+        @for (institutionId of institutionIds(); track institutionId) {
+          <option [value]="institutionId">{{ institutionId }}</option>
+        }
+      </select>
+    </label>
+  }
+</div>
 
-  <label class="sidebar-search">
-    <span aria-hidden="true">⌕</span>
-    <input type="search" placeholder="Search" aria-label="Search dashboard" />
-    <kbd>⌘ K</kbd>
-  </label>
+<div hlmSidebarContent>
+  <section hlmSidebarGroup>
+    <div hlmSidebarGroupLabel>Workspace</div>
+    <div hlmSidebarGroupContent>
+      <ul hlmSidebarMenu>
+        @if (canViewOverview()) {
+          <li hlmSidebarMenuItem>
+            <a
+              hlmSidebarMenuButton
+              routerLink="."
+              routerLinkActive
+              #overviewActive="routerLinkActive"
+              [routerLinkActiveOptions]="{ exact: true }"
+              [isActive]="overviewActive.isActive"
+              tooltip="Overview"
+              closeMobileSidebarOnClick
+            >
+              <ng-icon name="lucideLayoutDashboard" aria-hidden="true" />
+              <span>Overview</span>
+            </a>
+          </li>
+        }
+        @if (canViewAssessments()) {
+          <li hlmSidebarMenuItem>
+            <a
+              hlmSidebarMenuButton
+              routerLink="assessments"
+              routerLinkActive
+              #assessmentActive="routerLinkActive"
+              [routerLinkActiveOptions]="{ exact: true }"
+              [isActive]="assessmentActive.isActive"
+              tooltip="Assessments"
+              closeMobileSidebarOnClick
+            >
+              <ng-icon name="lucideClipboardPlus" aria-hidden="true" />
+              <span>Assessments</span>
+            </a>
+          </li>
+        }
+        @if (canViewPatients()) {
+          <li hlmSidebarMenuItem>
+            <a
+              hlmSidebarMenuButton
+              routerLink="patients"
+              routerLinkActive
+              #patientsActive="routerLinkActive"
+              [isActive]="patientsActive.isActive"
+              tooltip="Patients"
+              closeMobileSidebarOnClick
+            >
+              <ng-icon name="lucideUsersRound" aria-hidden="true" />
+              <span>Patients</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
 
-  <p class="nav-label">Main menu</p>
-  <div class="nav-group">
-    <a
-      class="nav-item"
-      routerLink="."
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      (click)="toggleSidebar()"
-    >
-      <ng-icon name="lucideLayoutDashboard" aria-hidden="true" />
-      <span>Overview</span>
-    </a>
-    <a
-      class="nav-item"
-      routerLink="assessment"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      (click)="toggleSidebar()"
-    >
-      <ng-icon name="lucideClipboardPlus" aria-hidden="true" />
-      <span>New assessment</span>
-    </a>
-    <a class="nav-item" routerLink="patients" routerLinkActive="active" (click)="toggleSidebar()">
-      <ng-icon name="lucideUsersRound" aria-hidden="true" />
-      <span>Patients</span>
-    </a>
-    <button class="nav-item" type="button" disabled title="Alerts are coming soon">
-      <ng-icon name="lucideBellRing" aria-hidden="true" />
-      <span>Alerts</span>
-    </button>
-  </div>
+  <section hlmSidebarGroup>
+    <div hlmSidebarGroupLabel>Manage</div>
+    <div hlmSidebarGroupContent>
+      <ul hlmSidebarMenu>
+        @if (canViewAnalytics()) {
+          <li hlmSidebarMenuItem>
+            <button hlmSidebarMenuButton type="button" disabled tooltip="Analytics coming soon">
+              <ng-icon name="lucideChartNoAxesCombined" aria-hidden="true" />
+              <span>Analytics</span>
+            </button>
+          </li>
+        }
+        <li hlmSidebarMenuItem>
+          <a
+            hlmSidebarMenuButton
+            routerLink="profile"
+            routerLinkActive
+            #profileActive="routerLinkActive"
+            [isActive]="profileActive.isActive"
+            tooltip="Settings"
+            closeMobileSidebarOnClick
+          >
+            <ng-icon name="lucideSettings" aria-hidden="true" />
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>
 
-  <p class="nav-label system-label">Other</p>
-  <div class="nav-group">
-    <button class="nav-item" type="button" disabled title="Analytics are coming soon">
-      <ng-icon name="lucideChartNoAxesCombined" aria-hidden="true" />
-      <span>Analytics</span>
-    </button>
-    <a class="nav-item" routerLink="profile" routerLinkActive="active" (click)="toggleSidebar()">
-      <ng-icon name="lucideSettings" aria-hidden="true" />
-      <span>Settings</span>
-    </a>
-  </div>
-
-  <aside class="upgrade-card">
-    <p>Get more insights from every patient assessment.</p>
-    <a routerLink="profile">✦ Explore features</a>
-  </aside>
-
-  <a class="sidebar-profile" routerLink="profile" (click)="toggleSidebar()">
-    <span>{{ initials() || 'C' }}</span>
-    <div><strong>{{ clinician()?.email }}</strong><small>Clinician</small></div>
-    <b>⌄</b>
-  </a>
-
-  <button class="nav-item mobile-logout" type="button" (click)="logout()">
-    <ng-icon name="hugeLogout01" aria-hidden="true" />
-    <span>Log out</span>
-  </button>
-</nav>
+<div hlmSidebarFooter>
+  <div hlmSidebarSeparator></div>
+  <ul hlmSidebarMenu>
+    <li hlmSidebarMenuItem>
+      <a
+        hlmSidebarMenuButton
+        size="lg"
+        routerLink="profile"
+        tooltip="Clinician profile"
+        closeMobileSidebarOnClick
+      >
+        <hlm-avatar size="sm">
+          <span hlmAvatarFallback>{{ initials() }}</span>
+        </hlm-avatar>
+        <span class="grid min-w-0 text-left leading-tight group-data-[collapsible=icon]:hidden">
+          <strong class="truncate text-xs font-medium">{{ clinician()?.email }}</strong>
+          <small class="truncate text-xs text-muted-foreground">{{ roleLabel() }}</small>
+        </span>
+      </a>
+    </li>
+    <li hlmSidebarMenuItem>
+      <button
+        hlmSidebarMenuButton
+        type="button"
+        tooltip="Sign out"
+        (click)="logout()"
+      >
+        <ng-icon name="lucideLogOut" aria-hidden="true" />
+        <span>Sign out</span>
+      </button>
+    </li>
+  </ul>
+</div>

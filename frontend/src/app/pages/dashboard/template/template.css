@@ -1,210 +1,42 @@
 :host {
   display: block;
-  min-height: 100dvh;
-}
-
-.dashboard-shell {
-  display: grid;
-  min-height: 100dvh;
-  grid-template-columns: 224px minmax(0, 1fr);
+  height: 100dvh;
   overflow: hidden;
-  background: var(--dashboard-canvas);
-  color: var(--dashboard-text);
-  font-family: var(--dashboard-font);
 }
 
-.dashboard-sidebar {
-  position: relative;
-  z-index: 30;
-  height: 100dvh;
-  overflow-y: auto;
-  border-right: 1px solid var(--dashboard-border);
-  background: #fff;
-}
-
+.dashboard-shell,
 .dashboard-workspace {
-  display: grid;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dashboard-workspace,
+.dashboard-content {
   min-width: 0;
-  height: 100dvh;
-  grid-template-rows: minmax(0, 1fr);
-}
-
-.dashboard-topbar {
-  position: relative;
-  z-index: 20;
-  box-sizing: border-box;
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  border-bottom: 1px solid var(--dashboard-border);
-  background: #fff;
-  padding: 0 44px 0 31px;
-  display: none;
-}
-
-.topbar-context {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.topbar-context p {
-  margin: 0;
-  color: var(--dashboard-text);
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 20px;
-}
-
-.menu-button,
-.sidebar-close {
-  display: none;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border: 1px solid var(--dashboard-border);
-  border-radius: 10px;
-  background: #fff;
-  color: var(--dashboard-text);
-  cursor: pointer;
-}
-
-
-.topbar-avatar {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  margin-left: auto;
-  border-radius: 50%;
-  background: var(--dashboard-green-soft);
-  color: var(--dashboard-green);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1;
-  text-decoration: none;
-}
-
-.topbar-avatar:focus-visible,
-.menu-button:focus-visible,
-.sidebar-close:focus-visible {
-  outline: 2px solid var(--dashboard-green);
-  outline-offset: 2px;
 }
 
 .dashboard-content {
-  min-width: 0;
-  overflow: auto;
-  background: var(--dashboard-canvas);
-}
-
-.sidebar-backdrop {
-  display: none;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-@media (max-width: 767px) {
-  .dashboard-shell {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .dashboard-sidebar {
-    position: fixed;
-    inset: 0 auto 0 0;
-    width: min(280px, calc(100vw - 48px));
-    transform: translateX(-101%);
-    box-shadow: 18px 0 42px rgb(11 31 58 / 12%);
-    transition: transform 200ms ease;
-  }
-
-  .dashboard-sidebar.open {
-    transform: translateX(0);
-  }
-
-  .sidebar-close {
-    position: absolute;
-    top: 22px;
-    right: 14px;
-    display: grid;
-    width: 32px;
-    height: 32px;
-    border-color: transparent;
-    background: var(--dashboard-canvas);
-  }
-
-  .sidebar-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 25;
-    display: block;
-    border: 0;
-    background: rgb(11 31 58 / 34%);
-    cursor: pointer;
-  }
-
-  .sidebar-open {
-    height: 100dvh;
-  }
-
-  .dashboard-topbar {
-    display: flex;
-    padding: 0 20px;
-  }
-
-  .menu-button {
-    display: grid;
-  }
-
-  .topbar-avatar {
-    margin-left: auto;
-  }
-}
-
-@media (max-width: 560px) {
-  .dashboard-workspace {
-    grid-template-rows: 64px minmax(0, 1fr);
-  }
-
-  .dashboard-topbar {
-    padding: 0 16px;
-  }
-
-  .topbar-context p,
-  .patient-search {
-    display: none;
-  }
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media print {
-  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) {
-    display: block;
-    min-height: 0;
-    overflow: visible;
-  }
-
-  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-sidebar,
-  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-topbar {
-    display: none;
-  }
-
-  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-workspace {
+  :host,
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page),
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-workspace,
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-content {
     display: block;
     height: auto;
     min-height: 0;
+    overflow: visible;
   }
 
-  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) .dashboard-content {
-    overflow: visible;
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) hlm-sidebar,
+  :host ::ng-deep .dashboard-shell:has(.patient-detail-page) > .dashboard-workspace > header {
+    display: none;
   }
 }

@@ -1,0 +1,122 @@
+<section class="assessment-details-page bg-background p-6 text-foreground max-sm:p-4">
+  <a hlmBtn variant="outline" size="sm" routerLink="/dashboard/assessments">
+    Back to assessments
+  </a>
+
+  @if (errorMessage(); as error) {
+    <section class="mt-5 grid min-h-72 place-content-center gap-3 border border-border p-6 text-center" role="alert">
+      <div>
+        <h1 class="m-0 text-lg font-semibold">Assessment unavailable</h1>
+        <p class="mt-1 mb-0 text-sm text-muted-foreground">{{ error }}</p>
+      </div>
+      <button hlmBtn variant="outline" type="button" (click)="retry()">Try again</button>
+    </section>
+  } @else if (loading() && !assessment()) {
+    <div class="mt-5 grid gap-4" role="status" aria-label="Loading assessment details">
+      <span hlmSkeleton class="block h-28"></span>
+      <span hlmSkeleton class="block h-56"></span>
+      <span hlmSkeleton class="block h-48"></span>
+    </div>
+  } @else if (assessment(); as record) {
+    <header class="mt-5 flex items-start justify-between gap-4 border border-border p-5 max-sm:flex-col">
+      <div>
+        <p class="m-0 text-xs text-muted-foreground">Assessment {{ record.id }}</p>
+        <h1 class="mt-1 mb-0 text-2xl font-semibold tracking-tight">{{ patientName() }}</h1>
+        <time class="mt-1 block text-sm text-muted-foreground" [attr.datetime]="dateTimeValue(record.assessedAt)">
+          {{ record.assessedAt | date: 'MMMM d, y, h:mm a' }}
+        </time>
+      </div>
+      <span
+        class="inline-flex items-center rounded-full border border-border bg-muted px-3 py-1.5 text-sm font-medium"
+        [class.text-destructive]="riskTone() === 'high'"
+        [class.text-muted-foreground]="riskTone() === 'none'"
+      >
+        {{ riskLabel() }}
+      </span>
+    </header>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      <section class="border border-border p-5" aria-labelledby="patient-information-title">
+        <h2 id="patient-information-title" class="m-0 text-base font-semibold">Patient</h2>
+        <dl class="detail-list mt-4 grid grid-cols-2 gap-4 text-sm max-sm:grid-cols-1">
+          <div><dt>Patient ID</dt><dd>{{ record.patient.id }}</dd></div>
+          <div><dt>Date of birth</dt><dd>{{ record.patient.dob | date: 'MMMM d, y' }}</dd></div>
+          <div><dt>Email</dt><dd>{{ record.patient.email || 'Not recorded' }}</dd></div>
+          <div><dt>Phone</dt><dd>{{ record.patient.phone || 'Not recorded' }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="border border-border p-5" aria-labelledby="clinical-context-title">
+        <h2 id="clinical-context-title" class="m-0 text-base font-semibold">Clinical context</h2>
+        <dl class="detail-list mt-4 grid grid-cols-2 gap-4 text-sm max-sm:grid-cols-1">
+          <div>
+            <dt>Gestational age</dt>
+            <dd>{{ record.clinicalContext.gestationalAge === null ? 'Not recorded' : record.clinicalContext.gestationalAge + ' weeks' }}</dd>
+          </div>
+          <div><dt>First pregnancy</dt><dd>{{ booleanLabel(record.clinicalContext.firstPregnancy) }}</dd></div>
+          <div class="col-span-2 max-sm:col-span-1">
+            <dt>Previous complications</dt>
+            <dd>{{ record.clinicalContext.previousComplications || 'None recorded' }}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+
+    <section class="mt-4 border border-border p-5" aria-labelledby="measurements-title">
+      <h2 id="measurements-title" class="m-0 text-base font-semibold">Measurements</h2>
+      <dl class="measurement-grid mt-4 grid grid-cols-6 gap-3 max-lg:grid-cols-3 max-sm:grid-cols-2">
+        <div><dt>Age</dt><dd>{{ record.measurements.age }} years</dd></div>
+        <div><dt>Systolic BP</dt><dd>{{ record.measurements.systolicBP }} mmHg</dd></div>
+        <div><dt>Diastolic BP</dt><dd>{{ record.measurements.diastolicBP }} mmHg</dd></div>
+        <div><dt>Blood sugar</dt><dd>{{ record.measurements.bloodSugar }} mmol/L</dd></div>
+        <div><dt>Temperature</dt><dd>{{ record.measurements.bodyTemp }} °C</dd></div>
+        <div><dt>Heart rate</dt><dd>{{ record.measurements.heartRate }} bpm</dd></div>
+      </dl>
+    </section>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      <section class="border border-border p-5" aria-labelledby="prediction-title">
+        <h2 id="prediction-title" class="m-0 text-base font-semibold">Prediction</h2>
+        <dl class="detail-list mt-4 grid grid-cols-2 gap-4 text-sm">
+          <div><dt>Status</dt><dd>{{ record.prediction.status }}</dd></div>
+          <div><dt>Risk</dt><dd>{{ riskLabel() }}</dd></div>
+          <div><dt>Confidence</dt><dd>{{ percent(record.prediction.confidence) }}</dd></div>
+          <div><dt>Model version</dt><dd>{{ record.prediction.modelVersion || 'Not available' }}</dd></div>
+        </dl>
+
+        <h3 class="mt-6 mb-0 text-sm font-semibold">Probabilities</h3>
+        <dl class="detail-list mt-3 grid grid-cols-3 gap-3 text-sm">
+          <div><dt>Low</dt><dd>{{ percent(record.prediction.probabilities.lowRisk) }}</dd></div>
+          <div><dt>Mid</dt><dd>{{ percent(record.prediction.probabilities.midRisk) }}</dd></div>
+          <div><dt>High</dt><dd>{{ percent(record.prediction.probabilities.highRisk) }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="border border-border p-5" aria-labelledby="factors-title">
+        <h2 id="factors-title" class="m-0 text-base font-semibold">Prediction factors</h2>
+        @if (record.prediction.factors.length) {
+          <div class="mt-4 overflow-x-auto">
+            <table class="factor-table w-full text-sm">
+              <thead>
+                <tr>
+                  <th scope="col" class="px-3 py-2 text-left font-medium text-muted-foreground">Feature</th>
+                  <th scope="col" class="px-3 py-2 text-right font-medium text-muted-foreground">Impact</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (factor of record.prediction.factors; track factor.feature) {
+                  <tr>
+                    <td class="px-3 py-3">{{ factor.feature }}</td>
+                    <td class="px-3 py-3 text-right">{{ factor.impact }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="mt-4 mb-0 text-sm text-muted-foreground">No prediction factors were recorded.</p>
+        }
+      </section>
+    </div>
+  }
+</section>

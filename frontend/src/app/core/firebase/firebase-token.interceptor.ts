@@ -2,6 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject, InjectionToken, Injector } from '@angular/core';
 import { catchError, from, of, switchMap, throwError } from 'rxjs';
 import { Environment as environment } from '../../environment/environment';
+import { readActiveInstitutionId } from '../auth/institution-context';
 
 const accessDeniedCodes = new Set([
   'AUTHENTICATION_REQUIRED',
@@ -35,9 +36,20 @@ export const firebaseTokenInterceptor: HttpInterceptorFn = (request, next) => {
   const getIdToken = inject(FIREBASE_ID_TOKEN);
 
   return from(getIdToken()).pipe(
-    switchMap((token) =>
-      next(token ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : request),
-    ),
+    switchMap((token) => {
+      if (!token) {
+        return throwError(
+          () => new Error('Firebase authentication is required for protected API requests.'),
+        );
+      }
+
+      const institutionId = readActiveInstitutionId();
+      const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+
+      if (institutionId) headers['X-Institution-Id'] = institutionId;
+
+      return next(request.clone({ setHeaders: headers }));
+    }),
     catchError((error: unknown) => {
       const code = error instanceof HttpErrorResponse ? error.error?.code : null;
       if (request.url !== `${environment.api}/users/me` && accessDeniedCodes.has(code)) {

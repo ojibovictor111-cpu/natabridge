@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { PatientApi } from '../../../../models/patient/Patient.api';
+import { AuthService } from '../../../../services/auth/auth-service';
 import { PatientService } from '../../../../services/patient/patient-service';
 import { PatientDetails } from './patient-details';
 
@@ -13,6 +14,7 @@ describe('PatientDetails', () => {
   let errorMessage: WritableSignal<string | null>;
   let selectedPatient: WritableSignal<PatientApi | null>;
   let getPatient: ReturnType<typeof vi.fn>;
+  let hasAllPermissions: ReturnType<typeof vi.fn>;
 
   const patient = (overrides: Partial<PatientApi> = {}): PatientApi => ({
     id: 'PAT-001',
@@ -29,6 +31,7 @@ describe('PatientDetails', () => {
     errorMessage = signal<string | null>(null);
     selectedPatient = signal<PatientApi | null>(null);
     getPatient = vi.fn();
+    hasAllPermissions = vi.fn(() => true);
 
     await TestBed.configureTestingModule({
       imports: [PatientDetails],
@@ -43,6 +46,7 @@ describe('PatientDetails', () => {
             getPatient,
           },
         },
+        { provide: AuthService, useValue: { hasAllPermissions } },
       ],
     }).compileComponents();
   });
@@ -162,5 +166,16 @@ describe('PatientDetails', () => {
     printButton?.click();
 
     expect(printSpy).toHaveBeenCalledOnce();
+  });
+
+  it('hides protected patient actions when their permissions are missing', () => {
+    hasAllPermissions.mockReturnValue(false);
+    selectedPatient.set(patient());
+
+    createDetails();
+
+    const page = fixture.nativeElement as HTMLElement;
+    expect(findButton('Print summary')).toBeUndefined();
+    expect(page.querySelector('[aria-label="Take another assessment"]')).toBeNull();
   });
 });

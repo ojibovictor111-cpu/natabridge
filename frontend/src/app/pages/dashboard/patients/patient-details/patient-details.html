@@ -1,131 +1,234 @@
-<section class="patient-detail-page">
-  <a class="patient-detail-back" routerLink="/dashboard/patients">
+<section
+  class="patient-detail-page pt-7 px-10 pb-10 bg-background text-foreground max-lg:pt-6 max-lg:px-6 max-lg:pb-9 max-sm:pt-5 max-sm:px-4 max-sm:pb-7"
+>
+  <a
+    hlmBtn
+    variant="outline"
+    class="patient-detail-back"
+    routerLink="/dashboard/patients"
+  >
     <ng-icon name="lucideArrowLeft" aria-hidden="true" />
     Back to patients
   </a>
 
   @if (loading()) {
-    <div class="patient-detail-skeleton" aria-label="Loading patient record" role="status">
-      <span class="detail-skeleton-hero"></span>
-      <span></span>
-      <span></span>
-      <span></span>
+    <div
+      class="patient-detail-skeleton grid gap-4 mt-4"
+      aria-label="Loading patient record"
+      role="status"
+    >
+      <span
+        hlmSkeleton
+        class="detail-skeleton-hero min-h-32"
+      ></span>
+      <span hlmSkeleton></span>
+      <span hlmSkeleton></span>
+      <span hlmSkeleton></span>
     </div>
   } @else if (patient(); as patient) {
-    <header class="patient-profile-card">
-      <div class="patient-profile-identity">
-        <span class="patient-profile-avatar">{{ patientInitials(patient.name) }}</span>
+    <header
+      class="patient-profile-card flex min-h-32 items-center justify-between gap-6 mt-4 py-5 px-6 border border-border rounded-none bg-background max-lg:items-start max-lg:flex-col max-sm:pr-4 max-sm:pl-4"
+    >
+      <div class="patient-profile-identity flex items-center gap-4 max-sm:items-start">
+        <hlm-avatar size="lg">
+          <span hlmAvatarFallback>{{ patientInitials(patient.name) }}</span>
+        </hlm-avatar>
         <div>
-          <p>Patient record</p>
-          <h1>{{ patient.name }}</h1>
-          <span class="patient-record-id">ID {{ patient.id }}</span>
+          <p class="mt-0 mx-0 mb-0.5 text-primary text-xs font-semibold uppercase">
+            Patient record
+          </p>
+          <h1
+            class="m-0 overflow-hidden text-2xl font-semibold text-ellipsis whitespace-nowrap max-sm:text-xl"
+          >
+            {{ patient.name }}
+          </h1>
+          <span
+            class="patient-record-id block mt-0.5 overflow-hidden text-muted-foreground text-xs text-ellipsis whitespace-nowrap"
+            >ID {{ patient.id }}</span
+          >
         </div>
       </div>
 
-      <div class="patient-profile-actions" aria-label="Patient record actions">
-        <button class="patient-record-button" type="button" (click)="printSummary()">
-          <ng-icon name="lucidePrinter" aria-hidden="true" />
-          Print summary
-        </button>
-        <a
-          class="patient-record-button"
-          [routerLink]="['/dashboard/patients', patient.id, 'assessment']"
-          [attr.aria-label]="
-            patient.lastAssessment ? 'Take another assessment' : 'Take new assessment'
-          "
-        >
-          <span>{{ patient.lastAssessment ? 'Take another assessment' : 'Take new assessment' }}</span>
-        </a>
+      <div
+        class="patient-profile-actions flex items-center gap-2.5 max-sm:w-full max-sm:items-stretch max-sm:flex-col"
+        aria-label="Patient record actions"
+      >
+        @if (canExportRecords()) {
+          <button
+            hlmBtn
+            variant="outline"
+            class="patient-record-button max-sm:w-full"
+            type="button"
+            (click)="printSummary()"
+          >
+            <ng-icon name="lucidePrinter" aria-hidden="true" />
+            Print summary
+          </button>
+        }
+        @if (canCreateAssessment()) {
+          <a
+            hlmBtn
+            class="patient-record-button max-sm:w-full"
+            [routerLink]="['/dashboard/patients', patient.id, 'assessment']"
+            [attr.aria-label]="
+              patient.lastAssessment ? 'Take another assessment' : 'Take new assessment'
+            "
+          >
+            <span>{{
+              patient.lastAssessment ? 'Take another assessment' : 'Take new assessment'
+            }}</span>
+          </a>
+        }
       </div>
     </header>
 
     <section
-      class="patient-risk-summary"
+      class="patient-risk-summary grid min-h-28 items-center gap-3 mt-4 py-4 px-5 rounded-none bg-muted max-sm:p-4"
       [class.patient-risk-summary--high]="riskTone(patient.currentRiskLevel) === 'high'"
       [class.patient-risk-summary--mid]="riskTone(patient.currentRiskLevel) === 'mid'"
       [class.patient-risk-summary--low]="riskTone(patient.currentRiskLevel) === 'low'"
       aria-labelledby="patient-risk-heading"
     >
-      <span class="patient-risk-summary__icon">
+      <span
+        class="patient-risk-summary__icon grid w-10 h-10 place-items-center rounded-none bg-background text-foreground text-xl"
+      >
         <ng-icon name="lucideActivity" aria-hidden="true" />
       </span>
       <div>
-        <p>Latest assessment risk</p>
-        <h2 id="patient-risk-heading">{{ riskLabel(patient.currentRiskLevel) }}</h2>
-        <span>{{ riskMessage(patient.currentRiskLevel) }}</span>
+        <p class="m-0 text-foreground text-xs font-semibold uppercase">
+          Latest assessment risk
+        </p>
+        <h2
+          id="patient-risk-heading"
+          class="mt-0.5 mx-0 mb-0 text-foreground text-xl font-semibold"
+        >
+          {{ riskLabel(patient.currentRiskLevel) }}
+        </h2>
+        <span class="block mt-1 text-xs">{{ riskMessage(patient.currentRiskLevel) }}</span>
       </div>
       <span
-        class="patient-risk patient-risk-summary__badge"
+        class="patient-risk patient-risk-summary__badge inline-flex min-h-6 items-center gap-1.25 py-1 px-2 rounded-full text-muted-foreground text-xs font-medium whitespace-nowrap"
         [class.patient-risk--high]="riskTone(patient.currentRiskLevel) === 'high'"
         [class.patient-risk--mid]="riskTone(patient.currentRiskLevel) === 'mid'"
         [class.patient-risk--low]="riskTone(patient.currentRiskLevel) === 'low'"
       >
-        <span aria-hidden="true"></span>
+        <span aria-hidden="true" class="w-1.25 h-1.25 rounded-full"></span>
         {{ riskLabel(patient.currentRiskLevel) }}
       </span>
     </section>
 
-    <section class="patient-detail-stat-grid" aria-label="Patient record summary">
-      <article>
-        <span><ng-icon name="lucideUserRound" aria-hidden="true" /></span>
-        <div>
-          <small>Age</small>
-          <strong>{{ patient.age !== null ? patient.age + ' years' : 'Not recorded' }}</strong>
+    <section
+      class="patient-detail-stat-grid grid grid-cols-4 gap-3 mt-4 max-xl:grid-cols-2 max-sm:grid-cols-1"
+      aria-label="Patient record summary"
+    >
+      <article
+        class="flex min-h-24 items-center gap-3 p-4 border border-border rounded-none bg-background"
+      >
+        <span
+          class="grid w-9 h-9 place-items-center rounded-none text-primary text-base"
+          ><ng-icon name="lucideUserRound" aria-hidden="true"
+        /></span>
+        <div class="flex flex-col">
+          <small class="text-muted-foreground text-xs">Age</small>
+          <strong class="mt-1 overflow-hidden text-sm font-semibold text-ellipsis">{{
+            patient.age !== null ? patient.age + ' years' : 'Not recorded'
+          }}</strong>
         </div>
       </article>
-      <article>
-        <span><ng-icon name="lucideCalendarDays" aria-hidden="true" /></span>
-        <div>
-          <small>Gestational age</small>
-          <strong>
+      <article
+        class="flex min-h-24 items-center gap-3 p-4 border border-border rounded-none bg-background"
+      >
+        <span
+          class="grid w-9 h-9 place-items-center rounded-none text-primary text-base"
+          ><ng-icon name="lucideCalendarDays" aria-hidden="true"
+        /></span>
+        <div class="flex flex-col">
+          <small class="text-muted-foreground text-xs">Gestational age</small>
+          <strong class="mt-1 overflow-hidden text-sm font-semibold text-ellipsis">
             {{
               patient.gestationalAge !== null ? patient.gestationalAge + ' weeks' : 'Not recorded'
             }}
           </strong>
         </div>
       </article>
-      <article>
-        <span><ng-icon name="lucideClipboardCheck" aria-hidden="true" /></span>
-        <div>
-          <small>Risk classification</small>
-          <strong>{{ riskLabel(patient.currentRiskLevel) }}</strong>
+      <article
+        class="flex min-h-24 items-center gap-3 p-4 border border-border rounded-none bg-background"
+      >
+        <span
+          class="grid w-9 h-9 place-items-center rounded-none text-primary text-base"
+          ><ng-icon name="lucideClipboardCheck" aria-hidden="true"
+        /></span>
+        <div class="flex flex-col">
+          <small class="text-muted-foreground text-xs">Risk classification</small>
+          <strong class="mt-1 overflow-hidden text-sm font-semibold text-ellipsis">{{
+            riskLabel(patient.currentRiskLevel)
+          }}</strong>
         </div>
       </article>
-      <article>
-        <span><ng-icon name="lucideClock3" aria-hidden="true" /></span>
-        <div>
-          <small>Last assessment</small>
-          <strong>{{ formatAssessmentDate(patient.lastAssessment) }}</strong>
+      <article
+        class="flex min-h-24 items-center gap-3 p-4 border border-border rounded-none bg-background"
+      >
+        <span
+          class="grid w-9 h-9 place-items-center rounded-none text-primary text-base"
+          ><ng-icon name="lucideClock3" aria-hidden="true"
+        /></span>
+        <div class="flex flex-col">
+          <small class="text-muted-foreground text-xs">Last assessment</small>
+          <strong class="mt-1 overflow-hidden text-sm font-semibold text-ellipsis">{{
+            formatAssessmentDate(patient.lastAssessment)
+          }}</strong>
         </div>
       </article>
     </section>
 
-    <div class="patient-detail-content-grid">
-      <section class="patient-detail-card" aria-labelledby="patient-information-heading">
-        <header>
-          <span><ng-icon name="lucideUserRound" aria-hidden="true" /></span>
+    <div class="patient-detail-content-grid grid gap-4 mt-4 max-lg:grid-cols-1">
+      <section
+        class="patient-detail-card min-h-72 py-5 px-5 border border-border rounded-none bg-background max-sm:pr-4 max-sm:pl-4"
+        aria-labelledby="patient-information-heading"
+      >
+        <header class="flex items-center gap-2.5 pb-4">
+          <span
+            class="grid w-9 h-9 place-items-center rounded-none bg-muted text-primary text-base"
+            ><ng-icon name="lucideUserRound" aria-hidden="true"
+          /></span>
           <div>
-            <h2 id="patient-information-heading">Patient information</h2>
-            <p>Core details available in this clinical record.</p>
+            <h2 id="patient-information-heading" class="m-0 text-base font-semibold">
+              Patient information
+            </h2>
+            <p class="mt-0.5 mx-0 mb-0 text-muted-foreground text-xs">
+              Core details available in this clinical record.
+            </p>
           </div>
         </header>
 
-        <dl class="patient-information-list">
-          <div>
-            <dt>Full name</dt>
-            <dd>{{ patient.name }}</dd>
+        <dl class="patient-information-list m-0">
+          <div
+            class="grid min-h-12 items-center gap-4 max-sm:grid-cols-1 max-sm:gap-1 max-sm:py-2.5 max-sm:px-0"
+          >
+            <dt class="m-0 text-xs text-muted-foreground">Full name</dt>
+            <dd class="m-0 text-xs text-foreground font-medium">{{ patient.name }}</dd>
           </div>
-          <div>
-            <dt>Patient record ID</dt>
-            <dd class="record-id-value">{{ patient.id }}</dd>
+          <div
+            class="grid min-h-12 items-center gap-4 max-sm:grid-cols-1 max-sm:gap-1 max-sm:py-2.5 max-sm:px-0"
+          >
+            <dt class="m-0 text-xs text-muted-foreground">Patient record ID</dt>
+            <dd class="record-id-value m-0 text-xs text-foreground font-medium">
+              {{ patient.id }}
+            </dd>
           </div>
-          <div>
-            <dt>Age</dt>
-            <dd>{{ patient.age !== null ? patient.age + ' years' : 'Not recorded' }}</dd>
+          <div
+            class="grid min-h-12 items-center gap-4 max-sm:grid-cols-1 max-sm:gap-1 max-sm:py-2.5 max-sm:px-0"
+          >
+            <dt class="m-0 text-xs text-muted-foreground">Age</dt>
+            <dd class="m-0 text-xs text-foreground font-medium">
+              {{ patient.age !== null ? patient.age + ' years' : 'Not recorded' }}
+            </dd>
           </div>
-          <div>
-            <dt>Gestational age</dt>
-            <dd>
+          <div
+            class="grid min-h-12 items-center gap-4 max-sm:grid-cols-1 max-sm:gap-1 max-sm:py-2.5 max-sm:px-0"
+          >
+            <dt class="m-0 text-xs text-muted-foreground">Gestational age</dt>
+            <dd class="m-0 text-xs text-foreground font-medium">
               {{
                 patient.gestationalAge !== null ? patient.gestationalAge + ' weeks' : 'Not recorded'
               }}
@@ -134,51 +237,94 @@
         </dl>
       </section>
 
-      <section class="patient-detail-card" aria-labelledby="latest-assessment-heading">
-        <header>
-          <span><ng-icon name="lucideFileText" aria-hidden="true" /></span>
+      <section
+        class="patient-detail-card min-h-72 py-5 px-5 border border-border rounded-none bg-background max-sm:pr-4 max-sm:pl-4"
+        aria-labelledby="latest-assessment-heading"
+      >
+        <header class="flex items-center gap-2.5 pb-4">
+          <span
+            class="grid w-9 h-9 place-items-center rounded-none bg-muted text-primary text-base"
+            ><ng-icon name="lucideFileText" aria-hidden="true"
+          /></span>
           <div>
-            <h2 id="latest-assessment-heading">Latest assessment</h2>
-            <p>The most recent assessment summary on this record.</p>
+            <h2 id="latest-assessment-heading" class="m-0 text-base font-semibold">
+              Latest assessment
+            </h2>
+            <p class="mt-0.5 mx-0 mb-0 text-muted-foreground text-xs">
+              The most recent assessment summary on this record.
+            </p>
           </div>
         </header>
 
         @if (patient.lastAssessment) {
-          <article class="latest-assessment-entry">
-            <span class="assessment-timeline-marker" aria-hidden="true"></span>
-            <div>
-              <span>Maternal health risk assessment</span>
-              <strong>{{ riskLabel(patient.currentRiskLevel) }}</strong>
-              <time [attr.datetime]="dateTimeValue(patient.lastAssessment)">
+          <article class="latest-assessment-entry relative grid min-h-24 gap-3 mt-5">
+            <span
+              class="assessment-timeline-marker relative w-2.5 h-2.5 mt-1 rounded-full bg-primary"
+              aria-hidden="true"
+            ></span>
+            <div class="flex flex-col">
+              <span class="text-muted-foreground text-xs">Maternal health risk assessment</span>
+              <strong class="mt-1 text-sm font-semibold">{{
+                riskLabel(patient.currentRiskLevel)
+              }}</strong>
+              <time
+                [attr.datetime]="dateTimeValue(patient.lastAssessment)"
+                class="mt-1.25 text-muted-foreground text-xs"
+              >
                 {{ formatAssessmentDate(patient.lastAssessment) }}
               </time>
             </div>
           </article>
 
-          <p class="assessment-availability-note">
+          <p
+            class="assessment-availability-note mt-4 mr-0 mb-0 ml-7 py-2.5 px-3 rounded-none bg-background text-muted-foreground text-xs"
+          >
             Full clinical measurements and assessment history are not yet available in this patient
             record view.
           </p>
         } @else {
-          <div class="latest-assessment-empty">
-            <span><ng-icon name="lucideFileText" aria-hidden="true" /></span>
-            <h3>No assessment recorded</h3>
-            <p>This patient does not have an assessment summary available yet.</p>
+          <div
+            class="latest-assessment-empty flex min-h-48 items-center justify-center flex-col text-center"
+          >
+            <span
+              class="grid w-10 h-10 place-items-center rounded-none bg-background text-muted-foreground"
+              ><ng-icon name="lucideFileText" aria-hidden="true"
+            /></span>
+            <h3 class="mt-3 mx-0 mb-0 text-sm font-semibold">No assessment recorded</h3>
+            <p class="mt-1.25 mx-0 mb-0 text-muted-foreground text-xs">
+              This patient does not have an assessment summary available yet.
+            </p>
           </div>
         }
       </section>
     </div>
   } @else {
-    <section class="patient-record-state">
-      <span><ng-icon name="lucideUserRound" aria-hidden="true" /></span>
-      <h1>Patient record unavailable</h1>
-      <p>{{ errorMessage() ?? 'We could not find a patient record for this link.' }}</p>
-      <div>
-        <button type="button" (click)="retry()">
+    <section
+      class="patient-record-state flex items-center justify-center flex-col mt-13 mx-auto mb-0 p-10 border border-border rounded-none bg-background text-center max-sm:py-8 max-sm:px-5"
+    >
+      <span
+        class="grid w-13 h-13 place-items-center rounded-none bg-muted text-primary text-xl"
+        ><ng-icon name="lucideUserRound" aria-hidden="true"
+      /></span>
+      <h1 class="mt-4 mx-0 mb-0 text-xl font-semibold">Patient record unavailable</h1>
+      <p class="mt-2 mx-0 mb-0 text-muted-foreground text-sm">
+        {{ errorMessage() ?? 'We could not find a patient record for this link.' }}
+      </p>
+      <div class="flex gap-2.5 mt-5 max-sm:w-full max-sm:flex-col">
+        <button
+          hlmBtn
+          type="button"
+          (click)="retry()"
+        >
           <ng-icon name="lucideRefreshCw" aria-hidden="true" />
           Try again
         </button>
-        <a routerLink="/dashboard/patients">Return to patients</a>
+        <a
+          hlmBtn
+          variant="outline"
+          routerLink="/dashboard/patients"
+          >Return to patients</a
+        >
       </div>
     </section>
   }

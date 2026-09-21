@@ -1,53 +1,53 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
+import {
+  HlmSidebarImports,
+  HlmSidebarService,
+  provideHlmSidebarConfig,
+} from '@spartan-ng/helm/sidebar';
 import { DashboardNavBar } from '../../../components/nav-bars/dashboard-nav-bar/dashboard-nav-bar';
-import { Router, RouterModule } from '@angular/router';
 import { PageLoader } from '../../../components/loaders/page-loader/page-loader';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { hugeMenu02, hugeMinusSign } from '@ng-icons/huge-icons';
+import { AuthService } from '../../../services/auth/auth-service';
 
 @Component({
   selector: 'nata-template',
-  imports: [DashboardNavBar, PageLoader, RouterModule, NgIcon],
+  imports: [
+    DashboardNavBar,
+    PageLoader,
+    RouterLink,
+    RouterOutlet,
+    ...HlmAvatarImports,
+    ...HlmSidebarImports,
+  ],
   templateUrl: './template.html',
   styleUrl: './template.css',
-  viewProviders: [
-    provideIcons({
-      hugeMenu02,
-      hugeMinusSign,
+  providers: [
+    HlmSidebarService,
+    provideHlmSidebarConfig({
+      sidebarWidth: '15rem',
+      sidebarWidthMobile: '18rem',
+      sidebarWidthIcon: '3.5rem',
+      closeMobileSidebarOnMenuButtonClick: true,
     }),
   ],
 })
 export class Template {
+  private readonly authService = inject(AuthService);
   readonly router = inject(Router);
-  readonly isNavBarOpened = signal(false);
+  readonly initials = computed(() => this.authService.user()?.email.slice(0, 2).toUpperCase() ?? 'C');
 
-  openNavBar() {
-    this.isNavBarOpened.set(true);
-  }
-
-  closeNavBar() {
-    this.isNavBarOpened.set(false);
-  }
-
-  closeSideBar(navClicked: boolean) {
-    if (navClicked) {
-      this.closeNavBar();
-    }
-  }
-
-  pageTitle() {
+  pageTitle(): string {
     const url = this.router.url;
 
+    if (/\/patients\/[^/?]+\/assessment/.test(url)) return 'Patient assessment';
     if (/\/patients\/[^/?]+/.test(url)) return 'Patient details';
     if (url.includes('/patients')) return 'Patients';
+    if (/\/assessments\/[^/?]+/.test(url)) return 'Assessment details';
+    if (url.includes('/assessments')) return 'Assessments';
     if (url.includes('/assessment')) return 'New assessment';
     if (url.includes('/profile')) return 'Settings';
 
     return 'Overview';
-  }
-
-  @HostListener('document:keydown.escape')
-  closeSidebarOnEscape() {
-    this.closeNavBar();
   }
 }

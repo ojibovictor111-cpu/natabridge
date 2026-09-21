@@ -9,14 +9,15 @@ import { DashboardService } from './dashboard-service';
 describe('DashboardService', () => {
   let service: DashboardService;
   let httpTesting: HttpTestingController;
-  const clinicianId = signal('clinician-1');
+  const activeInstitutionId = signal<string | null>('inst-1');
 
   beforeEach(() => {
+    activeInstitutionId.set('inst-1');
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: AuthService, useValue: { clinicianId } },
+        { provide: AuthService, useValue: { activeInstitutionId, clinicianId: signal('user-1') } },
       ],
     });
     service = TestBed.inject(DashboardService);
@@ -25,28 +26,58 @@ describe('DashboardService', () => {
 
   afterEach(() => httpTesting.verify());
 
-  it('loads assessment history for the verified clinician without cookies', () => {
-    service.getClinicianAssessments();
+  it('loads assessment history for the selected institution', () => {
+    service.getAssessments();
 
-    const request = httpTesting.expectOne(
-      `${environment.api}/clinicians/clinician-1/assessments`,
-    );
+    expect(service.assessmentsLoading()).toBe(true);
+    expect(service.assessmentsErrorMessage()).toBeNull();
+
+    const request = httpTesting.expectOne(`${environment.api}/assessments`);
     expect(request.request.method).toBe('GET');
     expect(request.request.withCredentials).toBe(false);
 
     request.flush({ data: [] });
 
-    expect(service.clinicianAssessments()).toEqual([]);
+    expect(service.assessments()).toEqual([]);
+    expect(service.assessmentsLoading()).toBe(false);
   });
 
-  it('encodes the signed-in clinician ID in the history URL', () => {
-    clinicianId.set('clinic/user 1');
+  it('exposes a retryable assessment history error', () => {
+    service.getAssessments();
 
-    service.getClinicianAssessments();
+    const request = httpTesting.expectOne(`${environment.api}/assessments`);
+    request.flush({ message: 'Assessment access failed.' }, { status: 500, statusText: 'Error' });
 
-    const request = httpTesting.expectOne(
-      `${environment.api}/clinicians/clinic%2Fuser%201/assessments`,
+    expect(service.assessments()).toBeNull();
+    expect(service.assessmentsLoading()).toBe(false);
+    expect(service.assessmentsErrorMessage()).toBe('Assessment access failed.');
+  });
+
+  it('loads an assessment detail and encodes its ID', () => {
+    service.getAssessment('assessment/1');
+
+    expect(service.assessmentLoading()).toBe(true);
+    const request = httpTesting.expectOne(`${environment.api}/assessments/assessment%2F1`);
+    request.flush({ data: { id: 'assessment/1' } });
+
+    expect(service.assessment()?.id).toBe('assessment/1');
+    expect(service.assessmentLoading()).toBe(false);
+  });
+
+  it('surfaces the backend not-found message for inaccessible assessments', () => {
+    service.getAssessment('missing');
+
+    const request = httpTesting.expectOne(`${environment.api}/assessments/missing`);
+    request.flush(
+      {
+        statusCode: 404,
+        code: 'ASSESSMENT_NOT_FOUND',
+        message: 'The selected assessment does not exist.',
+      },
+      { status: 404, statusText: 'Not Found' },
     );
-    request.flush({ data: [] });
+
+    expect(service.assessment()).toBeNull();
+    expect(service.assessmentErrorMessage()).toBe('The selected assessment does not exist.');
   });
 });

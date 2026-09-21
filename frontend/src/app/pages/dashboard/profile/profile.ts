@@ -1,6 +1,9 @@
 import { Component, ElementRef, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
+import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmInputImports } from '@spartan-ng/helm/input';
 import {
   lucideBell,
   lucideCheck,
@@ -24,7 +27,13 @@ interface ProfileData {
 
 @Component({
   selector: 'nata-profile',
-  imports: [NgIcon, ReactiveFormsModule],
+  imports: [
+    NgIcon,
+    ReactiveFormsModule,
+    ...HlmAvatarImports,
+    ...HlmButtonImports,
+    ...HlmInputImports,
+  ],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
   viewProviders: [
@@ -125,7 +134,7 @@ export class Profile {
       fullName: '',
       email: user?.email ?? '',
       phone: '',
-      role: 'Clinician',
+      role: this.authService.roleLabels().join(', ') || 'User',
     };
     const storedProfile = sessionStorage.getItem('dashboard_profile');
 

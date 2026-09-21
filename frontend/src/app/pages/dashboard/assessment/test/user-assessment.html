@@ -1,6 +1,11 @@
 <section class="dashboard-assessment-page">
   @if (patientId(); as selectedPatientId) {
-    <a class="patient-detail-back" [routerLink]="['/dashboard/patients', selectedPatientId]">
+    <a
+      hlmBtn
+      variant="outline"
+      class="patient-detail-back"
+      [routerLink]="['/dashboard/patients', selectedPatientId]"
+    >
       <ng-icon name="lucideArrowLeft" aria-hidden="true" />
       Back to patient record
     </a>

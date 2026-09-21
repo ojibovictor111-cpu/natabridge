@@ -1,49 +1,39 @@
-<div class="dashboard-shell" [class.sidebar-open]="isNavBarOpened()">
-  <aside class="dashboard-sidebar" id="dashboard-navigation" [class.open]="isNavBarOpened()">
-    <nata-dashboard-nav-bar (navClicked)="closeSideBar($event)" />
+<div hlmSidebarWrapper class="dashboard-shell">
+  <hlm-sidebar
+    class="dashboard-sidebar"
+    collapsible="icon"
+    variant="sidebar"
+    sidebarContainerClass="border-border bg-background"
+  >
+    <nata-dashboard-nav-bar />
+    <button hlmSidebarRail aria-label="Toggle dashboard navigation"></button>
+  </hlm-sidebar>
 
-    <button
-      class="sidebar-close"
-      type="button"
-      aria-label="Close dashboard navigation"
-      (click)="closeNavBar()"
-    >
-      <ng-icon name="hugeMinusSign" aria-hidden="true" />
-    </button>
-  </aside>
-
-  @if (isNavBarOpened()) {
-    <button
-      class="sidebar-backdrop"
-      type="button"
-      aria-label="Close dashboard navigation"
-      (click)="closeNavBar()"
-    ></button>
-  }
-
-  <div class="dashboard-workspace">
-    <header class="dashboard-topbar" aria-label="Mobile dashboard header">
-      <div class="topbar-context">
+  <main hlmSidebarInset class="dashboard-workspace">
+    <header class="flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4">
+      <div class="flex items-center gap-2">
         <button
-          class="menu-button"
-          type="button"
-          aria-label="Open dashboard navigation"
-          aria-controls="dashboard-navigation"
-          [attr.aria-expanded]="isNavBarOpened()"
-          (click)="openNavBar()"
-        >
-          <ng-icon name="hugeMenu02" aria-hidden="true" />
-        </button>
-        <p>{{ pageTitle() }}</p>
+          hlmSidebarTrigger
+          srOnlyText="Toggle dashboard navigation"
+        ></button>
+        <span class="h-4 w-px bg-border" aria-hidden="true"></span>
+        <div>
+          <p class="m-0 text-xs text-muted-foreground max-md:hidden">Dashboard</p>
+          <h1 class="text-sm font-medium">{{ pageTitle() }}</h1>
+        </div>
       </div>
 
-      <a class="topbar-avatar" routerLink="profile" aria-label="Open profile settings">JS</a>
+      <a routerLink="profile" aria-label="Open profile settings">
+        <hlm-avatar>
+          <span hlmAvatarFallback>{{ initials() }}</span>
+        </hlm-avatar>
+      </a>
     </header>
 
-    <main class="dashboard-content">
+    <div class="dashboard-content">
       <router-outlet />
-    </main>
-  </div>
+    </div>
+  </main>
 </div>
 
 <nata-page-loader />

@@ -1,100 +1,143 @@
-<section class="dashboard-overview">
-  <header class="page-heading">
+<section class="dashboard-overview min-h-full pt-6 px-7 pb-9 bg-background text-foreground">
+  <header class="page-heading flex items-center justify-between gap-5">
     <div>
-      <h1>Dashboard</h1>
-      <p>Maternal health insights are updated in real time</p>
+      <h1 class="m-0 text-xl font-semibold">Hello, {{ username() }}</h1>
+      <p class="mt-0.5 mx-0 mb-0 text-muted-foreground text-xs">
+        Maternal health insights are updated in real time
+      </p>
     </div>
-    <div class="page-actions">
-      <button class="outline-action" type="button">
-        <span aria-hidden="true">⇩</span> Export report
-      </button>
-      <a class="primary-action" routerLink="assessment"
-        ><span aria-hidden="true">+</span> New assessment</a
-      >
-      <a class="alert-action" routerLink="patients" aria-label="View critical alerts"
-        ><span aria-hidden="true">♢</span
-        ><i>{{ clinicianAssessments() ? criticalAlerts().length : '--' }}</i></a
-      >
+    <div class="page-actions flex items-center gap-2.5">
+      @if (canExportRecords()) {
+        <button
+          hlmBtn
+          variant="outline"
+          class="outline-action"
+          type="button"
+        >
+          <span aria-hidden="true">⇩</span> Export report
+        </button>
+      }
+      @if (canCreateAssessment()) {
+        <a
+          hlmBtn
+          class="primary-action"
+          routerLink="assessment"
+          ><span aria-hidden="true">+</span> New assessment</a
+        >
+      }
+      @if (canViewPatients()) {
+        <a
+          hlmBtn
+          variant="outline"
+          size="icon-lg"
+          class="alert-action relative"
+          routerLink="patients"
+          aria-label="View critical alerts"
+          ><span aria-hidden="true">♢</span
+          ><i
+            class="absolute grid w-4 h-4 place-items-center rounded-full bg-destructive text-primary-foreground"
+            >{{ assessments() ? criticalAlerts().length : '--' }}</i
+          ></a
+        >
+      }
     </div>
   </header>
 
-  <nav class="dashboard-tabs" aria-label="Dashboard views">
-    <a class="active" routerLink="."><span aria-hidden="true">⊞</span> Overview</a>
-    <a routerLink="patients"><span aria-hidden="true">▤</span> Patient records</a>
-    <a routerLink="patients"><span aria-hidden="true">◎</span> Patients overview</a>
-    <a routerLink="assessment"><span aria-hidden="true">◇</span> New assessment</a>
+  <nav class="dashboard-tabs flex gap-6 mt-4" aria-label="Dashboard views">
+    <a
+      class="active flex items-center gap-2 pt-0 px-px pb-2.5 text-xs no-underline text-primary"
+      routerLink="."
+      ><span aria-hidden="true">⊞</span> Overview</a
+    >
+    @if (canViewPatients()) {
+      <a
+        routerLink="patients"
+        class="flex items-center gap-2 pt-0 px-px pb-2.5 text-muted-foreground text-xs no-underline"
+        ><span aria-hidden="true">▤</span> Patient records</a
+      >
+      <a
+        routerLink="patients"
+        class="flex items-center gap-2 pt-0 px-px pb-2.5 text-muted-foreground text-xs no-underline"
+        ><span aria-hidden="true">◎</span> Patients overview</a
+      >
+    }
+    @if (canViewAssessments()) {
+      <a
+        routerLink="assessments"
+        class="flex items-center gap-2 pt-0 px-px pb-2.5 text-muted-foreground text-xs no-underline"
+        ><span aria-hidden="true">◇</span> Assessments</a
+      >
+    }
   </nav>
 
-  <section class="metrics-grid" aria-label="Programme metrics">
-    <article class="metric-card">
-      <div class="metric-title">
-        <p>Assessments today</p>
-        <span>⋮</span>
+  <section class="metrics-grid grid grid-cols-4 gap-4 mt-4" aria-label="Programme metrics">
+    <article class="metric-card py-3 px-4 border border-border rounded-none bg-background">
+      <div class="metric-title flex items-center justify-between">
+        <p class="m-0 text-xs font-medium">Assessments today</p>
+        <span class="text-muted-foreground">⋮</span>
       </div>
-      <strong>{{ assessmentsToday() ?? '--' }}</strong
-      ><small class="metric-unavailable">-- <em>Trend unavailable</em></small>
+      <strong class="block mt-3 text-2xl">{{ assessmentsToday() ?? '--' }}</strong
+      ><small class="metric-unavailable text-muted-foreground block mt-2 text-xs font-semibold"
+        >-- <em class="text-muted-foreground font-normal">Trend unavailable</em></small
+      >
     </article>
-    <article class="metric-card">
-      <div class="metric-title">
-        <p>Patients monitored</p>
-        <span>⋮</span>
+    <article class="metric-card py-3 px-4 border border-border rounded-none bg-background">
+      <div class="metric-title flex items-center justify-between">
+        <p class="m-0 text-xs font-medium">Patients monitored</p>
+        <span class="text-muted-foreground">⋮</span>
       </div>
-      <strong>{{ patientsMonitored() ?? '--' }}</strong
-      ><small class="metric-unavailable">-- <em>Change unavailable</em></small>
+      <strong class="block mt-3 text-2xl">{{ patientsMonitored() ?? '--' }}</strong
+      ><small class="metric-unavailable text-muted-foreground block mt-2 text-xs font-semibold"
+        >-- <em class="text-muted-foreground font-normal">Change unavailable</em></small
+      >
     </article>
-    <article class="metric-card">
-      <div class="metric-title">
-        <p>High-risk patients</p>
-        <span>⋮</span>
+    <article class="metric-card py-3 px-4 border border-border rounded-none bg-background">
+      <div class="metric-title flex items-center justify-between">
+        <p class="m-0 text-xs font-medium">High-risk patients</p>
+        <span class="text-muted-foreground">⋮</span>
       </div>
-      <strong>{{ highRiskPatients() ?? '--' }}</strong
-      ><small class="metric-unavailable">-- <em>Trend unavailable</em></small>
+      <strong class="block mt-3 text-2xl">{{ highRiskPatients() ?? '--' }}</strong
+      ><small class="metric-unavailable text-muted-foreground block mt-2 text-xs font-semibold"
+        >-- <em class="text-muted-foreground font-normal">Trend unavailable</em></small
+      >
     </article>
-    <article class="metric-card">
-      <div class="metric-title">
-        <p>Pending referrals</p>
-        <span>⋮</span>
+    <article class="metric-card py-3 px-4 border border-border rounded-none bg-background">
+      <div class="metric-title flex items-center justify-between">
+        <p class="m-0 text-xs font-medium">Pending results</p>
+        <span class="text-muted-foreground">⋮</span>
       </div>
-      <strong>--</strong
-      ><small class="metric-unavailable">-- <em>Resolution data unavailable</em></small>
+      <strong class="block mt-3 text-2xl">{{ pendingAssessments() ?? '--' }}</strong
+      ><small class="metric-unavailable text-muted-foreground block mt-2 text-xs font-semibold"
+        >-- <em class="text-muted-foreground font-normal">Awaiting classification</em></small
+      >
     </article>
   </section>
 
-  <section class="feature-grid">
-    <article class="assistant-card" aria-labelledby="assistant-title" aria-disabled="true">
-      <span class="coming-soon-badge">Coming soon</span>
-      <div class="assistant-orb" aria-hidden="true">✦</div>
-      <div class="assistant-copy">
-        <h2 id="assistant-title">Hi, I’m Nata.</h2>
-        <p>
-          Your maternal health assistant — here to help you monitor patients and act on risks
-          efficiently.
-        </p>
-      </div>
-      <div class="assistant-prompts" aria-label="Suggested tasks">
-        <button type="button" disabled>Review high-risk cases</button
-        ><button type="button" disabled>Check pending referrals</button
-        ><button type="button" disabled>Start an assessment</button>
-      </div>
-      <label class="assistant-input">
-        <span aria-hidden="true">＋</span>
-            <input type="text" placeholder="Nata assistant is coming soon" disabled />
-        <span class="voice" aria-hidden="true">◖</span>
-        </label>
-    </article>
-
-    <article class="overview-card" aria-labelledby="patient-overview-title">
-      <header class="panel-heading">
+  <section class="mt-4">
+    <article
+      class="overview-card pt-4 px-4 pb-3 border border-border rounded-none bg-background"
+      aria-labelledby="patient-overview-title"
+    >
+      <header class="panel-heading flex justify-between">
         <div>
-          <h2 id="patient-overview-title">Patients overview</h2>
-          <p>Assessments per month</p>
-          <strong>{{ monthlyAverage() ?? '--' }}</strong>
+          <h2 id="patient-overview-title" class="m-0 text-sm font-semibold">Patients overview</h2>
+          <p class="mt-2 mx-0 mb-0 text-muted-foreground text-xs">Assessments per month</p>
+          <strong class="block mt-0.5 text-xl">{{ monthlyAverage() ?? '--' }}</strong>
         </div>
-        <button type="button" disabled>▣ {{ currentYear }}</button>
+        <button
+          hlmBtn
+          variant="outline"
+          size="sm"
+          type="button"
+          disabled
+          class="border border-border rounded-none bg-background text-foreground cursor-pointer h-8 py-0 px-2.5"
+        >
+          ▣ {{ currentYear }}
+        </button>
       </header>
       @if (monthlyOverview(); as months) {
         <div
-          class="bar-chart"
+          class="bar-chart flex items-end mt-1.25 py-0 px-2"
           role="img"
           aria-label="Monthly clinician assessments by risk category"
         >
@@ -118,78 +161,124 @@
           ><span class="high">High risk</span>
         </div>
       } @else {
-        <div class="bar-chart chart-empty" role="img" aria-label="Monthly patient data unavailable">
-          <strong>--</strong><span>Monthly overview data unavailable</span>
+        <div
+          class="bar-chart chart-empty flex items-end mt-1.25 py-0 px-2 items-center justify-center flex-col text-muted-foreground"
+          role="img"
+          aria-label="Monthly patient data unavailable"
+        >
+          <strong class="text-2xl">--</strong
+          ><span class="text-xs">Monthly overview data unavailable</span>
         </div>
       }
     </article>
   </section>
 
-  <section class="bottom-grid">
-    <article class="panel alerts-card" aria-labelledby="critical-alerts-title">
-      <header class="section-title">
-        <h2 id="critical-alerts-title">Critical alerts</h2>
-        <a routerLink="patients">See all</a>
+  <section class="bottom-grid grid gap-4 mt-4">
+    <article
+      class="panel alerts-card p-4 border border-border rounded-none bg-background"
+      aria-labelledby="critical-alerts-title"
+    >
+      <header class="section-title flex items-center justify-between">
+        <h2 id="critical-alerts-title" class="m-0 text-sm font-semibold">Critical alerts</h2>
+        @if (canViewAssessments()) {
+          <a routerLink="assessments" class="text-primary text-xs no-underline">See all</a>
+        }
       </header>
-      <div class="alert-list">
+      <div class="alert-list mt-3">
         @for (alert of criticalAlerts(); track $index; let index = $index) {
-          <a class="alert-row" routerLink="patients"
-            ><span class="alert-line" [class.secondary]="index === 1" aria-hidden="true"></span>
-            <div>
-              <strong>{{ alert.name }}</strong
-              ><small>{{ alert.detail }}</small>
+          <a
+            class="alert-row grid min-h-13 gap-2.5 items-center border border-border rounded-none pt-2 pr-2.5 pb-2 pl-0 no-underline"
+            [routerLink]="['assessments', alert.id]"
+            ><span
+              class="alert-line w-0.5 h-full bg-destructive"
+              [class.secondary]="index === 1"
+              aria-hidden="true"
+            ></span>
+            <div class="grid gap-1">
+              <strong class="text-xs font-semibold">{{ alert.name }}</strong
+              ><small class="text-muted-foreground">{{ alert.detail }}</small>
             </div>
-            <time>--</time></a
+            <time class="text-muted-foreground whitespace-nowrap">--</time></a
           >
         } @empty {
-          <div class="panel-empty">
-            <strong>--</strong><span>No critical-alert data available</span>
+          <div class="panel-empty grid min-h-36 gap-1.25 text-muted-foreground text-center">
+            <strong class="text-xl">--</strong
+            ><span class="text-xs">No critical-alert data available</span>
           </div>
         }
       </div>
     </article>
 
-    <article class="panel recent-card" aria-labelledby="recent-assessments-title">
-      <header class="section-title">
-        <h2 id="recent-assessments-title">Recent assessments</h2>
-        <div class="table-actions">
-          <button type="button">▣ Month⌄</button><button type="button">⇅ Sort</button>
-        </div>
+    <article
+      class="panel recent-card p-4 border border-border rounded-none bg-background"
+      aria-labelledby="recent-assessments-title"
+    >
+      <header class="section-title flex items-center justify-between">
+        <h2 id="recent-assessments-title" class="m-0 text-sm font-semibold">Recent assessments</h2>
+        <a routerLink="assessments" class="text-primary text-xs no-underline">See all</a>
       </header>
-      <div class="table-scroll">
-        <table>
+      <div class="table-scroll overflow-x-auto">
+        <table class="w-full mt-2.5">
           <thead>
             <tr>
-              <th>Patient</th>
-              <th>Latest vitals</th>
-              <th>Risk</th>
-              <th>Assessed</th>
-              <th></th>
+              <th
+                class="bg-background text-muted-foreground font-medium p-2 text-left"
+              >
+                Patient
+              </th>
+              <th
+                class="bg-background text-muted-foreground font-medium p-2 text-left"
+              >
+                Latest vitals
+              </th>
+              <th
+                class="bg-background text-muted-foreground font-medium p-2 text-left"
+              >
+                Risk
+              </th>
+              <th
+                class="bg-background text-muted-foreground font-medium p-2 text-left"
+              >
+                Assessed
+              </th>
+              <th
+                class="bg-background text-muted-foreground font-medium p-2 text-left"
+              ></th>
             </tr>
           </thead>
           <tbody>
             @for (assessment of recentAssessments(); track $index) {
               <tr>
-                <td>
-                  <span class="patient-avatar">{{ assessment.name.charAt(0) }}</span
+                <td class="p-2 text-left text-foreground">
+                  <span
+                    class="patient-avatar inline-grid w-5 h-5 place-items-center mr-2 rounded-full bg-muted text-primary font-semibold"
+                    >{{ assessment.name.charAt(0) }}</span
                   >{{ assessment.name }}
                 </td>
-                <td>{{ assessment.vitals }}</td>
-                <td>
+                <td class="p-2 text-left text-foreground">{{ assessment.vitals }}</td>
+                <td class="p-2 text-left text-foreground">
                   <span
-                    class="risk-pill"
+                    class="risk-pill inline-flex rounded-full bg-muted py-0.5 px-2 text-primary"
                     [class.high-risk]="assessment.riskTone === 'high'"
                     [class.mid-risk]="assessment.riskTone === 'mid'"
                     [class.pending-risk]="assessment.riskTone === 'none'"
                     >{{ assessment.risk }}</span
                   >
                 </td>
-                <td>{{ assessment.assessed }}</td>
-                <td>⋮</td>
+                <td class="p-2 text-left text-foreground">{{ assessment.assessed }}</td>
+                <td class="p-2 text-left text-foreground">
+                  <a
+                    [routerLink]="['assessments', assessment.id]"
+                    class="text-primary text-xs no-underline"
+                    >View</a
+                  >
+                </td>
               </tr>
             } @empty {
               <tr class="empty-table-row">
-                <td colspan="5">-- &nbsp; No recent assessment data available</td>
+                <td colspan="5" class="text-xs p-2 text-left text-foreground">
+                  -- &nbsp; No recent assessment data available
+                </td>
               </tr>
             }
           </tbody>

@@ -1,5 +1,5 @@
 <section class="register-patient-page">
-  <a class="patient-detail-back" routerLink="/dashboard/patients">
+  <a hlmBtn variant="outline" class="patient-detail-back" routerLink="/dashboard/patients">
     <ng-icon name="lucideArrowLeft" aria-hidden="true" />
     Back to patients
   </a>
@@ -18,7 +18,7 @@
 
     @if (errorMessage(); as error) {
       <div class="assessment-error-banner" role="alert">
-        <span aria-hidden="true">!</span>
+        <ng-icon name="phosphorWarningCircleFill" size="1.25rem" />
         <p>{{ error }}</p>
       </div>
     }
@@ -36,7 +36,7 @@
         <div class="form-grid form-grid--three">
           <div class="form-field">
             <label for="firstName">First name <span class="required-marker">*</span></label>
-            <input
+            <input hlmInput
               id="firstName"
               type="text"
               formControlName="firstName"
@@ -56,7 +56,7 @@
           </div>
           <div class="form-field">
             <label for="lastName">Last name <span class="required-marker">*</span></label>
-            <input
+            <input hlmInput
               id="lastName"
               type="text"
               formControlName="lastName"
@@ -76,7 +76,7 @@
           </div>
           <div class="form-field">
             <label for="middleName">Middle name <span class="optional-label">Optional</span></label>
-            <input
+            <input hlmInput
               id="middleName"
               type="text"
               formControlName="middleName"
@@ -92,7 +92,7 @@
           </div>
           <div class="form-field">
             <label for="dob">Date of birth <span class="required-marker">*</span></label>
-            <input
+            <input hlmInput
               id="dob"
               type="date"
               formControlName="dob"
@@ -112,7 +112,7 @@
           </div>
           <div class="form-field">
             <label for="email">Email address <span class="optional-label">Optional</span></label>
-            <input
+            <input hlmInput
               id="email"
               type="email"
               formControlName="email"
@@ -132,7 +132,7 @@
           </div>
           <div class="form-field">
             <label for="phone">Phone number <span class="optional-label">Optional</span></label>
-            <input
+            <input hlmInput
               id="phone"
               type="tel"
               formControlName="phone"
@@ -175,7 +175,7 @@
               >Gestational age <span class="field-unit">Weeks</span>
               <span class="optional-label">Optional</span></label
             >
-            <input
+            <input hlmInput
               id="gestationalAge"
               type="number"
               min="1"
@@ -226,11 +226,12 @@
       </section>
 
       <footer class="registration-actions">
-        <a class="assessment-button assessment-button--secondary" routerLink="/dashboard/patients"
+        <a hlmBtn variant="outline" routerLink="/dashboard/patients"
           >Cancel</a
         >
         <button
-          class="assessment-button assessment-button--primary"
+          hlmBtn
+          size="lg"
           type="submit"
           [disabled]="submitting()"
         >

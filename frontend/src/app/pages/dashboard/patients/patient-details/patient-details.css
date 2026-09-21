@@ -2,3 +2,113 @@
   display: block;
   min-width: 0;
 }
+
+.patient-risk {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.patient-risk > span {
+  background: currentColor;
+}
+
+.patient-risk--high,
+.patient-risk-summary--high {
+  color: var(--destructive);
+}
+
+.patient-profile-identity,
+.patient-profile-identity > div {
+  min-width: 0;
+}
+
+.patient-risk-summary {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  border: 1px solid var(--border);
+  background: var(--muted);
+}
+
+.patient-detail-stat-grid article > span {
+  background: var(--muted);
+}
+
+.patient-detail-stat-grid article div {
+  min-width: 0;
+}
+
+.patient-detail-content-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.patient-detail-card > header,
+.patient-information-list > div {
+  border-bottom: 1px solid var(--border);
+}
+
+.patient-information-list > div {
+  grid-template-columns: minmax(120px, 0.45fr) minmax(0, 1fr);
+}
+
+.patient-information-list > div:last-child {
+  border-bottom: 0;
+}
+
+.latest-assessment-entry {
+  grid-template-columns: 12px minmax(0, 1fr);
+}
+
+.latest-assessment-entry::before {
+  position: absolute;
+  top: 12px;
+  bottom: -24px;
+  left: 4px;
+  width: 1px;
+  background: var(--border);
+  content: '';
+}
+
+.assessment-timeline-marker {
+  border: 2px solid var(--background);
+  background: var(--primary);
+}
+
+.patient-detail-skeleton {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.patient-detail-skeleton span {
+  min-height: 250px;
+  background: var(--muted);
+}
+
+.patient-detail-skeleton .detail-skeleton-hero {
+  grid-column: 1 / -1;
+  min-height: 128px;
+}
+
+@media (max-width: 640px) {
+  .patient-risk-summary {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .patient-risk-summary__badge {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .patient-information-list > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .patient-detail-page {
+    padding: 0;
+    background: var(--background);
+  }
+
+  .patient-detail-back,
+  .patient-profile-actions {
+    display: none;
+  }
+}

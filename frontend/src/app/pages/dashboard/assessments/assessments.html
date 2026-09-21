@@ -1,0 +1,139 @@
+<section class="assessments-page bg-background text-foreground p-6 max-sm:p-4">
+  <header class="flex items-end justify-between gap-4 max-sm:items-stretch max-sm:flex-col">
+    <div>
+      <h1 class="m-0 text-2xl font-semibold tracking-tight">Assessments</h1>
+      <p class="mt-1 mb-0 text-sm text-muted-foreground">
+        Review every assessment available in the selected institution.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2 max-sm:flex-col max-sm:items-stretch">
+      <button
+        hlmBtn
+        variant="outline"
+        type="button"
+        [disabled]="loading()"
+        (click)="loadAssessments()"
+      >
+        Refresh
+      </button>
+      @if (canCreateAssessment()) {
+        <a hlmBtn routerLink="/dashboard/assessment">New assessment</a>
+      }
+    </div>
+  </header>
+
+  <section class="mt-6 grid grid-cols-3 gap-4 max-md:grid-cols-1" aria-label="Assessment summary">
+    <article class="border border-border bg-background p-4">
+      <p class="m-0 text-xs text-muted-foreground">Total assessments</p>
+      <strong class="mt-2 block text-2xl">{{ assessments()?.length ?? '—' }}</strong>
+    </article>
+    <article class="border border-border bg-background p-4">
+      <p class="m-0 text-xs text-muted-foreground">High risk</p>
+      <strong class="mt-2 block text-2xl">{{ assessments() ? highRiskCount() : '—' }}</strong>
+    </article>
+    <article class="border border-border bg-background p-4">
+      <p class="m-0 text-xs text-muted-foreground">Pending result</p>
+      <strong class="mt-2 block text-2xl">{{ assessments() ? pendingCount() : '—' }}</strong>
+    </article>
+  </section>
+
+  <section class="mt-5 overflow-hidden border border-border bg-background" aria-labelledby="assessment-history-title">
+    <header class="border-b border-border p-4">
+      <h2 id="assessment-history-title" class="m-0 text-base font-semibold">Assessment history</h2>
+      <p class="mt-1 mb-0 text-xs text-muted-foreground">
+        Results are ordered from the most recent assessment.
+      </p>
+    </header>
+
+    @if (errorMessage(); as error) {
+      <div class="grid min-h-64 place-content-center gap-3 p-6 text-center" role="alert">
+        <div>
+          <h3 class="m-0 text-base font-semibold">Assessment records unavailable</h3>
+          <p class="mt-1 mb-0 text-sm text-muted-foreground">{{ error }}</p>
+        </div>
+        <button hlmBtn variant="outline" type="button" (click)="loadAssessments()">
+          Try again
+        </button>
+      </div>
+    } @else if (loading() && !assessments()) {
+      <div class="grid gap-px bg-border" role="status" aria-label="Loading assessments">
+        @for (row of [1, 2, 3, 4, 5]; track row) {
+          <span hlmSkeleton class="block h-16"></span>
+        }
+      </div>
+    } @else if (sortedAssessments().length) {
+      <div class="assessment-table-wrap overflow-x-auto">
+        <table class="assessment-table w-full">
+          <thead>
+            <tr>
+              <th scope="col" class="h-11 px-4 text-left text-xs font-medium text-muted-foreground">Patient</th>
+              <th scope="col" class="h-11 px-4 text-left text-xs font-medium text-muted-foreground">Assessed</th>
+              <th scope="col" class="h-11 px-4 text-left text-xs font-medium text-muted-foreground">Blood pressure</th>
+              <th scope="col" class="h-11 px-4 text-left text-xs font-medium text-muted-foreground">Heart rate</th>
+              <th scope="col" class="h-11 px-4 text-left text-xs font-medium text-muted-foreground">Risk</th>
+              <th scope="col" class="h-11 px-4 text-left text-xs font-medium text-muted-foreground">Confidence</th>
+              <th scope="col" class="h-11 px-4 text-left text-xs font-medium text-muted-foreground">
+                <span class="sr-only">Assessment actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (assessment of sortedAssessments(); track trackAssessment($index, assessment)) {
+              <tr>
+                <td class="h-16 px-4 text-sm">
+                  <div class="flex min-w-48 flex-col">
+                    <strong class="font-medium">{{ patientName(assessment) }}</strong>
+                    <span class="text-xs text-muted-foreground">ID {{ assessment.patient.id }}</span>
+                  </div>
+                </td>
+                <td class="h-16 px-4 text-sm">
+                  <time [attr.datetime]="dateTimeValue(assessment.assessedAt)">
+                    {{ assessment.assessedAt | date: 'MMM d, y, h:mm a' }}
+                  </time>
+                </td>
+                <td class="h-16 px-4 text-sm">
+                  {{ assessment.measurements.systolicBP }}/{{ assessment.measurements.diastolicBP }} mmHg
+                </td>
+                <td class="h-16 px-4 text-sm">{{ assessment.measurements.heartRate }} bpm</td>
+                <td class="h-16 px-4 text-sm">
+                  <span
+                    class="inline-flex items-center rounded-full border border-border bg-muted px-2 py-1 text-xs font-medium"
+                    [class.text-destructive]="riskTone(assessment.prediction.risk) === 'high'"
+                    [class.text-muted-foreground]="riskTone(assessment.prediction.risk) === 'none'"
+                  >
+                    {{ riskLabel(assessment) }}
+                  </span>
+                </td>
+                <td class="h-16 px-4 text-sm">{{ confidenceLabel(assessment.prediction.confidence) }}</td>
+                <td class="h-16 px-4 text-right text-sm">
+                  <a
+                    hlmBtn
+                    variant="ghost"
+                    size="sm"
+                    [routerLink]="[assessment.id]"
+                    [attr.aria-label]="'View assessment for ' + patientName(assessment)"
+                  >
+                    View
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="grid min-h-64 place-content-center gap-3 p-6 text-center">
+        <div>
+          <h3 class="m-0 text-base font-semibold">No assessments yet</h3>
+          <p class="mt-1 mb-0 text-sm text-muted-foreground">
+            Completed assessments will appear here.
+          </p>
+        </div>
+        @if (canCreateAssessment()) {
+          <a hlmBtn routerLink="/dashboard/assessment">Start an assessment</a>
+        }
+      </div>
+    }
+  </section>
+</section>

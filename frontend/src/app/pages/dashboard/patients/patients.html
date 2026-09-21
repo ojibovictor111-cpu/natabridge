@@ -1,62 +1,109 @@
-<section class="patients-page" data-node-id="25:27">
-  <header class="patients-heading">
+<section
+  class="patients-page pt-7 px-10 pb-10 bg-background text-foreground max-lg:pt-7 max-lg:px-6 max-lg:pb-9 max-sm:pt-5 max-sm:px-4 max-sm:pb-7"
+  data-node-id="25:27"
+>
+  <header
+    class="patients-heading flex items-end justify-between gap-7 max-md:items-stretch max-md:flex-col max-md:gap-4"
+  >
     <div>
-      <p class="page-kicker">Patient management</p>
-      <h1>Patients under care</h1>
-      <p>Review maternal health records, recent assessments, and current risk status.</p>
+      <p
+        class="page-kicker mt-0 mx-0 mb-2 text-primary text-xs font-semibold uppercase tracking-wide"
+      >
+        Patient management
+      </p>
+      <h1 class="m-0 text-3xl font-semibold leading-tight tracking-tight max-sm:text-2xl">
+        Patients under care
+      </h1>
+      <p class="mt-1.5 text-sm leading-4.5 text-muted-foreground">
+        Review maternal health records, recent assessments, and current risk status.
+      </p>
     </div>
 
-    <a class="register-patient" routerLink="/dashboard/patients/register">
-      <ng-icon name="lucideUserPlus" aria-hidden="true" />
-      Register new patient
-    </a>
+    @if (canRegisterPatient()) {
+      <a
+        hlmBtn
+        size="lg"
+        class="register-patient max-md:self-start max-sm:w-full"
+        routerLink="/dashboard/patients/register"
+      >
+        <ng-icon name="lucideUserPlus" aria-hidden="true" />
+        Register new patient
+      </a>
+    }
   </header>
 
-  <section class="patient-stat-grid" aria-label="Patient overview">
-    <article class="patient-stat">
-      <span class="stat-icon"><ng-icon name="lucideUsersRound" aria-hidden="true" /></span>
-      <div>
-        <span>Total patients</span>
-        <strong>{{
+  <section
+    class="patient-stat-grid grid grid-cols-3 gap-4 mt-6 max-md:grid-cols-1 max-md:gap-2.5"
+    aria-label="Patient overview"
+  >
+    <article
+      class="patient-stat flex min-h-22 items-center gap-3 py-4 px-4 border border-border rounded-none bg-background"
+    >
+      <span
+        class="stat-icon grid w-10 h-10 place-items-center rounded-none bg-muted text-primary text-xl"
+        ><ng-icon name="lucideUsersRound" aria-hidden="true"
+      /></span>
+      <div class="flex min-w-0 flex-col">
+        <span class="text-muted-foreground text-xs leading-4">Total patients</span>
+        <strong class="mt-0.5 text-xl font-semibold leading-7">{{
           (loading() && !patients().length) || initialLoadUnavailable() ? '—' : patients().length
         }}</strong>
       </div>
     </article>
 
-    <article class="patient-stat">
-      <span class="stat-icon stat-icon--green">
+    <article
+      class="patient-stat flex min-h-22 items-center gap-3 py-4 px-4 border border-border rounded-none bg-background"
+    >
+      <span
+        class="stat-icon stat-icon--green grid w-10 h-10 place-items-center rounded-none bg-muted text-primary text-xl"
+      >
         <ng-icon name="lucideActivity" aria-hidden="true" />
       </span>
-      <div>
-        <span>Assessed patients</span>
-        <strong>{{
+      <div class="flex min-w-0 flex-col">
+        <span class="text-muted-foreground text-xs leading-4">Assessed patients</span>
+        <strong class="mt-0.5 text-xl font-semibold leading-7">{{
           (loading() && !patients().length) || initialLoadUnavailable() ? '—' : assessedPatients()
         }}</strong>
       </div>
     </article>
 
-    <article class="patient-stat">
-      <span class="stat-icon stat-icon--danger">
+    <article
+      class="patient-stat flex min-h-22 items-center gap-3 py-4 px-4 border border-border rounded-none bg-background"
+    >
+      <span
+        class="stat-icon stat-icon--danger grid w-10 h-10 place-items-center rounded-none bg-destructive/10 text-destructive text-xl"
+      >
         <ng-icon name="lucideActivity" aria-hidden="true" />
       </span>
-      <div>
-        <span>High-risk patients</span>
-        <strong>{{
+      <div class="flex min-w-0 flex-col">
+        <span class="text-muted-foreground text-xs leading-4">High-risk patients</span>
+        <strong class="mt-0.5 text-xl font-semibold leading-7">{{
           (loading() && !patients().length) || initialLoadUnavailable() ? '—' : highRiskPatients()
         }}</strong>
       </div>
     </article>
   </section>
 
-  <section class="patient-directory" aria-labelledby="patient-directory-title">
-    <header class="directory-heading">
+  <section
+    class="patient-directory mt-5 overflow-hidden border border-border rounded-none bg-background"
+    aria-labelledby="patient-directory-title"
+  >
+    <header
+      class="directory-heading flex items-center justify-between gap-5 pt-5 px-5 pb-4 max-md:items-stretch max-md:flex-col max-sm:pr-4 max-sm:pl-4"
+    >
       <div>
-        <h2 id="patient-directory-title">Patient directory</h2>
-        <p>Search and open a patient record for a complete summary.</p>
+        <h2 id="patient-directory-title" class="m-0 text-base font-semibold leading-5">
+          Patient directory
+        </h2>
+        <p class="mt-1 mx-0 mb-0 text-muted-foreground text-xs leading-4">
+          Search and open a patient record for a complete summary.
+        </p>
       </div>
 
       <button
-        class="refresh-button"
+        hlmBtn
+        variant="outline"
+        class="refresh-button max-md:self-start"
         type="button"
         [disabled]="loading()"
         (click)="refreshPatients()"
@@ -66,21 +113,37 @@
       </button>
     </header>
 
-    <div class="directory-toolbar">
-      <label class="patient-search-field">
-        <span class="sr-only">Search patients by name or record ID</span>
-        <ng-icon name="lucideSearch" aria-hidden="true" />
+    <div
+      class="directory-toolbar flex items-center gap-3 pt-0 px-5 pb-4 max-md:items-stretch max-md:flex-col max-sm:pr-4 max-sm:pl-4"
+    >
+      <label
+        class="patient-search-field min-w-64 gap-2 text-muted-foreground flex items-center max-md:w-full"
+      >
+        <span class="sr-only absolute w-px h-px p-0 overflow-hidden whitespace-nowrap border-0"
+          >Search patients by name or record ID</span
+        >
+        <ng-icon name="lucideSearch" aria-hidden="true" class="text-base" />
         <input
+          hlmInput
           type="search"
           placeholder="Search by name or patient ID"
           [value]="searchTerm()"
           (input)="updateSearch($event)"
+          class="w-full"
         />
       </label>
 
-      <label class="risk-filter-field">
-        <span class="sr-only">Filter patients by risk level</span>
-        <select [value]="riskFilter()" (change)="updateRiskFilter($event)">
+      <label
+        class="risk-filter-field w-44 py-0 px-2.5 flex h-10 items-center border border-border rounded-none max-md:w-full"
+      >
+        <span class="sr-only absolute w-px h-px p-0 overflow-hidden whitespace-nowrap border-0"
+          >Filter patients by risk level</span
+        >
+        <select
+          [value]="riskFilter()"
+          (change)="updateRiskFilter($event)"
+          class="w-full h-full border-0 bg-transparent text-foreground text-sm"
+        >
           <option value="all">All risk levels</option>
           <option value="high">High risk</option>
           <option value="mid">Mid risk</option>
@@ -89,9 +152,16 @@
         </select>
       </label>
 
-      <label class="mobile-sort-field">
-        <span class="sr-only">Sort patients</span>
-        <select (change)="updateMobileSort($event)">
+      <label
+        class="mobile-sort-field hidden max-md:flex max-md:h-10 max-md:items-center max-md:py-0 max-md:px-2.5 max-md:border max-md:border-border max-md:rounded-none max-md:w-full"
+      >
+        <span class="sr-only absolute w-px h-px p-0 overflow-hidden whitespace-nowrap border-0"
+          >Sort patients</span
+        >
+        <select
+          (change)="updateMobileSort($event)"
+          class="max-md:w-full max-md:h-full max-md:border-0 max-md:bg-transparent max-md:text-foreground max-md:text-sm"
+        >
           <option value="name:asc">Sort: Patient name</option>
           <option value="lastAssessment:desc">Sort: Latest assessment</option>
           <option value="currentRiskLevel:asc">Sort: Risk level</option>
@@ -101,110 +171,232 @@
 
     @if (errorMessage(); as error) {
       @if (patients().length) {
-        <div class="directory-message directory-message--error" role="alert">
+        <div
+          class="directory-message directory-message--error flex min-h-11 items-center justify-between gap-4 mt-3 mx-5 mb-0 py-2 px-3 rounded-none text-xs"
+          role="alert"
+        >
           <span>{{ error }}</span>
-          <button type="button" (click)="refreshPatients()">Try again</button>
+          <button
+            hlmBtn
+            variant="link"
+            type="button"
+            (click)="refreshPatients()"
+            class="border-0 bg-transparent font-semibold cursor-pointer underline"
+          >
+            Try again
+          </button>
         </div>
       }
     }
 
     @if (initialLoadUnavailable()) {
-      <div class="directory-empty directory-empty--error" role="alert">
-        <span><ng-icon name="lucideRefreshCw" aria-hidden="true" /></span>
-        <h3>Patient records unavailable</h3>
-        <p>{{ errorMessage() }}</p>
-        <button type="button" (click)="refreshPatients()">Try again</button>
+      <div
+        class="directory-empty directory-empty--error flex min-h-72 items-center justify-center flex-col p-9 text-center"
+        role="alert"
+      >
+        <span
+          class="grid w-12 h-12 place-items-center rounded-none text-xl bg-destructive/10 text-destructive"
+          ><ng-icon name="lucideRefreshCw" aria-hidden="true"
+        /></span>
+        <h3 class="mt-3 mx-0 mb-0 text-base font-semibold">Patient records unavailable</h3>
+        <p class="mt-1.25 mx-0 mb-0 max-w-sm text-muted-foreground text-sm leading-4.5">
+          {{ errorMessage() }}
+        </p>
+        <button
+          hlmBtn
+          variant="destructive"
+          type="button"
+          (click)="refreshPatients()"
+          class="border-0 bg-transparent font-semibold cursor-pointer underline mt-3 text-destructive"
+        >
+          Try again
+        </button>
       </div>
     } @else if (loading() && !patients().length) {
-      <div class="patient-table-skeleton" aria-label="Loading patient records" role="status">
+      <div
+        class="patient-table-skeleton grid gap-px bg-border"
+        aria-label="Loading patient records"
+        role="status"
+      >
         @for (row of [1, 2, 3, 4, 5]; track row) {
-          <span></span>
+          <span hlmSkeleton class="block h-16"></span>
         }
       </div>
     } @else if (visiblePatients().length) {
-      <div class="patient-table-wrap">
-        <table class="patient-table" aria-labelledby="patient-directory-title">
-          <thead>
+      <div class="patient-table-wrap overflow-x-auto max-md:overflow-visible">
+        <table
+          class="patient-table w-full max-md:block max-md:py-3 max-md:px-4"
+          aria-labelledby="patient-directory-title"
+        >
+          <thead class="max-md:hidden">
             <tr>
-              <th scope="col" [attr.aria-sort]="sortAria('name')">
-                <button type="button" (click)="toggleSort('name')">
+              <th
+                scope="col"
+                [attr.aria-sort]="sortAria('name')"
+                class="h-11 py-0 px-4 text-muted-foreground text-xs font-medium text-left"
+              >
+                <button
+                  hlmBtn
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  (click)="toggleSort('name')"
+                  class="inline-flex items-center gap-1.25 p-0 border-0 bg-transparent cursor-pointer"
+                >
                   Patient
-                  <span aria-hidden="true">{{ sortIndicator('name') }}</span>
+                  <span aria-hidden="true" class="text-primary text-xs">{{
+                    sortIndicator('name')
+                  }}</span>
                 </button>
               </th>
-              <th scope="col" [attr.aria-sort]="sortAria('age')">
-                <button type="button" (click)="toggleSort('age')">
+              <th
+                scope="col"
+                [attr.aria-sort]="sortAria('age')"
+                class="h-11 py-0 px-4 text-muted-foreground text-xs font-medium text-left"
+              >
+                <button
+                  hlmBtn
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  (click)="toggleSort('age')"
+                  class="inline-flex items-center gap-1.25 p-0 border-0 bg-transparent cursor-pointer"
+                >
                   Age
-                  <span aria-hidden="true">{{ sortIndicator('age') }}</span>
+                  <span aria-hidden="true" class="text-primary text-xs">{{
+                    sortIndicator('age')
+                  }}</span>
                 </button>
               </th>
-              <th scope="col" [attr.aria-sort]="sortAria('gestationalAge')">
-                <button type="button" (click)="toggleSort('gestationalAge')">
+              <th
+                scope="col"
+                [attr.aria-sort]="sortAria('gestationalAge')"
+                class="h-11 py-0 px-4 text-muted-foreground text-xs font-medium text-left"
+              >
+                <button
+                  hlmBtn
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  (click)="toggleSort('gestationalAge')"
+                  class="inline-flex items-center gap-1.25 p-0 border-0 bg-transparent cursor-pointer"
+                >
                   Gestational age
-                  <span aria-hidden="true">{{ sortIndicator('gestationalAge') }}</span>
+                  <span aria-hidden="true" class="text-primary text-xs">{{
+                    sortIndicator('gestationalAge')
+                  }}</span>
                 </button>
               </th>
-              <th scope="col" [attr.aria-sort]="sortAria('lastAssessment')">
-                <button type="button" (click)="toggleSort('lastAssessment')">
+              <th
+                scope="col"
+                [attr.aria-sort]="sortAria('lastAssessment')"
+                class="h-11 py-0 px-4 text-muted-foreground text-xs font-medium text-left"
+              >
+                <button
+                  hlmBtn
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  (click)="toggleSort('lastAssessment')"
+                  class="inline-flex items-center gap-1.25 p-0 border-0 bg-transparent cursor-pointer"
+                >
                   Last assessment
-                  <span aria-hidden="true">{{ sortIndicator('lastAssessment') }}</span>
+                  <span aria-hidden="true" class="text-primary text-xs">{{
+                    sortIndicator('lastAssessment')
+                  }}</span>
                 </button>
               </th>
-              <th scope="col" [attr.aria-sort]="sortAria('currentRiskLevel')">
-                <button type="button" (click)="toggleSort('currentRiskLevel')">
+              <th
+                scope="col"
+                [attr.aria-sort]="sortAria('currentRiskLevel')"
+                class="h-11 py-0 px-4 text-muted-foreground text-xs font-medium text-left"
+              >
+                <button
+                  hlmBtn
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  (click)="toggleSort('currentRiskLevel')"
+                  class="inline-flex items-center gap-1.25 p-0 border-0 bg-transparent cursor-pointer"
+                >
                   Current risk
-                  <span aria-hidden="true">{{ sortIndicator('currentRiskLevel') }}</span>
+                  <span aria-hidden="true" class="text-primary text-xs">{{
+                    sortIndicator('currentRiskLevel')
+                  }}</span>
                 </button>
               </th>
-              <th scope="col"><span class="sr-only">Patient actions</span></th>
+              <th
+                scope="col"
+                class="h-11 py-0 px-4 text-muted-foreground text-xs font-medium text-left"
+              >
+                <span
+                  class="sr-only absolute w-px h-px p-0 overflow-hidden whitespace-nowrap border-0"
+                  >Patient actions</span
+                >
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="max-md:grid max-md:gap-3">
             @for (patient of visiblePatients(); track trackPatient($index, patient)) {
-              <tr>
-                <td data-label="Patient">
-                  <div class="patient-identity-cell">
-                    <span class="patient-avatar">{{ patientInitials(patient.name) }}</span>
-                    <span class="patient-identity">
-                      <strong>{{ patient.name }}</strong>
-                      <small [title]="patient.id">ID {{ patient.id }}</small>
+              <tr
+                class="max-md:grid max-md:grid-cols-2 max-md:overflow-hidden max-md:border max-md:border-border max-md:rounded-none max-md:bg-background"
+              >
+                <td data-label="Patient" class="h-16 py-2 px-4 text-xs">
+                  <div class="patient-identity-cell flex items-center gap-2.5">
+                    <span
+                      class="patient-avatar grid w-9 h-9 shrink-0 place-items-center rounded-full bg-muted text-primary text-xs font-semibold"
+                      >{{ patientInitials(patient.name) }}</span
+                    >
+                    <span class="patient-identity flex min-w-0 flex-col">
+                      <strong
+                        class="overflow-hidden text-foreground text-sm font-medium text-ellipsis whitespace-nowrap"
+                        >{{ patient.name }}</strong
+                      >
+                      <small
+                        [title]="patient.id"
+                        class="mt-0.5 overflow-hidden text-muted-foreground text-xs text-ellipsis whitespace-nowrap"
+                        >ID {{ patient.id }}</small
+                      >
                     </span>
                   </div>
                 </td>
-                <td data-label="Age">
+                <td data-label="Age" class="h-16 py-2 px-4 text-xs">
                   {{ patient.age !== null ? patient.age + ' years' : '—' }}
                 </td>
-                <td data-label="Gestational age">
+                <td data-label="Gestational age" class="h-16 py-2 px-4 text-xs">
                   {{
                     patient.gestationalAge !== null
                       ? patient.gestationalAge + ' weeks'
                       : 'Not recorded'
                   }}
                 </td>
-                <td data-label="Last assessment">
+                <td data-label="Last assessment" class="h-16 py-2 px-4 text-xs">
                   @if (patient.lastAssessment) {
                     <time [attr.datetime]="dateTimeValue(patient.lastAssessment)">
                       {{ patient.lastAssessment | date: 'MMM d, y' }}
                     </time>
                   } @else {
-                    <span class="muted-value">No assessment</span>
+                    <span class="muted-value text-muted-foreground">No assessment</span>
                   }
                 </td>
-                <td data-label="Current risk">
+                <td data-label="Current risk" class="h-16 py-2 px-4 text-xs">
                   <span
-                    class="patient-risk"
+                    class="patient-risk inline-flex min-h-6 items-center gap-1.25 py-1 px-2 rounded-full text-muted-foreground text-xs font-medium whitespace-nowrap"
                     [class.patient-risk--high]="riskTone(patient.currentRiskLevel) === 'high'"
                     [class.patient-risk--mid]="riskTone(patient.currentRiskLevel) === 'mid'"
                     [class.patient-risk--low]="riskTone(patient.currentRiskLevel) === 'low'"
                   >
-                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true" class="w-1.25 h-1.25 rounded-full"></span>
                     {{ riskLabel(patient.currentRiskLevel) }}
                   </span>
                 </td>
-                <td class="patient-action-cell">
+                <td
+                  class="patient-action-cell text-right h-16 py-2 px-4 text-xs max-md:pt-2 max-md:px-3 max-md:pb-3"
+                >
                   <a
                     [routerLink]="['/dashboard/patients', patient.id]"
                     [attr.aria-label]="'View ' + patient.name + ' patient record'"
+                    class="inline-flex items-center justify-center no-underline gap-1 text-primary text-xs font-semibold max-md:w-full max-md:min-h-9 max-md:rounded-none"
                   >
                     View
                     <ng-icon name="lucideChevronRight" aria-hidden="true" />
@@ -216,10 +408,17 @@
         </table>
       </div>
     } @else {
-      <div class="directory-empty">
-        <span><ng-icon name="lucideUsersRound" aria-hidden="true" /></span>
-        <h3>{{ hasActiveFilters() ? 'No matching patients' : 'No patient records yet' }}</h3>
-        <p>
+      <div
+        class="directory-empty flex min-h-72 items-center justify-center flex-col p-9 text-center"
+      >
+        <span
+          class="grid w-12 h-12 place-items-center rounded-none bg-muted text-primary text-xl"
+          ><ng-icon name="lucideUsersRound" aria-hidden="true"
+        /></span>
+        <h3 class="mt-3 mx-0 mb-0 text-base font-semibold">
+          {{ hasActiveFilters() ? 'No matching patients' : 'No patient records yet' }}
+        </h3>
+        <p class="mt-1.25 mx-0 mb-0 max-w-sm text-muted-foreground text-sm leading-4.5">
           {{
             hasActiveFilters()
               ? 'Try a different name, patient ID, or risk filter.'
@@ -227,42 +426,78 @@
           }}
         </p>
         @if (hasActiveFilters()) {
-          <button type="button" (click)="clearFilters()">Clear filters</button>
+          <button
+            hlmBtn
+            variant="link"
+            type="button"
+            (click)="clearFilters()"
+            class="border-0 bg-transparent font-semibold cursor-pointer underline mt-3 text-primary"
+          >
+            Clear filters
+          </button>
         }
       </div>
     }
 
     @if (!initialLoadUnavailable() && !(loading() && !patients().length)) {
-      <footer class="directory-pagination">
-        <p>
-          Showing <strong>{{ pageStart() }}–{{ pageEnd() }}</strong> of
-          <strong>{{ filteredPatients().length }}</strong> patients
+      <footer
+        class="directory-pagination flex min-h-14 items-center justify-between gap-4 py-2.5 px-5 max-md:items-stretch max-md:flex-col max-sm:pr-4 max-sm:pl-4"
+      >
+        <p class="m-0 text-muted-foreground text-xs">
+          Showing
+          <strong class="text-foreground font-semibold"
+            >{{ pageStart() }}–{{ pageEnd() }}</strong
+          >
+          of
+          <strong class="text-foreground font-semibold">{{
+            filteredPatients().length
+          }}</strong>
+          patients
         </p>
 
-        <label class="page-size-control">
+        <label
+          class="page-size-control inline-flex items-center gap-2 text-muted-foreground text-xs"
+        >
           <span>Rows per page</span>
-          <select [value]="pageSize()" (change)="updatePageSize($event)">
+          <select
+            [value]="pageSize()"
+            (change)="updatePageSize($event)"
+            class="h-8 py-0 px-2 border border-border rounded-none bg-background text-foreground"
+          >
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
           </select>
         </label>
 
-        <nav class="pagination-controls" aria-label="Patient directory pagination">
+        <nav
+          class="pagination-controls flex items-center gap-2.5 max-md:justify-between"
+          aria-label="Patient directory pagination"
+        >
           <button
+            hlmBtn
+            variant="outline"
+            size="icon"
             type="button"
             aria-label="Previous patient page"
             [disabled]="activePage() === 1"
             (click)="previousPage()"
+            class="grid w-8 h-8 place-items-center border border-border rounded-none bg-background text-foreground cursor-pointer"
           >
             <ng-icon name="lucideArrowLeft" aria-hidden="true" />
           </button>
-          <span>Page {{ activePage() }} of {{ totalPages() }}</span>
+          <span class="m-0 text-muted-foreground text-xs"
+            >Page {{ activePage() }} of {{ totalPages() }}</span
+          >
           <button
+            hlmBtn
+            variant="outline"
+            size="icon"
             type="button"
             aria-label="Next patient page"
             [disabled]="activePage() === totalPages()"
             (click)="nextPage()"
+            class="grid w-8 h-8 place-items-center border border-border rounded-none bg-background text-foreground cursor-pointer"
           >
             <ng-icon name="lucideChevronRight" aria-hidden="true" />
           </button>

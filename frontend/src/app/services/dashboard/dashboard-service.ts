@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Service, signal } from '@angular/core';
 import { Environment as environment } from '../../environment/environment';
 import { DashboardResponse } from '../../models/dashboard/dashboard.api';
@@ -14,9 +14,14 @@ export class DashboardService {
 
   readonly loading = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly assessmentsLoading = signal(false);
+  readonly assessmentsErrorMessage = signal<string | null>(null);
+  readonly assessmentLoading = signal(false);
+  readonly assessmentErrorMessage = signal<string | null>(null);
 
   readonly dashboardDetails = signal<DashboardResponse | null>(null);
-  readonly clinicianAssessments = signal<ClinicianAssessmentApi[] | null>(null);
+  readonly assessments = signal<ClinicianAssessmentApi[] | null>(null);
+  readonly assessment = signal<ClinicianAssessmentApi | null>(null);
   readonly assessmentDetails = signal<{
     high: number;
     mid: number;
@@ -45,26 +50,77 @@ export class DashboardService {
       });
   }
 
-  getClinicianAssessments() {
-    const clinicianId = this.authService.clinicianId();
-    this.clinicianAssessments.set(null);
-    if (!clinicianId) {
-      return;
-    }
+  getAssessments() {
+    const institutionId = this.authService.activeInstitutionId();
+    this.assessments.set(null);
+    this.assessmentsErrorMessage.set(null);
+    this.assessmentsLoading.set(true);
 
     this.http
-      .get<ApiResponse<ClinicianAssessmentApi[]>>(
-        `${environment.api}/clinicians/${encodeURIComponent(clinicianId)}/assessments`,
+      .get<ApiResponse<ClinicianAssessmentApi[]>>(`${environment.api}/assessments`)
+      .pipe(
+        finalize(() => {
+          if (this.authService.activeInstitutionId() === institutionId) {
+            this.assessmentsLoading.set(false);
+          }
+        }),
       )
       .subscribe({
         next: (response) => {
-          if (this.authService.clinicianId() === clinicianId) {
-            this.clinicianAssessments.set(response.data ?? []);
+          if (this.authService.activeInstitutionId() === institutionId) {
+            this.assessments.set(response.data ?? []);
           }
         },
-        error: () => {
-          if (this.authService.clinicianId() === clinicianId) this.clinicianAssessments.set(null);
+        error: (error: HttpErrorResponse) => {
+          if (this.authService.activeInstitutionId() !== institutionId) return;
+
+          this.assessments.set(null);
+          this.assessmentsErrorMessage.set(this.getAssessmentErrorMessage(error));
         },
       });
+  }
+
+  getAssessment(assessmentId: string) {
+    const institutionId = this.authService.activeInstitutionId();
+    this.assessment.set(null);
+    this.assessmentErrorMessage.set(null);
+    this.assessmentLoading.set(true);
+
+    this.http
+      .get<ApiResponse<ClinicianAssessmentApi>>(
+        `${environment.api}/assessments/${encodeURIComponent(assessmentId)}`,
+      )
+      .pipe(
+        finalize(() => {
+          if (this.authService.activeInstitutionId() === institutionId) {
+            this.assessmentLoading.set(false);
+          }
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          if (this.authService.activeInstitutionId() === institutionId) {
+            this.assessment.set(response.data);
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          if (this.authService.activeInstitutionId() !== institutionId) return;
+
+          this.assessment.set(null);
+          this.assessmentErrorMessage.set(this.getAssessmentErrorMessage(error));
+        },
+      });
+  }
+
+  private getAssessmentErrorMessage(error: HttpErrorResponse): string {
+    const apiMessage = error.error?.message;
+
+    if (typeof apiMessage === 'string' && apiMessage.trim()) return apiMessage;
+
+    if (error.status === 0) {
+      return 'Unable to reach assessment records. Check your connection and try again.';
+    }
+
+    return 'Unable to load assessment records right now. Please try again.';
   }
 }

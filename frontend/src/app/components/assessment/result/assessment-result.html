@@ -253,7 +253,7 @@
 
     <section
       class="result-actions mt-6 grid grid-cols-1 gap-4 rounded-2xl border border-(--dashboard-border) bg-white p-4 shadow-sm"
-      [class]="isAuthenticated() ? 'sm:grid-cols-2 lg:grid-cols-3' : ''"
+      [class]="isAuthenticated() ? 'sm:grid-cols-2' : ''"
       aria-label="Assessment actions"
     >
       @if (isAuthenticated()) {
@@ -272,20 +272,6 @@
           </small>
         </button>
 
-        <button
-          class="action-button action-button--unavailable inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-dashed border-(--dashboard-border) px-4 text-sm opacity-100 focus-visible:outline-2 focus-visible:outline-(--dashboard-green) focus-visible:outline-offset-2"
-          type="button"
-          disabled
-          aria-label="Save to patient record, coming soon"
-        >
-          <span>Save to patient record</span>
-
-          <small
-            class="rounded-full bg-(--dashboard-border) px-2 py-1 text-xs font-semibold text-(--dashboard-muted) uppercase"
-          >
-            Coming soon
-          </small>
-        </button>
       }
 
       <button

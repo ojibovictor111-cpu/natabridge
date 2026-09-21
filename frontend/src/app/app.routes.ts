@@ -1,5 +1,10 @@
 import { EnvironmentInjector, inject, runInInjectionContext } from '@angular/core';
 import { Routes } from '@angular/router';
+import { ACCESS } from './core/auth/access';
+import {
+  requireAllPermissions,
+  requireAnyPermission,
+} from './core/auth/permission.guard';
 
 export const routes: Routes = [
   {
@@ -33,14 +38,16 @@ export const routes: Routes = [
       import('./pages/dashboard/template/template').then((page) => page.Template),
     children: [
       {
-        path: '',
-        loadComponent: () => import('./pages/dashboard/home/home').then((page) => page.Home),
+        path: 'forbidden',
+        loadComponent: () =>
+          import('./pages/dashboard/forbidden/forbidden').then((page) => page.Forbidden),
       },
       {
         path: 'patients',
         children: [
           {
             path: 'register',
+            canActivate: [requireAllPermissions(ACCESS.clinical.patients.create)],
             loadComponent: () =>
               import('./pages/dashboard/patients/register-patient/register-patient').then(
                 (page) => page.RegisterPatient,
@@ -48,6 +55,9 @@ export const routes: Routes = [
           },
           {
             path: ':patientId/assessment',
+            canActivate: [
+              requireAllPermissions(ACCESS.clinical.assessments.createForExistingPatient),
+            ],
             loadComponent: () =>
               import('./pages/dashboard/assessment/test/user-assessment').then(
                 (page) => page.UserAssessment,
@@ -55,6 +65,7 @@ export const routes: Routes = [
           },
           {
             path: ':id',
+            canActivate: [requireAllPermissions(ACCESS.clinical.patients.view)],
             loadComponent: () =>
               import('./pages/dashboard/patients/patient-details/patient-details').then(
                 (page) => page.PatientDetails,
@@ -62,13 +73,33 @@ export const routes: Routes = [
           },
           {
             path: '',
+            canActivate: [requireAllPermissions(ACCESS.clinical.patients.list)],
             loadComponent: () =>
               import('./pages/dashboard/patients/patients').then((page) => page.Patients),
           },
         ],
       },
       {
+        path: 'assessments/:assessmentId',
+        canActivate: [requireAllPermissions(ACCESS.clinical.assessments.view)],
+        loadComponent: () =>
+          import('./pages/dashboard/assessments/assessment-details/assessment-details').then(
+            (page) => page.AssessmentDetails,
+          ),
+      },
+      {
+        path: 'assessments',
+        canActivate: [requireAllPermissions(ACCESS.clinical.assessments.list)],
+        loadComponent: () =>
+          import('./pages/dashboard/assessments/assessments').then(
+            (page) => page.Assessments,
+          ),
+      },
+      {
         path: 'assessment',
+        canActivate: [
+          requireAllPermissions(ACCESS.clinical.assessments.createWithNewPatient),
+        ],
         loadComponent: () =>
           import('./pages/dashboard/assessment/test/user-assessment').then(
             (page) => page.UserAssessment,
@@ -81,6 +112,16 @@ export const routes: Routes = [
         data: {
           profileType: 'user',
         },
+      },
+      {
+        path: '',
+        canActivate: [
+          requireAnyPermission([
+            ...ACCESS.clinical.assessments.list,
+            ...ACCESS.clinical.patients.list,
+          ]),
+        ],
+        loadComponent: () => import('./pages/dashboard/home/home').then((page) => page.Home),
       },
     ],
   },

@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { PatientApi } from '../../../models/patient/Patient.api';
+import { AuthService } from '../../../services/auth/auth-service';
 import { PatientService } from '../../../services/patient/patient-service';
 import { Patients } from './patients';
 
@@ -38,6 +39,7 @@ describe('Patients', () => {
           provide: PatientService,
           useValue: { loading, errorMessage, patients, getPatients },
         },
+        { provide: AuthService, useValue: { hasAllPermissions: () => true } },
       ],
     }).compileComponents();
 

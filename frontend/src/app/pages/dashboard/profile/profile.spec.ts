@@ -8,7 +8,7 @@ describe('Profile', () => {
   let component: Profile;
   let fixture: ComponentFixture<Profile>;
   let logout: ReturnType<typeof vi.fn>;
-  const user = signal({ id: 'clinician-1', email: 'amina@natabridge.health' });
+  const user = signal({ id: 'clinician-1', email: 'amina@natabridge.health', roles: [] });
 
   beforeEach(async () => {
     sessionStorage.removeItem('dashboard_profile');
@@ -16,7 +16,12 @@ describe('Profile', () => {
 
     await TestBed.configureTestingModule({
       imports: [Profile],
-      providers: [{ provide: AuthService, useValue: { logout, user } }],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: { logout, user, roleLabels: signal(['Clinical Practitioner']) },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Profile);

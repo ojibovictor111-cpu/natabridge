@@ -1,5 +1,8 @@
 import { Component, computed, effect, inject, input, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideActivity,
@@ -12,13 +15,21 @@ import {
   lucideRefreshCw,
   lucideUserRound,
 } from '@ng-icons/lucide';
+import { ACCESS } from '../../../../core/auth/access';
+import { AuthService } from '../../../../services/auth/auth-service';
 import { PatientService } from '../../../../services/patient/patient-service';
 
 type RiskTone = 'high' | 'mid' | 'low' | 'none';
 
 @Component({
   selector: 'nata-patient-details',
-  imports: [NgIcon, RouterLink],
+  imports: [
+    NgIcon,
+    RouterLink,
+    ...HlmAvatarImports,
+    ...HlmButtonImports,
+    ...HlmSkeletonImports,
+  ],
   templateUrl: './patient-details.html',
   styleUrl: './patient-details.css',
   viewProviders: [
@@ -37,6 +48,7 @@ type RiskTone = 'high' | 'mid' | 'low' | 'none';
 })
 export class PatientDetails {
   private readonly patientService = inject(PatientService);
+  private readonly authService = inject(AuthService);
 
   readonly id = input<string | null>(null);
   readonly errorMessage = this.patientService.errorMessage;
@@ -46,6 +58,12 @@ export class PatientDetails {
     return patient?.id === this.id() ? patient : null;
   });
   readonly loading = computed(() => this.patientService.loading() && !this.patient());
+  readonly canCreateAssessment = computed(() =>
+    this.authService.hasAllPermissions(ACCESS.clinical.assessments.createForExistingPatient),
+  );
+  readonly canExportRecords = computed(() =>
+    this.authService.hasAllPermissions(ACCESS.clinical.records.export),
+  );
 
   constructor() {
     effect(() => {

@@ -1,0 +1,18 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.assessment-table {
+  min-width: 920px;
+  border-collapse: collapse;
+}
+
+.assessment-table th,
+.assessment-table td {
+  border-bottom: 1px solid var(--border);
+}
+
+.assessment-table tbody tr:last-child td {
+  border-bottom: 0;
+}

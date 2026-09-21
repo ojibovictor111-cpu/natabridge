@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, input, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft } from '@ng-icons/lucide';
 import { AssessmentTest } from '../../../../components/assessment/test/assessment-test';
@@ -8,7 +9,7 @@ import { PatientService } from '../../../../services/patient/patient-service';
 
 @Component({
   selector: 'nata-user-assessment',
-  imports: [AssessmentTest, NgIcon, RouterLink],
+  imports: [AssessmentTest, NgIcon, RouterLink, ...HlmButtonImports],
   templateUrl: './user-assessment.html',
   styleUrl: './user-assessment.css',
   viewProviders: [provideIcons({ lucideArrowLeft })],

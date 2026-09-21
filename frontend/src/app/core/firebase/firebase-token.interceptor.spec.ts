@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { Environment as environment } from '../../environment/environment';
 import { AuthService } from '../../services/auth/auth-service';
 import { FIREBASE_ID_TOKEN, firebaseTokenInterceptor } from './firebase-token.interceptor';
+import { ACTIVE_INSTITUTION_STORAGE_KEY } from '../auth/institution-context';
 
 describe('firebaseTokenInterceptor', () => {
   let http: HttpClient;
@@ -13,6 +14,7 @@ describe('firebaseTokenInterceptor', () => {
   let getIdToken: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    sessionStorage.clear();
     expireSession = vi.fn(async () => {});
     getIdToken = vi.fn(async () => 'firebase-token');
     TestBed.configureTestingModule({
@@ -42,6 +44,20 @@ describe('firebaseTokenInterceptor', () => {
     await result;
   });
 
+  it('sends the selected institution on protected API requests', async () => {
+    sessionStorage.setItem(ACTIVE_INSTITUTION_STORAGE_KEY, 'inst-2');
+
+    const result = firstValueFrom(http.get(`${environment.api}/assessments`));
+    let request!: TestRequest;
+    await vi.waitFor(() => {
+      request = httpTesting.expectOne(`${environment.api}/assessments`);
+    });
+
+    expect(request.request.headers.get('X-Institution-Id')).toBe('inst-2');
+    request.flush({ data: [] });
+    await result;
+  });
+
   it('keeps public predictions anonymous', async () => {
     const result = firstValueFrom(http.post(`${environment.api}/predictions`, {}));
     const request = httpTesting.expectOne(`${environment.api}/predictions`);
@@ -50,6 +66,17 @@ describe('firebaseTokenInterceptor', () => {
     expect(getIdToken).not.toHaveBeenCalled();
     request.flush({ data: {} });
     await result;
+  });
+
+  it('does not send protected requests before Firebase returns an ID token', async () => {
+    getIdToken.mockResolvedValue(null);
+
+    const result = firstValueFrom(http.get(`${environment.api}/users/me`));
+
+    await expect(result).rejects.toThrow(
+      'Firebase authentication is required for protected API requests.',
+    );
+    httpTesting.expectNone(`${environment.api}/users/me`);
   });
 
   it('ends the session when the backend revokes account access', async () => {

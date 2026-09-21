@@ -1,11 +1,13 @@
 type RiskTone = 'high' | 'mid' | 'low' | 'none';
 
 interface CriticalAlertView {
+  id: string;
   name: string;
   detail: string;
 }
 
 interface RecentAssessmentView {
+  id: string;
   name: string;
   vitals: string;
   risk: string;
