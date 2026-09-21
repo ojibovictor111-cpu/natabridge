@@ -13,6 +13,7 @@ interface PatientSummaryRow {
      name: string;
      age: string | number | null;
      gestationalAge: string | number | null;
+     firstPregnancy: boolean | null;
      lastAssessment: string | Date | null;
      currentRiskLevel: string | null;
 }

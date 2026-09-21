@@ -39,6 +39,7 @@ class FakePatientClient {
                          name: "Amina Bello",
                          age: "26.00",
                          gestationalAge: "24.00",
+                         firstPregnancy: false,
                          lastAssessment: new Date("2026-08-10T12:00:00.000Z"),
                          currentRiskLevel: "Low Risk"
                     }],
@@ -88,7 +89,11 @@ test("patient summaries expose PostgreSQL numeric values as JSON numbers", async
 
      assert.equal(patients[0]?.age, 26);
      assert.equal(patients[0]?.gestationalAge, 24);
+     assert.equal(patients[0]?.firstPregnancy, false);
      assert.match(client.queries[0] ?? "", /assessment\.beneficiary_id = mother\.id/);
+     assert.match(client.queries[0] ?? "", /AGE\(CURRENT_DATE, mother\.date_of_birth\)/);
+     assert.match(client.queries[0] ?? "", /antenatal\.gestational_age_weeks/);
+     assert.match(client.queries[0] ?? "", /pregnancy_history\.pregnancy_count/);
      assert.deepEqual(client.values[0], ["inst-test"]);
      assert.equal(client.releaseCount, 1);
 });

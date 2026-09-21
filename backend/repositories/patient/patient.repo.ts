@@ -2,19 +2,24 @@ import type { PoolClient } from "pg";
 import type { PatientRepoInput, PatientSummaryRow } from "../../models/patient/repo/patients.repo";
 import { uuidv7 } from "uuidv7";
 
-const patientSummaryQuery = `
+const patientSummaryQuery = (institutionParameter: "$1" | "$2") => `
     SELECT
         mother.id,
         CONCAT_WS(' ', mother.firstname, mother.middlename, mother.lastname) AS name,
-        latest.age,
-        latest.gestational_age AS "gestationalAge",
+        EXTRACT(YEAR FROM AGE(CURRENT_DATE, mother.date_of_birth))::INTEGER AS age,
+        pregnancy_context.gestational_age AS "gestationalAge",
+        COALESCE(
+            pregnancy_context.first_pregnancy,
+            CASE
+                WHEN pregnancy_history.pregnancy_count = 0 THEN NULL
+                ELSE pregnancy_history.pregnancy_count = 1
+            END
+        ) AS "firstPregnancy",
         latest.created_at AS "lastAssessment",
         latest.prediction AS "currentRiskLevel"
     FROM mothers mother
     LEFT JOIN LATERAL (
         SELECT
-            prediction_run.age,
-            assessment.gestational_age,
             assessment.created_at,
             prediction_result.prediction
         FROM assessments assessment
@@ -28,6 +33,43 @@ const patientSummaryQuery = `
         ORDER BY assessment.created_at DESC, assessment.id DESC
         LIMIT 1
     ) latest ON TRUE
+    LEFT JOIN LATERAL (
+        SELECT
+            (
+                SELECT context.gestational_age
+                FROM (
+                    SELECT assessment.gestational_age, assessment.created_at AS recorded_at
+                    FROM assessments assessment
+                    WHERE assessment.beneficiary_id = mother.id
+                      AND assessment.gestational_age IS NOT NULL
+
+                    UNION ALL
+
+                    SELECT antenatal.gestational_age_weeks, clinical_visit.occurred_at AS recorded_at
+                    FROM clinical_visits clinical_visit
+                    INNER JOIN antenatal_assessments antenatal
+                        ON antenatal.visit_id = clinical_visit.id
+                    WHERE clinical_visit.beneficiary_id = mother.id
+                      AND clinical_visit.institution_id = ${institutionParameter}
+                      AND antenatal.gestational_age_weeks IS NOT NULL
+                ) context
+                ORDER BY context.recorded_at DESC
+                LIMIT 1
+            ) AS gestational_age,
+            (
+                SELECT assessment.first_pregnancy
+                FROM assessments assessment
+                WHERE assessment.beneficiary_id = mother.id
+                  AND assessment.first_pregnancy IS NOT NULL
+                ORDER BY assessment.created_at DESC, assessment.id DESC
+                LIMIT 1
+            ) AS first_pregnancy
+    ) pregnancy_context ON TRUE
+    LEFT JOIN LATERAL (
+        SELECT COUNT(*)::INTEGER AS pregnancy_count
+        FROM pregnancies pregnancy
+        WHERE pregnancy.mother_id = mother.id
+    ) pregnancy_history ON TRUE
 `;
 
 const createPatient = async (
@@ -79,7 +121,7 @@ const getPatientsWithLatestAssessment = async(
     institutionId: string
 ) => {
     const result = await client.query<PatientSummaryRow>(
-        `${patientSummaryQuery} WHERE EXISTS (
+        `${patientSummaryQuery("$1")} WHERE EXISTS (
             SELECT 1 FROM institutional_care care
             WHERE care.beneficiary_id = mother.id
               AND care.institution_id = $1
@@ -98,7 +140,7 @@ const getPatientById = async (
     institutionId: string
 ) => {
     const result = await client.query<PatientSummaryRow>(
-        `${patientSummaryQuery} WHERE mother.id = $1 AND EXISTS (
+        `${patientSummaryQuery("$2")} WHERE mother.id = $1 AND EXISTS (
             SELECT 1 FROM institutional_care care
             WHERE care.beneficiary_id = mother.id
               AND care.institution_id = $2
