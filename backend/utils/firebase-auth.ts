@@ -5,7 +5,13 @@ import { getFirebaseApp } from "../configs/firebase.config";
 import { ClientFacingError } from "../errors/api-error";
 
 type VerifyIdToken = (token: string) => Promise<Pick<DecodedIdToken, "uid">>;
-type UserRecord = { id: string; email: string; status: "ACTIVE" | "SUSPENDED" | "DISABLED" };
+type UserRecord = {
+     id: string;
+     firstName: string;
+     lastName: string;
+     email: string;
+     status: "ACTIVE" | "SUSPENDED" | "DISABLED";
+};
 type FindUserByFirebaseUid = (request: FastifyRequest, uid: string) => Promise<UserRecord | null>;
 
 const verifyIdToken: VerifyIdToken = (token) =>
@@ -13,7 +19,8 @@ const verifyIdToken: VerifyIdToken = (token) =>
 
 const findUserByFirebaseUid: FindUserByFirebaseUid = async (request, uid) => {
      const result = await request.server.pg.query<UserRecord>(
-          "SELECT id, email, status FROM users WHERE firebase_uid = $1",
+          `SELECT id, firstname AS "firstName", lastname AS "lastName", email, status
+           FROM users WHERE firebase_uid = $1`,
           [uid]
      );
 
@@ -84,7 +91,13 @@ const createFirebaseAuthHook = (
           });
      }
 
-     request.user = { id: user.id, email: user.email, firebaseUid: decoded.uid };
+     request.user = {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          firebaseUid: decoded.uid
+     };
 };
 
 export { createFirebaseAuthHook, findUserByFirebaseUid };

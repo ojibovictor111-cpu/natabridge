@@ -64,7 +64,10 @@ test("protected operations require an authenticated actor", () => {
           statusCode: 401,
           code: "AUTHENTICATION_REQUIRED"
      });
-     request.user = { id: "usr-clinician", email: "jane@natabridge.com", firebaseUid: "firebase-uid" };
+     request.user = {
+          id: "usr-clinician", firstName: "Jane", lastName: "Clinician",
+          email: "jane@natabridge.com", firebaseUid: "firebase-uid"
+     };
      assert.equal(requireAuthenticatedUserId(request), "usr-clinician");
 });
 
@@ -151,7 +154,10 @@ test("verified Firebase UID must map to an active user", async (context) => {
           verifyIdToken: async (token) => ({ uid: token }),
           findUserByFirebaseUid: async (_request, uid) => {
                lookedUpUids.push(uid);
-               return status === null ? null : { id: "usr-clinician", email: "jane@natabridge.com", status };
+               return status === null ? null : {
+                    id: "usr-clinician", firstName: "Jane", lastName: "Clinician",
+                    email: "jane@natabridge.com", status
+               };
           },
           findUserAccess: async () => ({
                roles: [{
@@ -185,6 +191,9 @@ test("verified Firebase UID must map to an active user", async (context) => {
      assert.equal(active.statusCode, 200);
      assert.deepEqual(active.json().data, {
           id: "usr-clinician",
+          firstName: "Jane",
+          lastName: "Clinician",
+          displayName: "Jane Clinician",
           email: "jane@natabridge.com",
           roles: [{
                id: "rol-clinician",
@@ -206,15 +215,22 @@ test("Firebase UID lookup uses the verified UID as a query parameter", async () 
                     query: async (sql: string, parameters: unknown[]) => {
                          query = sql;
                          values = parameters;
-                         return { rows: [{ id: "usr-clinician", email: "jane@natabridge.com", status: "ACTIVE" }] };
+                         return { rows: [{
+                              id: "usr-clinician", firstName: "Jane", lastName: "Clinician",
+                              email: "jane@natabridge.com", status: "ACTIVE"
+                         }] };
                     }
                }
           }
      } as unknown as FastifyRequest;
 
      const user = await findUserByFirebaseUid(request, "firebase-uid' OR TRUE --");
-     assert.deepEqual(user, { id: "usr-clinician", email: "jane@natabridge.com", status: "ACTIVE" });
-     assert.equal(query, "SELECT id, email, status FROM users WHERE firebase_uid = $1");
+     assert.deepEqual(user, {
+          id: "usr-clinician", firstName: "Jane", lastName: "Clinician",
+          email: "jane@natabridge.com", status: "ACTIVE"
+     });
+     assert.match(query ?? "", /firstname AS "firstName"/);
+     assert.match(query ?? "", /lastname AS "lastName"/);
      assert.deepEqual(values, ["firebase-uid' OR TRUE --"]);
 });
 
@@ -224,6 +240,8 @@ test("a clinician cannot request another clinician's assessments", async (contex
           verifyIdToken: async () => ({ uid: "firebase-uid" }),
           findUserByFirebaseUid: async () => ({
                id: "usr-clinician",
+               firstName: "Jane",
+               lastName: "Clinician",
                email: "jane@natabridge.com",
                status: "ACTIVE"
           }),
@@ -274,7 +292,10 @@ test("patient registration rejects whitespace-only names before persistence", as
      const server = buildServer({
           logger: false,
           verifyIdToken: async () => ({ uid: "firebase-uid" }),
-          findUserByFirebaseUid: async () => ({ id: "usr-clinician", email: "jane@natabridge.com", status: "ACTIVE" })
+          findUserByFirebaseUid: async () => ({
+               id: "usr-clinician", firstName: "Jane", lastName: "Clinician",
+               email: "jane@natabridge.com", status: "ACTIVE"
+          })
      });
      context.after(() => server.close());
 

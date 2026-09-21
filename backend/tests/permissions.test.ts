@@ -10,7 +10,8 @@ const authenticatedServer = (findPermissionGrantsForTest: () => Promise<Permissi
           logger: false,
           verifyIdToken: async () => ({ uid: "firebase-test" }),
           findUserByFirebaseUid: async () => ({
-               id: "usr-test", email: "test@example.com", status: "ACTIVE"
+               id: "usr-test", firstName: "Test", lastName: "User",
+               email: "test@example.com", status: "ACTIVE"
           }),
           findPermissionGrants: findPermissionGrantsForTest
      });

@@ -10,6 +10,8 @@ declare module 'fastify' {
     institutionId: string | null;
     user: {
       id: string;
+      firstName: string;
+      lastName: string;
       email: string;
       firebaseUid: string;
     } | null;
