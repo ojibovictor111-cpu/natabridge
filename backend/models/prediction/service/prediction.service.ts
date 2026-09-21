@@ -13,7 +13,6 @@ type PatientAssessmentContext = {
 type StoredPredictionOptions = {
 	source: PredictionRunSource;
 	createdByUserId: string | null;
-	requestId?: string;
 	assessment?: PatientAssessmentContext;
 };
 

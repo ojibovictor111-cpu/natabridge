@@ -223,7 +223,7 @@ const executeStoredPrediction = async (
 			id: predictionRunId,
 			source: options.source,
 			createdByUserId: options.createdByUserId,
-			requestId: options.requestId ?? predictionRunId,
+			requestId: predictionRunId,
 			...features,
 		}),
 	);
@@ -304,12 +304,10 @@ const executeStoredPrediction = async (
 const processPrediction = async (
 	server: FastifyInstance,
 	features: PredictionRequest,
-	requestId?: string,
 ) =>
 	executeStoredPrediction(server, features, {
 		source: "standalone",
 		createdByUserId: null,
-		...(requestId === undefined ? {} : { requestId }),
 	});
 
 const processPatientAssessment = async (
@@ -318,7 +316,6 @@ const processPatientAssessment = async (
 	assessmentRequest: PatientAssessmentRequest,
 	createdByUserId: string,
 	institutionId: string,
-	requestId?: string,
 ) => {
 	await ensurePatientExists(server, patientId, institutionId);
 
@@ -331,7 +328,6 @@ const processPatientAssessment = async (
 	const result = await executeStoredPrediction(server, features, {
 		source: "patient_assessment",
 		createdByUserId,
-		...(requestId === undefined ? {} : { requestId }),
 		assessment: {
 			patientId,
 			createdByUserId,
@@ -354,7 +350,6 @@ const createPatientAndProcessAssessment = async (
 	request: CreatePatientAssessmentRequest,
 	createdByUserId: string,
 	institutionId: string,
-	requestId?: string,
 ) => {
 	const {
 		firstname,
@@ -387,7 +382,7 @@ const createPatientAndProcessAssessment = async (
 			id: predictionRunId,
 			source: "patient_assessment",
 			createdByUserId,
-			requestId: requestId ?? predictionRunId,
+			requestId: predictionRunId,
 			...features,
 		});
 		await createPredictionResult(client, {

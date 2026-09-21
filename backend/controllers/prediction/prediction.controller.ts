@@ -9,7 +9,6 @@ const postPrediction = async (
 	const result = await processPrediction(
 		request.server,
 		request.body,
-		request.id,
 	);
 
 	return reply.code(201).send({

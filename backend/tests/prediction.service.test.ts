@@ -127,7 +127,7 @@ test("standalone predictions persist without creating patients or assessments", 
      const server = createServer(client);
      mockSuccessfulAi(context);
 
-     const result = await processPrediction(server, predictionBody, "req-public");
+     const result = await processPrediction(server, predictionBody);
 
      assert.match(result.predictionRunId, idPattern("pred-run"));
      assert.match(result.predictionResultId, idPattern("pred-res"));
@@ -143,7 +143,7 @@ test("standalone predictions persist without creating patients or assessments", 
 
      assert.equal(runInsert?.values[1], "standalone");
      assert.equal(runInsert?.values[2], null);
-     assert.equal(runInsert?.values[3], "req-public");
+     assert.equal(runInsert?.values[3], result.predictionRunId);
      assert.deepEqual(JSON.parse(String(resultInsert?.values[8])), aiResponse);
      const factorInsert = client.calls.find((call) =>
           call.sql.includes("INSERT INTO prediction_factors")
@@ -171,16 +171,14 @@ test("one patient can receive repeated assessments without reinserting the patie
           existingPatientId,
           assessmentBody,
           DEMO_USER_ID,
-          "inst-test",
-          "req-clinical-1"
+          "inst-test"
      );
      const second = await processPatientAssessment(
           server,
           existingPatientId,
           assessmentBody,
           DEMO_USER_ID,
-          "inst-test",
-          "req-clinical-2"
+          "inst-test"
      );
 
      assert.equal(first.patientId, existingPatientId);
@@ -218,8 +216,7 @@ test("new patient and assessment persistence uses one transaction", async (conte
                previousComplications: null
           },
           DEMO_USER_ID,
-          "inst-test",
-          "req-new-patient"
+          "inst-test"
      );
 
      assert.match(result.patientId, idPattern("pat"));
@@ -245,7 +242,7 @@ test("new patient and assessment persistence uses one transaction", async (conte
      assert.equal(patientInsert?.values[1], "Amina");
      assert.equal(patientInsert?.values[5], "amina@example.com");
      assert.equal(client.calls.some((call) => call.sql.includes("INSERT INTO institutional_care") && call.values[1] === "inst-test"), true);
-     assert.equal(runInsert?.values[3], "req-new-patient");
+     assert.equal(runInsert?.values[3], result.predictionRunId);
      assert.equal(client.releaseCount, 1);
 });
 

@@ -25,8 +25,7 @@ const postPatientAssessment = async (
         request.params.patientId,
         request.body,
         userId,
-        requireInstitutionId(request),
-        request.id
+        requireInstitutionId(request)
     );
 
     return reply.code(201).send({
@@ -45,8 +44,7 @@ const postNewPatientAssessment = async (
         request.server,
         request.body,
         userId,
-        requireInstitutionId(request),
-        request.id
+        requireInstitutionId(request)
     );
 
     return reply.code(201).send({
