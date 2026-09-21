@@ -36,6 +36,13 @@ const clinicianAssessmentParamsSchema = Type.Object(
 	{ additionalProperties: false },
 );
 
+const assessmentParamsSchema = Type.Object(
+	{
+		assessmentId: Type.String({ minLength: 1, maxLength: 100 }),
+	},
+	{ additionalProperties: false },
+);
+
 const createPatientAssessmentRequestSchema = Type.Object(
 	{
 		...patientAssessmentRequestSchema.properties,
@@ -66,9 +73,11 @@ type PatientAssessmentRequest = Static<typeof patientAssessmentRequestSchema>;
 type PatientAssessmentParams = Static<typeof patientAssessmentParamsSchema>;
 type CreatePatientAssessmentRequest = Static<typeof createPatientAssessmentRequestSchema>;
 type ClinicianAssessmentParams = Static<typeof clinicianAssessmentParamsSchema>;
+type AssessmentParams = Static<typeof assessmentParamsSchema>;
 
 export {
 	clinicianAssessmentParamsSchema,
+	assessmentParamsSchema,
 	createPatientAssessmentRequestSchema,
 	patientAssessmentParamsSchema,
 	patientAssessmentRequestSchema,
@@ -76,6 +85,7 @@ export {
 
 export type {
 	ClinicianAssessmentParams,
+	AssessmentParams,
 	CreatePatientAssessmentRequest,
 	PatientAssessmentParams,
 	PatientAssessmentRequest,

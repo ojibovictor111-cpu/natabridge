@@ -94,7 +94,7 @@ test("protected routes reject missing, malformed, and invalid Bearer tokens", as
      });
      context.after(() => server.close());
 
-     for (const url of ["/api/patients", "/api/dashboard", "/api/clinicians/id/assessments", "/api/users"]) {
+     for (const url of ["/api/patients", "/api/assessments", "/api/dashboard", "/api/clinicians/id/assessments", "/api/users"]) {
           const response = await server.inject({ method: "GET", url });
           assert.equal(response.statusCode, 401, url);
           assert.equal(response.json().code, "AUTHENTICATION_REQUIRED", url);

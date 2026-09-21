@@ -4,7 +4,7 @@ import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { fastify } from "fastify";
 import { dbConfig } from "./configs/db.config";
 import { apiErrorHandler } from "./errors/api-error";
-import { assessmentRoutes } from "./routes/assessment/assessment.route";
+import { assessmentReadRoutes, assessmentRoutes } from "./routes/assessment/assessment.route";
 import { dashboardRoutes } from "./routes/dashboard/dashboard.route";
 import { clinicianRoutes } from "./routes/clinician/clinician.route";
 import { patientRoutes } from "./routes/patient/patient.route";
@@ -64,6 +64,7 @@ const buildServer = (options: BuildServerOptions = {}) => {
           protectedApi.register(userRoutes, { prefix: "/api/users" });
           protectedApi.register(patientRoutes, { prefix: "/api/patients" });
           protectedApi.register(assessmentRoutes, { prefix: "/api/patients" });
+          protectedApi.register(assessmentReadRoutes, { prefix: "/api/assessments" });
           protectedApi.register(dashboardRoutes, { prefix: "/api/dashboard" });
           protectedApi.register(clinicianRoutes, { prefix: "/api/clinicians" });
      });
