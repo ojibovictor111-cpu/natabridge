@@ -82,8 +82,8 @@
   padding: 27px;
   border: 1px solid #e4e4e7;
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 4%);
+  backdrop-filter: blur(5px);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .form-section-heading {

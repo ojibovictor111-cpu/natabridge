@@ -35,7 +35,16 @@ import { AuthService } from '../../../services/auth/auth-service';
 export class Template {
   private readonly authService = inject(AuthService);
   readonly router = inject(Router);
-  readonly initials = computed(() => this.authService.user()?.email.slice(0, 2).toUpperCase() ?? 'C');
+  readonly initials = computed(() => {
+    const user = this.authService.user();
+    const name = user?.displayName.trim() || user?.email || 'Clinician';
+
+    return name
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('');
+  });
 
   pageTitle(): string {
     const url = this.router.url;

@@ -266,6 +266,12 @@ export class AuthService {
     return (
       typeof candidate.id === 'string' &&
       Boolean(candidate.id) &&
+      typeof candidate.firstName === 'string' &&
+      Boolean(candidate.firstName.trim()) &&
+      typeof candidate.lastName === 'string' &&
+      Boolean(candidate.lastName.trim()) &&
+      typeof candidate.displayName === 'string' &&
+      Boolean(candidate.displayName.trim()) &&
       typeof candidate.email === 'string' &&
       Boolean(candidate.email) &&
       Array.isArray(candidate.roles) &&

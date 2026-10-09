@@ -67,7 +67,14 @@ describe('DashboardHome', () => {
         {
           provide: AuthService,
           useValue: {
-            user: signal({ id: 'user-1', email: 'amina@example.com', roles: [] }),
+            user: signal({
+              id: 'user-1',
+              firstName: 'Amina',
+              lastName: 'Bello',
+              displayName: 'Amina Bello',
+              email: 'amina@example.com',
+              roles: [],
+            }),
             hasAllPermissions: () => true,
           },
         },
@@ -124,7 +131,7 @@ describe('DashboardHome', () => {
   it('greets the verified user without rendering the Nata assistant', () => {
     const page = fixture.nativeElement as HTMLElement;
 
-    expect(page.querySelector('h1')?.textContent).toContain('Hello, amina');
+    expect(page.querySelector('h1')?.textContent).toContain('Hello, Amina');
     expect(page.textContent).not.toContain('Hi, I’m Nata');
   });
 });

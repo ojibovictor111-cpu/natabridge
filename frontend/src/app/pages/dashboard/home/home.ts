@@ -24,7 +24,11 @@ export class Home implements OnInit {
 
   readonly currentYear = new Date().getFullYear();
   readonly assessments = this.dashboardService.assessments;
-  readonly username = computed(() => this.authService.user()?.email.split('@')[0] || 'there');
+  readonly username = computed(() => {
+    const user = this.authService.user();
+
+    return user?.firstName.trim() || user?.displayName.trim() || user?.email.split('@')[0] || 'there';
+  });
   readonly canViewPatients = computed(() =>
     this.authService.hasAllPermissions(ACCESS.clinical.patients.list),
   );

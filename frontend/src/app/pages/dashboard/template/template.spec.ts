@@ -20,7 +20,14 @@ describe('Template', () => {
         {
           provide: AuthService,
           useValue: {
-            user: signal({ id: 'clinician-1', email: 'amina@example.com', roles: [] }),
+            user: signal({
+              id: 'clinician-1',
+              firstName: 'Amina',
+              lastName: 'Bello',
+              displayName: 'Amina Bello',
+              email: 'amina@example.com',
+              roles: [],
+            }),
             roleLabels: signal(['Clinician']),
             hasAllPermissions: () => true,
             hasAnyPermission: () => true,
@@ -50,7 +57,7 @@ describe('Template', () => {
     const page = fixture.nativeElement as HTMLElement;
 
     expect(page.querySelector('a[aria-label="Open profile settings"] hlm-avatar')).toBeTruthy();
-    expect(page.querySelector('[hlmAvatarFallback]')?.textContent).toContain('AM');
+    expect(page.querySelector('[hlmAvatarFallback]')?.textContent).toContain('AB');
   });
 
   it('toggles the Spartan sidebar from the header button', () => {

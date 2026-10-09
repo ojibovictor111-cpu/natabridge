@@ -43,33 +43,6 @@
     </div>
   </header>
 
-  <nav class="dashboard-tabs flex gap-6 mt-4" aria-label="Dashboard views">
-    <a
-      class="active flex items-center gap-2 pt-0 px-px pb-2.5 text-xs no-underline text-primary"
-      routerLink="."
-      ><span aria-hidden="true">⊞</span> Overview</a
-    >
-    @if (canViewPatients()) {
-      <a
-        routerLink="patients"
-        class="flex items-center gap-2 pt-0 px-px pb-2.5 text-muted-foreground text-xs no-underline"
-        ><span aria-hidden="true">▤</span> Patient records</a
-      >
-      <a
-        routerLink="patients"
-        class="flex items-center gap-2 pt-0 px-px pb-2.5 text-muted-foreground text-xs no-underline"
-        ><span aria-hidden="true">◎</span> Patients overview</a
-      >
-    }
-    @if (canViewAssessments()) {
-      <a
-        routerLink="assessments"
-        class="flex items-center gap-2 pt-0 px-px pb-2.5 text-muted-foreground text-xs no-underline"
-        ><span aria-hidden="true">◇</span> Assessments</a
-      >
-    }
-  </nav>
-
   <section class="metrics-grid grid grid-cols-4 gap-4 mt-4" aria-label="Programme metrics">
     <article class="metric-card py-3 px-4 border border-border rounded-none bg-background">
       <div class="metric-title flex items-center justify-between">

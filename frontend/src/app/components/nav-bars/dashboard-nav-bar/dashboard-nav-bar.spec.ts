@@ -29,7 +29,14 @@ describe('DashboardNavBar', () => {
         {
           provide: AuthService,
           useValue: {
-            user: signal({ id: 'clinician-1', email: 'amina@example.com', roles: [] }),
+            user: signal({
+              id: 'clinician-1',
+              firstName: 'Amina',
+              lastName: 'Bello',
+              displayName: 'Amina Bello',
+              email: 'amina@example.com',
+              roles: [],
+            }),
             roleLabels: signal(['Clinician']),
             hasAllPermissions: (required: readonly string[]) =>
               required.every((permission) => permissions().has(permission)),
@@ -52,10 +59,10 @@ describe('DashboardNavBar', () => {
   it('shows the verified clinician identity', () => {
     const page = fixture.nativeElement as HTMLElement;
     expect(page.querySelector('[hlmSidebarFooter] strong')?.textContent).toContain(
-      'amina@example.com',
+      'Amina Bello',
     );
     expect(page.querySelector('[hlmSidebarFooter] [hlmAvatarFallback]')?.textContent).toContain(
-      'AM',
+      'AB',
     );
   });
 

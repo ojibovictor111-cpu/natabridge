@@ -1,6 +1,7 @@
 .dashboard-assessment-page {
   min-height: 100%;
-  padding: 24px;
+  padding-block: 2.5rem;
+  padding-inline: 0;
 }
 
 .patient-detail-back {

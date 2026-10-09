@@ -8,7 +8,14 @@ describe('Profile', () => {
   let component: Profile;
   let fixture: ComponentFixture<Profile>;
   let logout: ReturnType<typeof vi.fn>;
-  const user = signal({ id: 'clinician-1', email: 'amina@natabridge.health', roles: [] });
+  const user = signal({
+    id: 'clinician-1',
+    firstName: 'Amina',
+    lastName: 'Bello',
+    displayName: 'Amina Bello',
+    email: 'amina@natabridge.health',
+    roles: [],
+  });
 
   beforeEach(async () => {
     sessionStorage.removeItem('dashboard_profile');
@@ -53,7 +60,7 @@ describe('Profile', () => {
 
   it('shows the verified email instead of a demo identity', () => {
     const page = fixture.nativeElement as HTMLElement;
-    expect(page.querySelector('#profile-name')?.textContent).toContain('amina@natabridge.health');
+    expect(page.querySelector('#profile-name')?.textContent).toContain('Amina Bello');
     expect((page.querySelector('#profile-email') as HTMLInputElement).readOnly).toBe(true);
   });
 

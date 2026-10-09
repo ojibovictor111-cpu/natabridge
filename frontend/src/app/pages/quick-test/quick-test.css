@@ -5,7 +5,16 @@
 
 .quick-assessment-page {
   min-height: 100dvh;
-  background: var(--dashboard-canvas, #f7f8fa);
+  background-color: var(--dashboard-canvas, #f7f8fa);
+  background-image:
+    linear-gradient(
+      rgba(from var(--dashboard-canvas, #f7f8fa) r g b / 0.8),
+      rgba(from var(--dashboard-canvas, #f7f8fa) r g b / 0.8)
+    ),
+    url('/logo.webp');
+  background-position: center, center 40%;
+  background-repeat: no-repeat, no-repeat;
+  background-size: cover, 20%;
   color: var(--dashboard-text, #111827);
   font-family: var(--dashboard-font, 'DM Sans', sans-serif);
 }

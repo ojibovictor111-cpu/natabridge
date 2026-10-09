@@ -9,7 +9,7 @@
         closeMobileSidebarOnClick
         aria-label="NataBridge dashboard overview"
       >
-        <img class="size-8 rounded-md" src="/logo.webp" alt="" />
+        <img class="w-10 rounded-md" src="/logo.webp" alt="" />
         <span class="grid min-w-0 text-left leading-tight group-data-[collapsible=icon]:hidden">
           <strong class="truncate text-sm font-semibold">NataBridge</strong>
           <small class="truncate text-xs text-muted-foreground">Maternal Health AI</small>
@@ -139,7 +139,7 @@
           <span hlmAvatarFallback>{{ initials() }}</span>
         </hlm-avatar>
         <span class="grid min-w-0 text-left leading-tight group-data-[collapsible=icon]:hidden">
-          <strong class="truncate text-xs font-medium">{{ clinician()?.email }}</strong>
+          <strong class="truncate text-xs font-medium">{{ displayName() }}</strong>
           <small class="truncate text-xs text-muted-foreground">{{ roleLabel() }}</small>
         </span>
       </a>

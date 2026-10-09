@@ -65,6 +65,9 @@ describe('AuthService', () => {
     request!.flush({
       data: {
         id: 'user-1',
+        firstName: 'Evans',
+        lastName: 'Nath',
+        displayName: 'Evans Nath',
         email: 'user@example.com',
         roles: [],
       },
@@ -72,5 +75,6 @@ describe('AuthService', () => {
 
     await expect(session).resolves.toBe(true);
     expect(firebaseUser.getIdToken).toHaveBeenCalledOnce();
+    expect(service.user()?.displayName).toBe('Evans Nath');
   });
 });

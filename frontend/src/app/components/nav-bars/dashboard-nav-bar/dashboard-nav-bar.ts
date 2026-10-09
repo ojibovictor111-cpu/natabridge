@@ -46,7 +46,18 @@ export class DashboardNavBar {
         .filter((institutionId): institutionId is string => Boolean(institutionId)),
     ),
   ]);
-  readonly initials = computed(() => this.clinician()?.email.slice(0, 2).toUpperCase() ?? 'C');
+  readonly displayName = computed(() => {
+    const clinician = this.clinician();
+
+    return clinician?.displayName.trim() || clinician?.email || 'Clinician';
+  });
+  readonly initials = computed(() =>
+    this.displayName()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join(''),
+  );
   readonly canViewOverview = computed(() =>
     this.authService.hasAnyPermission([
       ...ACCESS.clinical.assessments.list,

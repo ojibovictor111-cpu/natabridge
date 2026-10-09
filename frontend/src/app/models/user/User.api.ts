@@ -10,6 +10,9 @@ export interface UserRoleApi {
 
 interface UserApi {
   id: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
   email: string;
   roles: UserRoleApi[];
 }

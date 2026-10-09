@@ -131,7 +131,7 @@ export class Profile {
   private readStoredProfile(): ProfileData {
     const user = this.authService.user();
     const profile: ProfileData = {
-      fullName: '',
+      fullName: user?.displayName.trim() || '',
       email: user?.email ?? '',
       phone: '',
       role: this.authService.roleLabels().join(', ') || 'User',
